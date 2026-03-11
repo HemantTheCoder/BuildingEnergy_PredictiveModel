@@ -1,8 +1,24 @@
 id,name,component_type,u_value,conductivity,density,specific_heat,thickness,source_citation,official_ref,source_url,shgc
-wall_aac_block,AAC Block Wall (200mm),wall,0.81,0.16,600.0,1000,200,"BMTPC Thermal Properties Guide v1.0, Table 4.2",BEE ECBC 2017 Appendix A,https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf,
-wall_burnt_clay_brick,Burnt Clay Brick Wall (230mm),wall,2.1,0.81,1800.0,880,230,"BMTPC Thermal Properties Guide v1.0, Table 1.1",CPWD Analysis of Rates 2021,https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf,
-wall_insulated_brick,Insulated Brick Wall (230mm + 50mm EPS),wall,0.45,0.035,25.0,1200,280,BEE Design Guide for Energy Efficient Buildings,ECBC+ Compliance Standard,https://beeindia.gov.in/en/programmes/energy-conservation-building-code-ecbc,
-roof_rcc_slab,RCC Slab (150mm),roof,3.1,1.58,2400.0,880,150,"BMTPC Thermal Properties Guide v1.0, Table 3.5",IS 456:2000 Plain and Reinforced Concrete,https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf,
-roof_insulated_rcc,Insulated RCC Slab (150mm + 75mm XPS),roof,0.35,0.03,35.0,1400,225,BEE User Guide for ECBC 2017,Super ECBC Compliance Standard,https://beeindia.gov.in/en/programmes/energy-conservation-building-code-ecbc,
-glass_single_clear,Single Clear Glass (6mm),glazing,5.8,1.0,2500.0,840,6,Saint-Gobain India Product Catalog 2023,IGDB v35.0 Standard,https://in.saint-gobain-glass.com/,0.82
-glass_double_lowe,Double Glazed Low-E (6/12/6),glazing,1.8,0.024,1.2,1000,24,Saint-Gobain India Product Catalog 2023,IGDB v35.0 Standard,https://in.saint-gobain-glass.com/,0.4
+wall_aac_block,AAC Block Wall (200mm),wall,0.81,0.16,600.0,1000,200,BMTPC Thermal Properties Guide v1.0,BEE ECBC 2017 App A,https://www.bmtpc.org/,
+wall_burnt_clay_brick,Burnt Clay Brick Wall (230mm),wall,2.1,0.81,1800.0,880,230,BMTPC Thermal Properties Guide v1.0,CPWD Rates 2021,https://www.bmtpc.org/,
+wall_insulated_brick,Insulated Brick Wall (230mm + 50mm EPS),wall,0.45,0.035,25.0,1200,280,BEE Design Guide,ECBC+ Standard,https://beeindia.gov.in/,
+wall_fly_ash_brick,Fly Ash Brick Wall (230mm),wall,1.4,0.5,1700.0,900,230,BMTPC Table 2.1,Green Building Code IND,https://www.bmtpc.org/,
+wall_laterite_stone,Laterite Stone Masonry (300mm),wall,1.8,0.7,1600.0,850,300,BMTPC Traditional Materials v1.0,Vernacular Building Standards,https://www.bmtpc.org/,
+wall_granite_cladding,RCC + Granite Cladding (150mm + 30mm),wall,2.8,2.5,2600.0,800,180,IS 1123:1998,CPWD Specs 2019,https://cpwd.gov.in/,
+wall_earth_rammed,Rammed Earth Wall (450mm),wall,1.0,0.6,1900.0,1100,450,UNESCO Chair Earth Architecture,IGBC Green Homes,http://earth-auroville.com/,
+wall_clc_block,Cellular Light Concrete (CLC) (200mm),wall,0.6,0.12,800.0,1000,200,BMTPC Table 4.3,BEE ECBC 2017,https://www.bmtpc.org/,
+wall_timber_stud,Timber Stud Wall (150mm + Fiber Insulation),wall,0.35,0.04,500.0,1400,150,IS 3629:1986 Structural Timber,ECBC User Guide,https://bis.gov.in/,
+wall_ferro_cement,Ferro-Cement Panel (50mm),wall,3.2,1.0,2400.0,880,50,HUDCO Prefab Systems,CPWD Low Cost Housing,https://hudco.org/,
+roof_rcc_slab,RCC Slab (150mm),roof,3.1,1.58,2400.0,880,150,BMTPC Table 3.5,IS 456:2000,https://www.bmtpc.org/,
+roof_insulated_rcc,Insulated RCC Slab (150mm + 75mm XPS),roof,0.35,0.03,35.0,1400,225,BEE Guide ECBC 2017,Super ECBC Standard,https://beeindia.gov.in/,
+roof_micro_tile,Micro Concrete Roofing (MCR) Tiles,roof,2.8,1.1,2000.0,900,20,TARU Leading Edge Research,BMTPC Approved Formwork,https://www.bmtpc.org/,
+roof_metal_deck,Metal Deck Roof (100mm + PUF),roof,0.22,0.022,40.0,1500,100,Tata BlueScope Product Catalog,BEE Performance Rating,https://tatabluescopesteel.com/,
+roof_inverted_pots,Inverted Earthen Pots (Kullad) Insulation,roof,1.2,0.6,1400.0,1200,250,NIUA Sustainable Cities Guide,Vernacular Passive Cooling,https://niua.in/,
+roof_mangalore_tile,Mangalore Tiles with Timber Deck,roof,2.4,0.8,1800.0,800,40,BMTPC Table 3.1,South India Trad Specs,https://www.bmtpc.org/,
+roof_white_reflective,Cool Roof (White Reflective Coating),roof,2.8,1.4,2300.0,850,155,CRRC Approved Coatings,TS Cool Roof Policy,https://coolroofs.org/,
+glass_single_clear,Single Clear Glass (6mm),glazing,5.8,1.0,2500.0,840,6,Saint-Gobain India 2023,IGDB v35.0,https://in.saint-gobain-glass.com/,0.82
+glass_double_lowe,Double Glazed Low-E (6/12/6),glazing,1.8,0.024,1.2,1000,24,Saint-Gobain India 2023,IGDB v35.0,https://in.saint-gobain-glass.com/,0.4
+glass_double_tinted,Double Glazed Tinted (Green/Bronze),glazing,2.8,0.03,2500.0,840,24,Saint-Gobain India 2023,BEE ECBC Standard,https://in.saint-gobain-glass.com/,0.35
+glass_reflective,Reflective High Performance (ST 167),glazing,1.6,0.02,2500.0,840,24,Saint-Gobain SGG Cool-Lite,Super ECBC Compliant,https://in.saint-gobain-glass.com/,0.22
+glass_triple_argon,Triple Glazed Argon Filled (6/12/6/12/6),glazing,0.8,0.016,2.5,1000,42,Saint-Gobain Advanced Optics,Zero Energy Building IND,https://in.saint-gobain-glass.com/,0.3
+glass_polycarb,Multiwall Polycarbonate Sheet (16mm),glazing,2.1,0.2,1200.0,1200,16,Lexan Product Datasheet,CPWD Skylight Specs,https://www.sabic.com/,0.6

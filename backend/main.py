@@ -53,15 +53,30 @@ async def get_materials():
 
 @app.get("/cities")
 async def get_cities():
-    # A curated list of major Indian cities for the MVP
+    # expanded list of 100+ major and tier-2 Indian cities
     cities = [
-        "Mumbai, India", "Delhi, India", "Bangalore, India", "Hyderabad, India", 
-        "Ahmedabad, India", "Chennai, India", "Kolkata, India", "Surat, India", 
-        "Pune, India", "Jaipur, India", "Lucknow, India", "Kanpur, India", 
-        "Nagpur, India", "Indore, India", "Thane, India", "Bhopal, India", 
-        "Visakhapatnam, India", "Pimpri-Chinchwad, India", "Patna, India", "Vadodara, India"
+        "Mumbai, India", "Delhi, India", "Bangalore, India", "Hyderabad, India", "Ahmedabad, India", 
+        "Chennai, India", "Kolkata, India", "Surat, India", "Pune, India", "Jaipur, India", 
+        "Lucknow, India", "Kanpur, India", "Nagpur, India", "Indore, India", "Thane, India", 
+        "Bhopal, India", "Visakhapatnam, India", "Pimpri-Chinchwad, India", "Patna, India", "Vadodara, India",
+        "Ghaziabad, India", "Ludhiana, India", "Coimbatore, India", "Agra, India", "Madurai, India", 
+        "Nashik, India", "Faridabad, India", "Meerut, India", "Rajkot, India", "Kalyan-Dombivli, India", 
+        "Vasai-Virar, India", "Varanasi, India", "Srinagar, India", "Aurangabad, India", "Dhanbad, India", 
+        "Amritsar, India", "Navi Mumbai, India", "Allahabad, India", "Ranchi, India", "Howrah, India", 
+        "Jabalpur, India", "Gwalior, India", "Vijayawada, India", "Jodhpur, India", "Raipur, India", 
+        "Kota, India", "Guwahati, India", "Chandigarh, India", "Solapur, India", "Hubli-Dharwad, India", 
+        "Bareilly, India", "Moradabad, India", "Mysore, India", "Gurgaon, India", "Aligarh, India", 
+        "Jalandhar, India", "Tiruchirappalli, India", "Bhubaneswar, India", "Salem, India", "Warangal, India", 
+        "Mira-Bhayandar, India", "Thiruvananthapuram, India", "Bhiwandi, India", "Saharanpur, India", "Guntur, India", 
+        "Amravati, India", "Bikaner, India", "Noida, India", "Jamshedpur, India", "Bhilai, India", 
+        "Cuttack, India", "Firozabad, India", "Kochi, India", "Nellore, India", "Bhavnagar, India", 
+        "Dehradun, India", "Durgapur, India", "Asansol, India", "Rourkela, India", "Nanded, India", 
+        "Kolhapur, India", "Ajmer, India", "Akola, India", "Gulbarga, India", "Jamnagar, India", 
+        "Ujjain, India", "Loni, India", "Siliguri, India", "Jhansi, India", "Ulhasnagar, India", 
+        "Nellore, India", "Jammu, India", "Shimla, India", "Leh, India", "Manali, India", 
+        "Gangtok, India", "Itanagar, India", "Kohima, India", "Imphal, India", "Aizawl, India"
     ]
-    return cities
+    return sorted(cities)
 
 @app.get("/fetch_climate")
 async def get_climate(city: str):
@@ -96,20 +111,27 @@ async def predict(request: PredictRequest):
     hvac_cop = cop_map.get(request.hvac_type, 3.0)
     
     # Find material properties (default or overrides)
-    def get_material_data(comp_type, name_override=None):
+    def get_material_data(comp_type, name_override=None, climate_data=None):
         if name_override:
             match = materials_df[materials_df['name'] == name_override]
             if not match.empty:
                 return match.iloc[0].to_dict()
         
-        # Default fallback
-        defaults = {"wall": "Burnt Clay Brick Wall (230mm)", "roof": "RCC Slab (150mm)", "glazing": "Single Clear Glass (6mm)"}
+        # Adaptive Default Fallback based on Climate Zone
+        # ECBC Climate Zones: Cold (HDD high), Hot-Dry (CDD high, Solrad high), Warm-Humid (CDD mid, Humid), etc.
+        is_cold = climate_data and climate_data.get('hdd', 0) > 1000
+        
+        defaults = {
+            "wall": "AAC Block Wall (200mm)" if not is_cold else "Insulated Brick Wall (230mm + 50mm EPS)",
+            "roof": "RCC Slab (150mm)" if not is_cold else "Insulated RCC Slab (150mm + 75mm XPS)", 
+            "glazing": "Single Clear Glass (6mm)" if not is_cold else "Double Glazed Low-E (6/12/6)"
+        }
         match = materials_df[materials_df['name'] == defaults[comp_type]]
         return match.iloc[0].to_dict()
 
-    wall_data = get_material_data("wall", request.material_overrides.get("wall") if request.material_overrides else None)
-    roof_data = get_material_data("roof", request.material_overrides.get("roof") if request.material_overrides else None)
-    glazing_data = get_material_data("glazing", request.material_overrides.get("glazing") if request.material_overrides else None)
+    wall_data = get_material_data("wall", request.material_overrides.get("wall") if request.material_overrides else None, climate)
+    roof_data = get_material_data("roof", request.material_overrides.get("roof") if request.material_overrides else None, climate)
+    glazing_data = get_material_data("glazing", request.material_overrides.get("glazing") if request.material_overrides else None, climate)
 
     # Apply direct property overrides if provided (Custom Inputs)
     u_wall = request.property_overrides.get("u_wall") if request.property_overrides and "u_wall" in request.property_overrides else wall_data['u_value']
