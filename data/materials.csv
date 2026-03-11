@@ -1,0 +1,8 @@
+id,name,component_type,u_value,conductivity,density,specific_heat,thickness,source_citation,official_ref,source_url,shgc
+wall_aac_block,AAC Block Wall (200mm),wall,0.81,0.16,600.0,1000,200,"BMTPC Thermal Properties Guide v1.0, Table 4.2",BEE ECBC 2017 Appendix A,https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf,
+wall_burnt_clay_brick,Burnt Clay Brick Wall (230mm),wall,2.1,0.81,1800.0,880,230,"BMTPC Thermal Properties Guide v1.0, Table 1.1",CPWD Analysis of Rates 2021,https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf,
+wall_insulated_brick,Insulated Brick Wall (230mm + 50mm EPS),wall,0.45,0.035,25.0,1200,280,BEE Design Guide for Energy Efficient Buildings,ECBC+ Compliance Standard,https://beeindia.gov.in/en/programmes/energy-conservation-building-code-ecbc,
+roof_rcc_slab,RCC Slab (150mm),roof,3.1,1.58,2400.0,880,150,"BMTPC Thermal Properties Guide v1.0, Table 3.5",IS 456:2000 Plain and Reinforced Concrete,https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf,
+roof_insulated_rcc,Insulated RCC Slab (150mm + 75mm XPS),roof,0.35,0.03,35.0,1400,225,BEE User Guide for ECBC 2017,Super ECBC Compliance Standard,https://beeindia.gov.in/en/programmes/energy-conservation-building-code-ecbc,
+glass_single_clear,Single Clear Glass (6mm),glazing,5.8,1.0,2500.0,840,6,Saint-Gobain India Product Catalog 2023,IGDB v35.0 Standard,https://in.saint-gobain-glass.com/,0.82
+glass_double_lowe,Double Glazed Low-E (6/12/6),glazing,1.8,0.024,1.2,1000,24,Saint-Gobain India Product Catalog 2023,IGDB v35.0 Standard,https://in.saint-gobain-glass.com/,0.4

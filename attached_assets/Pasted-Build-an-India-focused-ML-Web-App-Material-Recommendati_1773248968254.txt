@@ -1,0 +1,291 @@
+Build an India-focused ML Web App: Material Recommendation for Low-EUI Buildings
+
+Project Title: Climate-aware Material Recommendation & EUI Predictor (India MVP)
+
+High-level goal:
+Build a small web app that predicts building energy use intensity (EUI, kWh/m²·yr) for a user-specified city and building archetype and recommends material choices (wall, roof, glazing assemblies) that minimize predicted EUI. The system must auto-fetch climate data, use India-focused material properties / catalogs, allow custom inputs, show accuracy metrics and explainability (feature importance, SHAP), and deliver a polished front-end demo for a conference poster.
+
+1) MVP scope (must-have for conference)
+
+Data ingestion pipeline that pulls:
+
+climate/time-series and design climate metrics for any chosen Indian city (auto).
+
+material property tables focused on India (BMTPC, CPWD, manufacturer catalogs, Thermtest fallback).
+
+building archetype templates (office archetypes).
+
+A training dataset assembled from:
+
+public measured building datasets (BPD/CBECS) + mapped material properties, and/or
+
+synthetic parametric simulation dataset generated with EnergyPlus (archetypes × materials × climates) if direct labels unavailable.
+
+An ML model (regression) that predicts EUI given building + climate + material inputs.
+
+A material-recommendation routine that searches candidate materials for minimal predicted EUI (returns top-k options).
+
+Explainability & accuracy visuals: Pred vs Actual, residuals, SHAP summary, partial dependence, cross-validation metrics.
+
+Simple responsive UI where users choose: City, Building Type (Office), Floor Area, WWR, HVAC Type, and optional material overrides; results: predicted EUI + recommended materials + plots.
+
+Source citations page listing all data sources used.
+
+2) Data sources & APIs (primary & fallback) — India focus
+
+Climate / weather / solar data (auto-fetch):
+
+NASA POWER API — daily/monthly radiation, temperature, humidity (global, easy REST).
+Docs: https://power.larc.nasa.gov/docs/services/
+
+EnergyPlus EPW library — design/reference weather (use India EPWs).
+EPW collection: https://energyplus.net/weather
+
+Meteostat API — station historical weather (if needed). https://meteostat.net/en/api
+
+IMD / ISRO datasets (if institutional access) — mention as optional/advanced.
+
+Building energy / performance datasets:
+
+US Building Performance Database (BPD) — measured building EUI + attributes (use for model training or transfer learning). https://data.openei.org/submissions/145
+ & https://bpd.energy.gov/
+
+CBECS (EIA) — building survey microdata (useful feature templates). https://www.eia.gov/consumption/commercial/
+
+Note: If India measured building EUI datasets are unavailable, create synthetic labels via parametric EnergyPlus simulations for Indian climates (recommended).
+
+Material property / construction databases (India-focused preferred):
+
+BMTPC — Thermal properties of building materials (India technical document).
+Example: https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf
+
+Thermtest / MatWeb (global material property DBs) — fallback for material conductivity, specific heat, density. https://thermtest.com/thermal-resources/materials-database
+
+CPWD / BIS / Manufacturer catalogs — practical Indian assembly U-values and product specs (scraper or manual upload).
+
+BEE (Bureau of Energy Efficiency) databases / labeling (for HVAC / glass products) — optional.
+
+Simulation/lookup utilities:
+
+EnergyPlus (for synthetic label generation) — https://energyplus.net/
+
+eppy / pyenergyplus / honeybee/urbanfabric — Python libraries to automate parametric runs.
+
+Citations: capture and display the exact URL & retrieval date for all data used.
+
+3) Data model / schema (core tables)
+
+materials
+
+id, name, component_type (wall/roof/glass), u_value (W/m²K), shgc, conductivity (W/mK), density (kg/m³), specific_heat (J/kgK), thickness (mm), source_url, country_of_origin, cost_estimate (optional)
+
+climate
+
+city, lat, lon, tmy_id, annual_mean_temp, cdd, hdd, annual_solrad, typical_monthly_temps[], source_url
+
+building_archetype
+
+archetype_id, type (office), floor_area_m2, num_floors, WWR_default, internal_gains_Wpm2, occupancy_density, HVAC_default
+
+observations / training_rows
+
+id, source (BPD/CBECS/simulation), city, archetype_id, materials_combination_id, hvac_type, climate_id, measured_EUI_kWh_m2yr (if available), simulated_EUI_kWh_m2yr (if simulated), features_json, timestamp, source_url
+
+model_metadata
+
+model_name, version, training_data_summary, cv_metrics, features_used, preprocess_pipeline_version
+
+4) ETL & data pipeline (automation)
+
+Auto-fetch climate: user enters city → app resolves lat/lon (Geocoding) → fetch NASA POWER / Meteostat / EPW for that coordinate → compute summary climate features (CDD, HDD, mean temps, solar insolation).
+
+Auto-fetch material properties: maintain a local material DB seeded with Indian materials (BMTPC, CPWD). Also implement an optional web-scraper for manufacturer pages and a CSV upload interface for custom materials. Scraper must respect robots.txt and require manual verification.
+
+Join & feature creation: map building archetype to typical material assemblies (or accept user overrides). Compute derived features: overall U_wall, U_roof, window_u, SHGC_weighted, thermal_mass_index, ventilation_rate proxy, occupancy heat gains.
+
+Synthetic label generation (if needed): parametric runner that given an archetype + material combo + climate runs EnergyPlus (or lightweight surrogate) to produce EUI. Save outputs to training table.
+
+Data versioning: use DVC or store snapshots with timestamps and source URLs.
+
+5) Machine-learning modeling strategy
+
+Problem framing: Regression to predict EUI. Secondary: classification/ranking for recommending top-k material choices.
+
+Feature set: climate features (CDD/HDD/solarrad), building geometry (area/WWR), material properties (U, SHGC, thermal_mass), HVAC type & estimated COP, occupancy/internal gains.
+
+Models to train (parallel experiments):
+
+Gradient Boosted Trees (XGBoost / LightGBM / CatBoost) — baseline strong performer.
+
+Random Forest (robust baseline).
+
+Linear models & regularized regression (LASSO / ElasticNet) for interpretability.
+
+Neural Network / MLP (if large synthetic dataset available).
+
+Bayesian regression or quantile regression for uncertainty estimates.
+
+Multi-output model or recommender: train model to evaluate many candidate material combinations and pick min predicted EUI. Or train a model to predict EUI for each assembly and use top-k selection.
+
+Model selection & hyperparam: Use 5-fold CV, grid/random search or Optuna.
+
+Uncertainty / calibration: quantile regression, conformal prediction, or bootstrap ensembles. Provide prediction intervals on EUI.
+
+Explainability: SHAP summary + dependence plots, permutation importance, PDPs, feature correlations.
+
+6) Evaluation metrics & visuals (must deliver)
+
+Regression metrics:
+
+RMSE (kWh/m²·yr), MAE, R², MAPE.
+
+Visuals to generate:
+
+Predicted vs Observed scatter (with 1:1 line).
+
+Residual distribution (histogram).
+
+Cross-validation boxplots of RMSE across folds.
+
+SHAP summary plot (global) and SHAP dependence for top features.
+
+Partial Dependence Plots for material variables (U_wall, SHGC).
+
+Uncertainty visualization: prediction interval bands vs true values.
+
+Recommendation validation: top-k accuracy (if ground truth exists) or sanity check comparing recommended materials to literature-known low-EUI assemblies.
+
+Model card: include dataset sizes, features, CV metrics, limitations and citations.
+
+7) Web app architecture & tech stack (recommended)
+
+Frontend: React + Tailwind CSS (simple, responsive UI). Use charts with Plotly.js or Chart.js for interactive visuals.
+
+Backend: FastAPI (Python) — REST endpoints for:
+
+/predict (inputs → return prediction + recommendation + SHAP)
+
+/simulate (optional: launch EnergyPlus batch for parametric runs)
+
+/fetch_climate (resolve & fetch NASA POWER/EPW)
+
+/add_material (upload CSV/manual)
+
+/train (admin only)
+
+ML stack: Python, scikit-learn, xgboost/lightgbm, SHAP, Optuna. Use joblib or ONNX for model export.
+
+Database: Postgres (for materials, climate, metadata) + object store (S3 or local) for model artifacts, datasets.
+
+Containerization: Docker + docker-compose. Deploy on Render/Heroku/AWS/GCP.
+
+Authentication: basic for admin routes. Data privacy not heavy.
+
+8) UX / UI flows (minimal)
+
+Landing page: description + select city (autocomplete), building type (office), choose climate (auto), WWR slider, area input, HVAC dropdown.
+
+Predict: button runs /predict → shows predicted EUI, uncertainty, and top-3 recommended materials (with ΔEUI improvement vs baseline).
+
+Explain: button shows SHAP summary, dependence plots, and regression metrics (CV).
+
+Data / Sources: link to data sources and citations (auto-filled).
+
+Admin: upload materials CSV, run training jobs.
+
+9) Data privacy, licensing, & provenance
+
+Record source_url and retrieval_date for every dataset/material entry. Show in UI.
+
+Respect manufacturer copyright for scraped catalogs; prefer manual ingest or user-uploaded CSVs for proprietary spec sheets.
+
+Prefer open datasets (BPD, CBECS, NASA POWER). Cite each source on About page.
+
+10) Project milestones & timeline (very tight, conference MVP)
+
+Day 0–1: seed material DB (BMTPC + Thermtest fallback CSV), implement climate fetch (NASA POWER), set up skeleton front/back.
+
+Day 2: assemble training dataset (join BPD/CBECS + map materials) or run small set of EnergyPlus parametric sims for 100–500 cases (if compute allowed).
+
+Day 3: train baseline XGBoost + RF, compute CV metrics, generate SHAP plots, implement recommendation routine.
+
+Day 4: build frontend UI, integrate backend endpoints, produce visuals and poster screenshots, finalize submission docs.
+
+(Adjust given available compute and team size — simulations take time.)
+
+11) Deliverables (for conference)
+
+Working prototype web demo (hosted or local runnable docker).
+
+Trained model artifacts + model card.
+
+Dataset & material DB snapshot (with citations).
+
+Key visuals (Pred vs Obs, SHAP, PDP, recommended material table).
+
+Poster text + UI screenshots.
+
+Short README with build/run instructions.
+
+12) Optional advanced features (stretch)
+
+Multi-objective recommender (minimize EUI + cost).
+
+Integration of embodied carbon dataset and suggest low-carbon materials.
+
+Time-series forecasting for monthly loads (instead of annual EUI).
+
+Online retraining from user feedback (if deployed).
+
+13) Example API & implementation notes (mini-spec)
+
+/predict (POST)
+Request JSON:
+
+{
+  "city": "Ahmedabad, IN",
+  "lat": 23.0225,
+  "lon": 72.5714,
+  "archetype": "office_small",
+  "floor_area_m2": 1200,
+  "wwr": 0.35,
+  "hvac_type": "VAV",
+  "material_overrides": {
+     "wall": "AAC+50mm_insulation",
+     "roof": "insulated_RCC",
+     "glazing": "double_lowE"
+  }
+}
+
+Response JSON:
+
+{
+  "predicted_eui": 118.4,
+  "prediction_interval": [100.2, 136.6],
+  "top_material_recommendations": [
+     {"wall": "AAC+ins", "roof": "...", "glazing":"...", "predicted_eui": 102.3},
+     {"wall": "...", ...}
+  ],
+  "shap_summary": {"feature": "u_wall", "impact": 0.32},
+  "cv_metrics": {"rmse": 12.3, "r2": 0.71 }
+}
+14) Citations & starting links (put in project README)
+
+BMTPC: https://www.bmtpc.org/DataFiles/CMS/file/PDF_Files/ThermalProperitiesOfBldg_Material_Tech_v1.pdf
+
+Thermtest materials DB: https://thermtest.com/thermal-resources/materials-database
+
+NASA POWER API docs: https://power.larc.nasa.gov/docs/services/
+
+EnergyPlus weather files: https://energyplus.net/weather
+
+Building Performance Database (US): https://bpd.energy.gov/
+ & https://data.openei.org/submissions/145
+
+CBECS: https://www.eia.gov/consumption/commercial/
+
+(Include exact retrieval dates in your README.)
+
+15) Final developer prompt (pasteable short form)
+
+Build an India-focused Material Recommendation & EUI Predictor web app. It must auto-fetch climate for a user city (NASA POWER / EPW), load a seeded India materials DB (BMTPC + Thermtest), assemble building features (archetypes + user inputs), and train an ML regression model (XGBoost/RF) to predict annual EUI. Provide a routine that evaluates candidate material combinations and returns top-k lowest predicted EUI combos. Expose REST API endpoints (/predict, /train, /fetch_climate, /add_material). Produce explainability visuals (SHAP summary + PDPs) and regression metrics (RMSE, MAE, R²). Deliver a small React+Tailwind frontend with input form and results dashboard and a README with dataset provenance, model card, and deployment instructions. Use EnergyPlus parametric simulation for synthetic label generation if measured labels unavailable. Use docker for packaging. Cite all data sources in the UI and README.
