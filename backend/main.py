@@ -13,9 +13,10 @@ app = FastAPI(title="Climate-aware Material Recommendation & EUI Predictor")
 fetcher = ClimateFetcher()
 engine = MLEngine()
 
-# Ensure model is trained on startup
-if not os.path.exists("data/model.joblib"):
-    engine.train()
+# Ensure models are trained/loaded on startup
+engine.load_models()
+if not any(engine.models.values()):
+    engine.train_all()
 
 # Enable CORS
 app.add_middleware(
@@ -32,9 +33,11 @@ class PredictRequest(BaseModel):
     floor_area_m2: float
     wwr: float
     hvac_type: str
+    orientation: Optional[str] = "South"
     material_overrides: Optional[Dict[str, str]] = None
     property_overrides: Optional[Dict[str, float]] = None
     climate_overrides: Optional[Dict[str, float]] = None
+    model_type: Optional[str] = "XGBoost"
 
 @app.get("/")
 async def root():
@@ -73,10 +76,16 @@ async def get_cities():
         "Dehradun, India", "Durgapur, India", "Asansol, India", "Rourkela, India", "Nanded, India", 
         "Kolhapur, India", "Ajmer, India", "Akola, India", "Gulbarga, India", "Jamnagar, India", 
         "Ujjain, India", "Loni, India", "Siliguri, India", "Jhansi, India", "Ulhasnagar, India", 
-        "Nellore, India", "Jammu, India", "Shimla, India", "Leh, India", "Manali, India", 
         "Gangtok, India", "Itanagar, India", "Kohima, India", "Imphal, India", "Aizawl, India"
     ]
     return sorted(cities)
+
+@app.get("/models")
+async def get_models():
+    return {
+        "available_models": list(engine.models.keys()),
+        "metrics": engine.metrics
+    }
 
 @app.get("/fetch_climate")
 async def get_climate(city: str):
@@ -98,6 +107,14 @@ async def predict(request: PredictRequest):
         if not lat:
             raise HTTPException(status_code=404, detail="City not found")
         climate = fetcher.fetch_climate_data(lat, lon)
+        if not climate:
+             # Fallback to a generic climate if API fails
+             climate = {
+                 "cdd": 2500,
+                 "hdd": 100,
+                 "annual_solrad": 5.5,
+                 "source": "Fallback (API Timeout)"
+             }
     
     # 2. Get Materials
     if not os.path.exists("data/materials.csv"):
@@ -113,14 +130,21 @@ async def predict(request: PredictRequest):
     # Find material properties (default or overrides)
     def get_material_data(comp_type, name_override=None, climate_data=None):
         if name_override:
+            if name_override.startswith("Custom:"):
+                return {
+                    "name": name_override,
+                    "u_value": 0.0, # Will be overridden by property_overrides
+                    "shgc": 0.0,
+                    "source_citation": "User Defined",
+                    "official_ref": "Material Library",
+                    "source_url": None
+                }
             match = materials_df[materials_df['name'] == name_override]
             if not match.empty:
                 return match.iloc[0].to_dict()
         
         # Adaptive Default Fallback based on Climate Zone
-        # ECBC Climate Zones: Cold (HDD high), Hot-Dry (CDD high, Solrad high), Warm-Humid (CDD mid, Humid), etc.
         is_cold = climate_data and climate_data.get('hdd', 0) > 1000
-        
         defaults = {
             "wall": "AAC Block Wall (200mm)" if not is_cold else "Insulated Brick Wall (230mm + 50mm EPS)",
             "roof": "RCC Slab (150mm)" if not is_cold else "Insulated RCC Slab (150mm + 75mm XPS)", 
@@ -153,14 +177,15 @@ async def predict(request: PredictRequest):
     }
     
     # 4. Predict
-    prediction = engine.predict(input_data)
+    prediction = engine.predict(input_data, orientation=request.orientation, model_type=request.model_type)
     
     # 5. Recommend
-    recommendations = engine.recommend_materials(input_data, materials_df)
+    recommendations = engine.recommend_materials(input_data, materials_df, orientation=request.orientation, model_type=request.model_type)
     
     return {
         "predicted_eui": prediction['predicted_eui'],
         "shap_values": prediction['shap_values'],
+        "adjusted_solrad": prediction.get('adjusted_solrad'),
         "top_material_recommendations": recommendations,
         "climate_summary": climate,
         "material_sources": {

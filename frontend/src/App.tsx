@@ -17,13 +17,14 @@ import ResultsDashboard from './components/ResultsDashboard';
 import MaterialLibrary from './components/MaterialLibrary';
 import ModelIntelligence from './components/ModelIntelligence';
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "http://127.0.0.1:8000";
 
 export default function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [materials, setMaterials] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'simulator' | 'materials' | 'intelligence'>('simulator');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     axios.get(`${API_BASE}/materials`).then(res => setMaterials(res.data)).catch(console.error);
@@ -31,11 +32,13 @@ export default function App() {
 
   const handlePredict = async (formData: any) => {
     setLoading(true);
+    setError(null);
     try {
       const response = await axios.post(`${API_BASE}/predict`, formData);
       setResults(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Prediction failed", error);
+      setError(error.response?.data?.detail || "Connection failed. Please ensure the backend server is running.");
     } finally {
       setLoading(false);
     }
@@ -59,10 +62,10 @@ export default function App() {
               <Zap className="w-8 h-8 text-black" fill="currentColor" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-2xl tracking-tighter leading-none flex items-center gap-2">
+              <span className="font-bold text-xl tracking-tighter leading-none flex items-center gap-2">
                 ECOSTRUCTURE <span className="text-white/20 font-light translate-y-[2px]">|</span> <span className="text-primary italic font-black">AI</span>
               </span>
-              <span className="text-[10px] font-black tracking-[0.5em] text-white/30 uppercase mt-2">Sustainable Systems MVP</span>
+              <span className="text-[9px] font-black tracking-[0.4em] text-white/30 uppercase mt-1">Sustainable Systems</span>
             </div>
           </div>
 
@@ -90,7 +93,7 @@ export default function App() {
         </div>
       </nav>
 
-      <main className="pt-44 pb-32 px-8 max-w-[1500px] mx-auto w-full flex-grow">
+      <main className="pt-32 pb-16 px-8 max-w-[1600px] mx-auto w-full flex-grow">
         <AnimatePresence mode="wait">
           {activeTab === 'simulator' && (
             <motion.div
@@ -98,33 +101,42 @@ export default function App() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-20"
+              className="grid grid-cols-1 lg:grid-cols-12 gap-10"
             >
-              <section className="lg:col-span-5 space-y-16">
-                <div className="space-y-8 page-enter">
+              <section className="lg:col-span-4 space-y-12">
+                <div className="space-y-6 page-enter">
                   <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/5 border border-primary/10">
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/80">Active Simulation Engine v4.0</span>
                   </div>
 
-                  <h1 className="text-7xl font-bold tracking-tighter leading-[0.85] text-white">
+                  <h1 className="text-5xl font-bold tracking-tighter leading-[0.9] text-white">
                     Designing <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">Tomorrow's</span> <br />
-                    Efficiency.
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">Tomorrow's</span> Efficiency.
                   </h1>
 
-                  <p className="text-xl text-white/40 font-medium leading-relaxed max-w-lg">
-                    Precision EUI forecasting for Indian climates, powered by NASA meteorological data and BMTPC material standards.
+                  <p className="text-lg text-white/40 font-medium leading-relaxed max-w-md">
+                    Precision EUI forecasting for Indian climates, powered by NASA and BMTPC.
                   </p>
                 </div>
 
                 <div className="relative">
                   <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-5xl blur-2xl opacity-20 -z-10" />
                   <InputForm onPredict={handlePredict} loading={loading} />
+                  
+                  {error && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold text-center"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
                 </div>
               </section>
 
-              <section className="lg:col-span-7">
+              <section className="lg:col-span-8">
                 {results ? (
                   <ResultsDashboard results={results} />
                 ) : (
