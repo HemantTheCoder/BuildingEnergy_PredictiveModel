@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity } from 'lucide-react';
 import axios from 'axios';
 import { cn } from '../lib/utils';
@@ -85,7 +85,7 @@ export default function InputForm({ onPredict, loading }: any) {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         onPredict({
             ...formData,
