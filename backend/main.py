@@ -122,9 +122,13 @@ async def predict(request: PredictRequest):
          seed_materials()
     materials_df = pd.read_csv("data/materials.csv")
     
-    # 3. Prepare Base Features
-    # Note: Simplified HVAC COP mapping
-    cop_map = {"VAV": 3.0, "Split AC": 2.8, "Variable Refrigerant Flow (VRF)": 3.8}
+    # Updated HVAC COP mapping for Indian Context
+    cop_map = {
+        "Split/Window AC": 2.8,  # Typical DX systems
+        "Central Chiller (VAV)": 3.2, # Large commercial installations
+        "Variable Refrigerant Flow (VRF)": 3.8, # High efficiency multizone
+        "Evaporative Cooler": 8.0  # High 'apparent' COP but constrained by humidity
+    }
     hvac_cop = cop_map.get(request.hvac_type, 3.0)
     
     # Find material properties (default or overrides)
@@ -186,6 +190,7 @@ async def predict(request: PredictRequest):
         "predicted_eui": prediction['predicted_eui'],
         "shap_values": prediction['shap_values'],
         "adjusted_solrad": prediction.get('adjusted_solrad'),
+        "model_metrics": prediction.get('model_metrics', {}),
         "top_material_recommendations": recommendations,
         "climate_summary": climate,
         "material_sources": {

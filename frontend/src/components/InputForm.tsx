@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity } from 'lucide-react';
+import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity, Info } from 'lucide-react';
 import api from '../lib/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -214,7 +214,7 @@ export default function InputForm({ onPredict, loading }: any) {
                             onChange={(e) => setFormData({ ...formData, model_type: e.target.value })}
                         >
                             {modelInfo.available_models.map(m => (
-                                <option key={m} value={m}>{m} ({((modelInfo.metrics[m]?.r2 || 0) * 100).toFixed(1)}% Acc.)</option>
+                                <option key={m} value={m}>{m} Architecture</option>
                             ))}
                         </select>
                     </div>
@@ -226,9 +226,10 @@ export default function InputForm({ onPredict, loading }: any) {
                             value={formData.hvac_type}
                             onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
                         >
-                            <option value="VAV">Pneumatic VAV</option>
-                            <option value="Split AC">Direct Expansion (DX)</option>
+                            <option value="Split/Window AC">Split / Window AC (Typical India)</option>
+                            <option value="Central Chiller (VAV)">Central Chiller (VAV)</option>
                             <option value="Variable Refrigerant Flow (VRF)">Advanced VRF</option>
+                            <option value="Evaporative Cooler">Evaporative (Desert) Cooler</option>
                         </select>
                     </div>
                 </div>
@@ -491,12 +492,34 @@ export default function InputForm({ onPredict, loading }: any) {
     );
 }
 
+function Definition({ text }: { text: string }) {
+    return (
+        <div className="group/def relative inline-block ml-2 cursor-help">
+            <Info className="w-2.5 h-2.5 text-white/20 group-hover/def:text-primary transition-colors" />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 rounded-xl bg-black/90 border border-white/10 backdrop-blur-xl opacity-0 group-hover/def:opacity-100 pointer-events-none transition-all z-50 text-[10px] font-medium leading-relaxed text-white/60 shadow-2xl">
+                {text}
+            </div>
+        </div>
+    );
+}
+
 function ClimateField({ icon, label, value, onChange }: any) {
+    const definitions: Record<string, string> = {
+        "CDD": "Cooling Degree Days: Sum of degrees that the average temperature is above 18°C. Higher means more cooling needed.",
+        "HDD": "Heating Degree Days: Sum of degrees below 18°C. Common in North Indian winters.",
+        "SOLRAD": "Solar Radiation: Average daily solar energy received per square meter.",
+        "Wall U-Value": "Measures heat transfer through walls. Lower is better for insulation.",
+        "Roof U-Value": "Heat transfer through roof. Critical for top-floor cooling loads.",
+        "Glass U-Value": "Insulating value of windows.",
+        "Glass SHGC": "Solar Heat Gain Coefficient: Ratio of solar heat that passes through the glass."
+    };
+
     return (
         <div className="space-y-2 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
             <div className="flex items-center gap-2">
                 {icon}
                 <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">{label}</span>
+                {definitions[label] && <Definition text={definitions[label]} />}
             </div>
             <input
                 type="number"
