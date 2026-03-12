@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Database, Layers, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';

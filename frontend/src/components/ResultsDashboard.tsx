@@ -7,8 +7,6 @@ import {
     ShieldCheck,
     Layers,
     ArrowUpRight,
-    Sparkles,
-    Globe,
     Info,
     CheckCircle2
 } from 'lucide-react';
