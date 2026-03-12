@@ -2,9 +2,20 @@
 
 To make your application accessible for the conference and beyond, you can deploy it using several modern platforms. Since your app has a **FastAPI (Python) Backend** and a **React (Vite) Frontend**, here are the best options.
 
-## 1. Fast & Free (Recommended for Conference)
+## Special Note: Can I deploy everything on Vercel?
 
-### Frontend: [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/)
+Technically **possible**, but **not recommended** for this specific project. Here's why:
+- **ML Heavy**: Python libraries like `xgboost`, `pandas`, and `scikit-learn` are heavy. Vercel's Serverless Functions have strict size and memory limits that these packages often exceed.
+- **Cold Starts**: ML models take 1-2 seconds to load into memory. On Vercel, this happens every time the function "wakes up", leading to a slow user experience.
+- **Timeouts**: Energy simulations can take several seconds, which might trigger Vercel's execution time limits (10s on free tier).
+
+### Recommended Alternatives:
+1. **The Pro Split (Best Performance)**: Frontend on **Vercel**, Backend on **Railway**. This gives you a fast UI and a robust, persistent ML server.
+2. **The "Everything in One Place" (Easiest)**: Deploy both on **Railway**. Railway allows you to have two services in one project—one for the frontend and one for the backend.
+
+---
+
+## 1. The Pro Split (Vercel + Railway)
 
 - **Cost**: Free Tier available.
 - **Why**: Extremely fast global CDN, perfect for showing the UI.
