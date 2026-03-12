@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api, { API_BASE } from './lib/api';
 import {
   Zap,
   Globe,
@@ -17,7 +17,6 @@ import ResultsDashboard from './components/ResultsDashboard';
 import MaterialLibrary from './components/MaterialLibrary';
 import ModelIntelligence from './components/ModelIntelligence';
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 export default function App() {
   const [loading, setLoading] = useState(false);
@@ -27,18 +26,18 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    axios.get(`${API_BASE}/materials`).then(res => setMaterials(res.data)).catch(console.error);
+    api.get(`/materials`).then(res => setMaterials(res.data)).catch(console.error);
   }, []);
 
   const handlePredict = async (formData: any) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(`${API_BASE}/predict`, formData);
+      const response = await api.post(`/predict`, formData);
       setResults(response.data);
     } catch (error: any) {
       console.error("Prediction failed", error);
-      setError(error.response?.data?.detail || "Connection failed. Please ensure the backend server is running.");
+      setError(error.response?.data?.detail || `Connection failed to ${API_BASE}. Please ensure your VERCEL environment variable VITE_API_URL is set correctly.`);
     } finally {
       setLoading(false);
     }

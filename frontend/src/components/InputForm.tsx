@@ -1,10 +1,9 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity } from 'lucide-react';
-import axios from 'axios';
+import api from '../lib/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 export default function InputForm({ onPredict, loading }: any) {
     const [cities, setCities] = useState<string[]>([]);
@@ -52,7 +51,7 @@ export default function InputForm({ onPredict, loading }: any) {
     const [dbMaterials, setDbMaterials] = useState<any[]>([]);
 
     useEffect(() => {
-        axios.get(`${API_BASE}/cities`)
+        api.get(`/cities`)
             .then(res => {
                 setCities(res.data);
                 if (res.data.includes(formData.city)) {
@@ -61,14 +60,14 @@ export default function InputForm({ onPredict, loading }: any) {
             })
             .catch(console.error);
 
-        axios.get(`${API_BASE}/models`).then(res => setModelInfo(res.data)).catch(console.error);
-        axios.get(`${API_BASE}/materials`).then(res => setDbMaterials(res.data)).catch(console.error);
+        api.get(`/models`).then(res => setModelInfo(res.data)).catch(console.error);
+        api.get(`/materials`).then(res => setDbMaterials(res.data)).catch(console.error);
     }, []);
 
     const fetchClimate = async (cityName: string) => {
         setFetchingClimate(true);
         try {
-            const res = await axios.get(`${API_BASE}/fetch_climate?city=${encodeURIComponent(cityName)}`);
+            const res = await api.get(`/fetch_climate?city=${encodeURIComponent(cityName)}`);
             setFormData(prev => ({
                 ...prev,
                 city: cityName,
