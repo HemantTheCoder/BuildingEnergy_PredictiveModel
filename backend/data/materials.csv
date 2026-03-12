@@ -1,51 +1,24 @@
 id,name,component_type,u_value,conductivity,density,specific_heat,thickness,source_citation,official_ref,source_url,shgc
-wall_aac_150,AAC Block Wall (150mm),wall,0.95,0.16,600.0,1000,150,BMTPC Guide,BEE ECBC 2017,https://www.bmtpc.org/,
-wall_aac_200,AAC Block Wall (200mm),wall,0.81,0.16,600.0,1000,200,BMTPC Guide,BEE ECBC 2017,https://www.bmtpc.org/,
-wall_aac_250,AAC Block Wall (250mm),wall,0.65,0.16,600.0,1000,250,BMTPC Guide,BEE ECBC 2017,https://www.bmtpc.org/,
-wall_clay_brick_230,Burnt Clay Brick Wall (230mm),wall,2.1,0.81,1800.0,880,230,CPWD Rates 2021,IS 1077,https://cpwd.gov.in/,
-wall_clay_brick_115,Burnt Clay Brick Wall (115mm),wall,3.2,0.81,1800.0,880,115,CPWD Rates 2021,IS 1077,https://cpwd.gov.in/,
-wall_flyash_230,Fly Ash Brick Wall (230mm),wall,1.4,0.5,1700.0,900,230,BMTPC Table 2.1,Green Building Code IND,https://www.bmtpc.org/,
-wall_porotherm_200,Porotherm Hollow Clay Block (200mm),wall,1.0,0.28,800.0,900,200,Wienerberger Technical Data,BEE Approved Alternative,https://www.wienerberger.in/,
-wall_con_block_solid_200,Solid Concrete Block (200mm),wall,2.5,1.2,2100.0,850,200,IS 2185 Part 1,CPWD Specs,https://cpwd.gov.in/,
-wall_con_block_hollow_200,Hollow Concrete Block (200mm),wall,1.5,0.7,1400.0,850,200,IS 2185 Part 1,BEE ECBC 2017,https://cpwd.gov.in/,
-wall_clc_200,CLC Block Wall (200mm),wall,0.6,0.12,800.0,1000,200,BMTPC Table 4.3,BEE ECBC 2017,https://www.bmtpc.org/,
-wall_stabilized_earth,CSEB Stabilized Earth (230mm),wall,1.6,0.75,1900.0,1050,230,Auroville Earth Institute,IS 1725,http://earth-auroville.com/,
-wall_rammed_earth,Rammed Earth Wall (450mm),wall,1.0,0.6,1900.0,1100,450,UNESCO Earth Arch,IGBC Green Homes,http://earth-auroville.com/,
-wall_laterite_300,Laterite Stone Wall (300mm),wall,1.8,0.7,1600.0,850,300,BMTPC Traditional,Vernacular Building Standards,https://www.bmtpc.org/,
-wall_rcc_200,RCC Wall (200mm),wall,3.1,1.58,2400.0,880,200,IS 456:2000,CPWD Specs,https://cpwd.gov.in/,
-wall_rcc_150_ins,RCC (150mm) + 50mm EPS Insulation,wall,0.55,0.035,25.0,1200,200,BEE Design Guide,ECBC+ Standard,https://beeindia.gov.in/,
-wall_brick_eps_ins,Brick (230mm) + 50mm Rockwool,wall,0.48,0.04,100.0,840,280,BEE Design Guide,Super ECBC,https://beeindia.gov.in/,
-wall_timber_stud_ins,Timber Stud Wall w/ Fiber Insulation,wall,0.35,0.04,500.0,1400,150,IS 3629:1986,ECBC User Guide,https://bis.gov.in/,
-wall_ferrocement_50,Ferro-Cement Panel (50mm),wall,3.2,1.0,2400.0,880,50,HUDCO Prefab Systems,CPWD Low Cost,https://hudco.org/,
-wall_puf_panel_100,PUF Sandwich Panel (100mm),wall,0.22,0.022,40.0,1450,100,Cold Storage Guide,BEE Rating,https://tatabluescopesteel.com/,
-wall_eps_core_panel,Reinforced EPS Core Panel (125mm),wall,0.42,0.035,20.0,1200,125,BMTPC Prefab Guide,ECBC Compliant,https://www.bmtpc.org/,
-roof_rcc_150,RCC Slab (150mm) - Standard,roof,3.1,1.58,2400.0,880,150,BMTPC Table 3.5,IS 456:2000,https://www.bmtpc.org/,
-roof_rcc_ins_50_eps,RCC (150mm) + 50mm EPS Insulation,roof,0.6,0.035,25.0,1200,200,BEE Guide ECBC 2017,ECBC Standard,https://beeindia.gov.in/,
-roof_rcc_ins_75_xps,RCC (150mm) + 75mm XPS Insulation,roof,0.35,0.03,35.0,1400,225,BEE Guide ECBC 2017,Super ECBC,https://beeindia.gov.in/,
-roof_rcc_ins_100_puf,RCC (150mm) + 100mm PUF Board,roof,0.2,0.022,40.0,1450,250,BEE Guide ECBC 2017,Zero Energy Building,https://beeindia.gov.in/,
-roof_cool_white_sri78,Cool Roof (White Coating SRI 78),roof,2.8,1.4,2300.0,850,155,CRRC Approved,TS Cool Roof Policy,https://coolroofs.org/,
-roof_cool_white_sri105,Cool Roof (High Reflectance SRI 105),roof,2.7,1.4,2300.0,850,155,CRRC Approved,BEE Star Rated,https://coolroofs.org/,
-roof_green_extensive,Green Roof (Extensive - 100mm Soil),roof,0.5,0.15,800.0,1800,250,NIUA Sustainable Cities,IGBC Landscape,https://niua.in/,
-roof_green_intensive,Green Roof (Intensive - 300mm Soil),roof,0.25,0.12,900.0,2000,450,NIUA Sustainable Cities,IGBC Landscape,https://niua.in/,
-roof_inverted_pots,Traditional Inverted Earthen Pots Insulation,roof,1.2,0.6,1400.0,1200,250,Vernacular Passive Cooling,NIUA Guide,https://niua.in/,
-roof_mangalore_tile,Mangalore Tiles on Timber Deck,roof,2.4,0.8,1800.0,800,40,BMTPC Traditional,South India Trad,https://www.bmtpc.org/,
-roof_micro_concrete_tile,Micro Concrete Roofing (MCR) Tiles,roof,2.8,1.1,2000.0,900,20,TARU Research,BMTPC Approved,https://www.bmtpc.org/,
-roof_metal_puf_100,Metal Deck Roof + 100mm PUF,roof,0.21,0.022,40.0,1500,105,BlueScope Data,BEE Rating,https://tatabluescopesteel.com/,
-roof_asbestos_cement,Asbestos Cement Sheet (Hazardous/Legacy),roof,5.2,0.47,1500.0,840,6,Legacy Standards,Non-Compliant,https://bis.gov.in/,
-roof_thatched,Traditional Thatched Roof (Thick Grass),roof,0.85,0.08,200.0,1200,150,HUDCO Rural,Low Cost Vernacular,https://hudco.org/,
-roof_filler_slab_pots,Filler Slab (Clay Pot Fillers),roof,1.8,0.9,1600.0,950,150,COSTFORD Technical,Sustainable Kerala Style,http://costford.com/,
-glass_single_clear_6,Single Clear Glass (6mm),glazing,5.8,1.0,2500.0,840,6,Saint-Gobain India,IGDB v35.0,https://in.saint-gobain-glass.com/,0.82
-glass_single_tinted_6,Single Tinted Glass (Green/Bronze 6mm),glazing,5.7,1.0,2500.0,840,6,Saint-Gobain India,BEE ECBC,https://in.saint-gobain-glass.com/,0.65
-glass_double_clear_6_12_6,Double Glazed Clear (6/12/6),glazing,2.8,0.03,2500.0,840,24,Saint-Gobain India,IGDB v35.0,https://in.saint-gobain-glass.com/,0.7
-glass_double_lowe_high,Double Glazed Low-E (High Perf 6/12/6),glazing,1.8,0.024,1.2,1000,24,Saint-Gobain India,ECBC+ Standard,https://in.saint-gobain-glass.com/,0.4
-glass_double_lowe_super,Double Glazed Low-E (Super XL 6/12/6),glazing,1.4,0.02,1.2,1000,24,Saint-Gobain India,Super ECBC,https://in.saint-gobain-glass.com/,0.25
-glass_double_tinted_green,Double Glazed Tinted (Green 6/12/6),glazing,2.7,0.03,2500.0,840,24,Saint-Gobain India,BEE ECBC,https://in.saint-gobain-glass.com/,0.35
-glass_double_reflective,Reflective High Performance (ST 167),glazing,1.6,0.02,2500.0,840,24,Saint-Gobain SGG Cool-Lite,Super ECBC Compliant,https://in.saint-gobain-glass.com/,0.22
-glass_triple_argon,Triple Glazed Argon (6/12/6/12/6),glazing,0.8,0.016,2.5,1000,42,Saint-Gobain Advanced,Zero Energy Building,https://in.saint-gobain-glass.com/,0.3
-glass_polycarb_10,Polycarbonate Multiwall (10mm),glazing,2.5,0.21,1200.0,1200,10,Sabic Datasheet,CPWD Skylight,https://www.sabic.com/,0.65
-glass_polycarb_16,Polycarbonate Multiwall (16mm),glazing,2.0,0.2,1200.0,1200,16,Sabic Datasheet,CPWD Skylight,https://www.sabic.com/,0.6
-glass_dgu_argon_lowe,DGU Argon Filled Low-E (High Solar),glazing,1.5,0.018,1.8,950,24,Saint-Gobain India,Commercial Premium,https://in.saint-gobain-glass.com/,0.55
-glass_vdf_glazing,Vacuum Dewired Fire-Rated Glazing,glazing,1.2,0.015,2.0,900,20,Specialist Glass India,Safety Standard IS 16945,https://in.saint-gobain-glass.com/,0.45
-glass_electrochromic,Electrochromic Smart Glass (Active State),glazing,1.1,0.012,2.5,850,24,SageGlass India,Advanced Adaptive,https://www.sageglass.com/,0.09
-glass_u_profile,U-Profile Glass (Translucent),glazing,2.1,0.8,2500.0,840,7,Pilkington Profilit,Design Aesthetics,https://www.pilkington.com/,0.5
-glass_safety_laminated,Laminated Safety Glass (PVB 0.76mm),glazing,5.4,0.9,2500.0,840,12,AIS Windows India,Safety Code,https://www.aiswindows.com/,0.78
+wall_aac_block,AAC Block Wall (200mm),wall,0.81,0.16,600.0,1000,200,BMTPC Thermal Properties Guide v1.0,BEE ECBC 2017 App A,https://www.bmtpc.org/,
+wall_burnt_clay_brick,Burnt Clay Brick Wall (230mm),wall,2.1,0.81,1800.0,880,230,BMTPC Thermal Properties Guide v1.0,CPWD Rates 2021,https://www.bmtpc.org/,
+wall_insulated_brick,Insulated Brick Wall (230mm + 50mm EPS),wall,0.45,0.035,25.0,1200,280,BEE Design Guide,ECBC+ Standard,https://beeindia.gov.in/,
+wall_fly_ash_brick,Fly Ash Brick Wall (230mm),wall,1.4,0.5,1700.0,900,230,BMTPC Table 2.1,Green Building Code IND,https://www.bmtpc.org/,
+wall_laterite_stone,Laterite Stone Masonry (300mm),wall,1.8,0.7,1600.0,850,300,BMTPC Traditional Materials v1.0,Vernacular Building Standards,https://www.bmtpc.org/,
+wall_granite_cladding,RCC + Granite Cladding (150mm + 30mm),wall,2.8,2.5,2600.0,800,180,IS 1123:1998,CPWD Specs 2019,https://cpwd.gov.in/,
+wall_earth_rammed,Rammed Earth Wall (450mm),wall,1.0,0.6,1900.0,1100,450,UNESCO Chair Earth Architecture,IGBC Green Homes,http://earth-auroville.com/,
+wall_clc_block,Cellular Light Concrete (CLC) (200mm),wall,0.6,0.12,800.0,1000,200,BMTPC Table 4.3,BEE ECBC 2017,https://www.bmtpc.org/,
+wall_timber_stud,Timber Stud Wall (150mm + Fiber Insulation),wall,0.35,0.04,500.0,1400,150,IS 3629:1986 Structural Timber,ECBC User Guide,https://bis.gov.in/,
+wall_ferro_cement,Ferro-Cement Panel (50mm),wall,3.2,1.0,2400.0,880,50,HUDCO Prefab Systems,CPWD Low Cost Housing,https://hudco.org/,
+roof_rcc_slab,RCC Slab (150mm),roof,3.1,1.58,2400.0,880,150,BMTPC Table 3.5,IS 456:2000,https://www.bmtpc.org/,
+roof_insulated_rcc,Insulated RCC Slab (150mm + 75mm XPS),roof,0.35,0.03,35.0,1400,225,BEE Guide ECBC 2017,Super ECBC Standard,https://beeindia.gov.in/,
+roof_micro_tile,Micro Concrete Roofing (MCR) Tiles,roof,2.8,1.1,2000.0,900,20,TARU Leading Edge Research,BMTPC Approved Formwork,https://www.bmtpc.org/,
+roof_metal_deck,Metal Deck Roof (100mm + PUF),roof,0.22,0.022,40.0,1500,100,Tata BlueScope Product Catalog,BEE Performance Rating,https://tatabluescopesteel.com/,
+roof_inverted_pots,Inverted Earthen Pots (Kullad) Insulation,roof,1.2,0.6,1400.0,1200,250,NIUA Sustainable Cities Guide,Vernacular Passive Cooling,https://niua.in/,
+roof_mangalore_tile,Mangalore Tiles with Timber Deck,roof,2.4,0.8,1800.0,800,40,BMTPC Table 3.1,South India Trad Specs,https://www.bmtpc.org/,
+roof_white_reflective,Cool Roof (White Reflective Coating),roof,2.8,1.4,2300.0,850,155,CRRC Approved Coatings,TS Cool Roof Policy,https://coolroofs.org/,
+glass_single_clear,Single Clear Glass (6mm),glazing,5.8,1.0,2500.0,840,6,Saint-Gobain India 2023,IGDB v35.0,https://in.saint-gobain-glass.com/,0.82
+glass_double_lowe,Double Glazed Low-E (6/12/6),glazing,1.8,0.024,1.2,1000,24,Saint-Gobain India 2023,IGDB v35.0,https://in.saint-gobain-glass.com/,0.4
+glass_double_tinted,Double Glazed Tinted (Green/Bronze),glazing,2.8,0.03,2500.0,840,24,Saint-Gobain India 2023,BEE ECBC Standard,https://in.saint-gobain-glass.com/,0.35
+glass_reflective,Reflective High Performance (ST 167),glazing,1.6,0.02,2500.0,840,24,Saint-Gobain SGG Cool-Lite,Super ECBC Compliant,https://in.saint-gobain-glass.com/,0.22
+glass_triple_argon,Triple Glazed Argon Filled (6/12/6/12/6),glazing,0.8,0.016,2.5,1000,42,Saint-Gobain Advanced Optics,Zero Energy Building IND,https://in.saint-gobain-glass.com/,0.3
+glass_polycarb,Multiwall Polycarbonate Sheet (16mm),glazing,2.1,0.2,1200.0,1200,16,Lexan Product Datasheet,CPWD Skylight Specs,https://www.sabic.com/,0.6

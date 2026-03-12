@@ -12,9 +12,9 @@ from sklearn.linear_model import Ridge
 
 class MLEngine:
     def __init__(self, model_dir="data/models"):
-        # Resolve project root
-        self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.model_dir = os.path.join(self.root_dir, "data", "models")
+        # Resolve current directory
+        self.backend_dir = os.path.dirname(os.path.abspath(__file__))
+        self.model_dir = os.path.join(self.backend_dir, "data", "models")
         os.makedirs(self.model_dir, exist_ok=True)
         
         self.models = {
@@ -29,7 +29,7 @@ class MLEngine:
         """
         Loads real building energy data from official BEE benchmarking datasets.
         """
-        file_path = os.path.join(self.root_dir, "data", "bee_benchmarks.csv")
+        file_path = os.path.join(self.backend_dir, "data", "bee_benchmarks.csv")
         if os.path.exists(file_path):
             return pd.read_csv(file_path)
         else:
