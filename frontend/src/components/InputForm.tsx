@@ -53,8 +53,9 @@ export default function InputForm({ onPredict, loading }: any) {
     useEffect(() => {
         api.get(`/cities`)
             .then(res => {
+                console.log("Cities loaded:", res.data.length);
                 setCities(res.data);
-                if (res.data.includes(formData.city)) {
+                if (res.data.some((c: string) => c.toLowerCase() === formData.city.toLowerCase())) {
                     fetchClimate(formData.city);
                 }
             })
@@ -79,6 +80,14 @@ export default function InputForm({ onPredict, loading }: any) {
             }));
         } catch (error) {
             console.error("Failed to fetch climate", error);
+            // Don't leave it in an inconsistent state
+            setFormData(prev => ({
+                ...prev,
+                climate_overrides: {
+                    ...prev.climate_overrides,
+                    source: "Error: Falling back to Manual"
+                }
+            }));
         } finally {
             setFetchingClimate(false);
         }
@@ -94,7 +103,7 @@ export default function InputForm({ onPredict, loading }: any) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="premium-card p-8 space-y-8 relative group overflow-hidden">
+        <form onSubmit={handleSubmit} className="premium-card p-8 space-y-8 relative group">
             {/* Visual Accent */}
             <div className="absolute top-0 right-12 w-40 h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
@@ -125,16 +134,28 @@ export default function InputForm({ onPredict, loading }: any) {
                         value={formData.city}
                         className="w-full glass-input h-14 text-base font-bold pl-8 group-hover:border-white/10 transition-all"
                         onChange={(e) => {
-                            setFormData({ ...formData, city: e.target.value });
-                            if (cities.includes(e.target.value)) fetchClimate(e.target.value);
+                            const val = e.target.value;
+                            setFormData({ ...formData, city: val });
+                            // Trigger if exact match found
+                            if (cities.some(c => c.toLowerCase() === val.toLowerCase())) {
+                                fetchClimate(val);
+                            }
                         }}
                         placeholder="Select or enter city..."
                     />
                     <datalist id="indian-cities">
-                        {cities.map(c => <option key={c} value={c} />)}
+                        {cities.map(c => <option key={c} value={c}>{c}</option>)}
                     </datalist>
 
                     <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                        <button
+                            type="button"
+                            title="Force Climate Fetch"
+                            onClick={() => fetchClimate(formData.city)}
+                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all"
+                        >
+                            <RefreshCcw className={cn("w-4 h-4", fetchingClimate && "animate-spin")} />
+                        </button>
                         <button
                             type="button"
                             onClick={() => setManualClimate(!manualClimate)}
