@@ -115,7 +115,7 @@ export default function App() {
                   </h1>
 
                   <p className="text-lg text-white/40 font-medium leading-relaxed max-w-md">
-                    Precision EUI forecasting for Indian climates, powered by NASA and BMTPC.
+                    Precision EUI forecasting for Indian climates, powered by 22 Official BEE Benchmarks and ECBC Standards.
                   </p>
                 </div>
 

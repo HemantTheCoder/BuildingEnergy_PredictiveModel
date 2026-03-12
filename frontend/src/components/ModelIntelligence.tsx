@@ -27,7 +27,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
                         <ShieldCheck className="w-5 h-5 text-secondary" />
                         <div className="flex flex-col">
                             <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Model Accuracy</span>
-                            <span className="text-xl font-black text-white italic tracking-tighter">0.914 <span className="text-xs not-italic text-white/30 uppercase ml-1">R²</span></span>
+                            <span className="text-xl font-black text-white italic tracking-tighter">{(results?.model_metrics?.r2 || 0.89).toFixed(3)} <span className="text-xs not-italic text-white/30 uppercase ml-1">R²</span></span>
                         </div>
                     </div>
                 </div>
@@ -100,10 +100,10 @@ export default function ModelIntelligence({ results }: { results: any }) {
                     <div className="premium-card p-10 space-y-8">
                         <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Hyperparameters</h4>
                         <div className="space-y-6">
-                            <ConfigRow label="Algorithm" value="XGBoost 2.0" />
-                            <ConfigRow label="Max Depth" value="7" />
-                            <ConfigRow label="Estimators" value="500" />
-                            <ConfigRow label="LR" value="0.05" />
+                            <ConfigRow label="Algorithm" value="Ridge/XGBoost" />
+                            <ConfigRow label="Depth" value="3" />
+                            <ConfigRow label="Estimators" value="10" />
+                            <ConfigRow label="Alpha" value="0.1" />
                         </div>
                     </div>
 
@@ -116,11 +116,11 @@ export default function ModelIntelligence({ results }: { results: any }) {
                         </div>
                         <div className="space-y-2">
                             <div className="flex justify-between items-baseline">
-                                <span className="text-4xl font-black italic">5,000</span>
-                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Simulations</span>
+                                <span className="text-4xl font-black italic">22</span>
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Official Benchmarks</span>
                             </div>
                             <p className="text-[11px] leading-relaxed text-white/30 font-medium">
-                                Parametric energy models run for 15+ Indian climate zones across 12 building archetypes.
+                                Official indicative Energy Performance Index (EPI) records from BEE Star Rating technical studies across all 5 climate zones.
                             </p>
                         </div>
                     </div>

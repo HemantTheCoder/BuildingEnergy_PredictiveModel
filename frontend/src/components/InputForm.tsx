@@ -499,7 +499,7 @@ export default function InputForm({ onPredict, loading }: any) {
                 {loading ? (
                     <div className="flex items-center gap-4">
                         <RefreshCcw className="w-5 h-5 animate-spin" />
-                        <span className="font-black text-[10px] tracking-widest uppercase italic">Synthesizing EUI Forecast...</span>
+                        <span className="font-black text-[10px] tracking-widest uppercase italic">Inferring EUI from Benchmarks...</span>
                     </div>
                 ) : (
                     <>

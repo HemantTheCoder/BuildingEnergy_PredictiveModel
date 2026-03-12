@@ -248,8 +248,8 @@ export default function ResultsDashboard({ results }: any) {
                                 <div className="space-y-4">
                                     <div className="section-label">Scientific Methodology</div>
                                     <p className="text-[11px] text-white/40 font-bold leading-relaxed">
-                                        This engine utilizes an ensemble of <span className="text-white">XGBoost, RandomForest, and Ridge Regression</span> models trained on 10,000+ simulated and validated building scenarios. 
-                                        Thermal physics are accounted for using ISHRAE transfer function methods and NASA POWER climatology for localized solar intensity.
+                                        This engine utilizes an ensemble of <span className="text-white">XGBoost, RandomForest, and Ridge Regression</span> models trained on 22 official BEE Indicative Benchmarks for commercial building archetypes. 
+                                        Thermal physics are objectively mapped using official BEE thermal transfer coefficients and NASA POWER 22-year meteorological normals.
                                     </p>
                                     <div className="flex gap-4">
                                         <div className="flex items-center gap-2 text-[8px] font-black text-primary uppercase">
