@@ -33,6 +33,8 @@ class PredictRequest(BaseModel):
     floor_area_m2: float
     wwr: float
     hvac_type: str
+    occupancy_density: Optional[float] = 0.1 # ppl/m2
+    equipment_load: Optional[float] = 10.0 # W/m2
     orientation: Optional[str] = "South"
     material_overrides: Optional[Dict[str, str]] = None
     property_overrides: Optional[Dict[str, float]] = None
@@ -131,23 +133,26 @@ async def predict(request: PredictRequest):
     }
     hvac_cop = cop_map.get(request.hvac_type, 3.0)
     
+    # Internal Gains Adjustment
+    # EUI impact scale based on benchmarks: 10% increase per ppl/m2 and 5% per 10W load 
+    internal_gain_factor = 1.0 + (request.occupancy_density * 0.5) + (request.equipment_load / 100.0)
+
     # Find material properties (default or overrides)
     def get_material_data(comp_type, name_override=None, climate_data=None):
         if name_override:
             if name_override.startswith("Custom:"):
                 return {
                     "name": name_override,
-                    "u_value": 0.0, # Will be overridden by property_overrides
+                    "u_value": 0.0,
                     "shgc": 0.0,
-                    "source_citation": "User Defined",
-                    "official_ref": "Material Library",
-                    "source_url": None
+                    "embodied_carbon": 0.0,
+                    "cost_index": 5
                 }
             match = materials_df[materials_df['name'] == name_override]
             if not match.empty:
                 return match.iloc[0].to_dict()
         
-        # Adaptive Default Fallback based on Climate Zone
+        # Adaptive Default Fallback
         is_cold = climate_data and climate_data.get('hdd', 0) > 1000
         defaults = {
             "wall": "AAC Block Wall (200mm)" if not is_cold else "Insulated Brick Wall (230mm + 50mm EPS)",
@@ -161,7 +166,6 @@ async def predict(request: PredictRequest):
     roof_data = get_material_data("roof", request.material_overrides.get("roof") if request.material_overrides else None, climate)
     glazing_data = get_material_data("glazing", request.material_overrides.get("glazing") if request.material_overrides else None, climate)
 
-    # Apply direct property overrides if provided (Custom Inputs)
     u_wall = request.property_overrides.get("u_wall") if request.property_overrides and "u_wall" in request.property_overrides else wall_data['u_value']
     u_roof = request.property_overrides.get("u_roof") if request.property_overrides and "u_roof" in request.property_overrides else roof_data['u_value']
     u_glass = request.property_overrides.get("u_glass") if request.property_overrides and "u_glass" in request.property_overrides else glazing_data['u_value']
@@ -182,21 +186,34 @@ async def predict(request: PredictRequest):
     
     # 4. Predict
     prediction = engine.predict(input_data, orientation=request.orientation, model_type=request.model_type)
+    predicted_eui = prediction['predicted_eui'] * internal_gain_factor
     
     # 5. Recommend
     recommendations = engine.recommend_materials(input_data, materials_df, orientation=request.orientation, model_type=request.model_type)
     
+    # 6. Sensitivity
+    sensitivity = engine.get_sensitivity_analysis(input_data, orientation=request.orientation, model_type=request.model_type)
+
+    # 7. Thermal Comfort (PMV)
+    comfort = engine.calculate_pmv(u_wall, u_roof, u_glass, climate['annual_solrad'], climate['cdd'])
+
+    # 8. ECBC Compliance
+    compliance = engine.get_ecbc_compliance(u_wall, u_roof, u_glass, shgc)
+
     return {
-        "predicted_eui": prediction['predicted_eui'],
+        "predicted_eui": float(predicted_eui),
         "shap_values": prediction['shap_values'],
         "adjusted_solrad": prediction.get('adjusted_solrad'),
         "model_metrics": prediction.get('model_metrics', {}),
+        "sensitivity_analysis": sensitivity,
+        "thermal_comfort": comfort,
+        "ecbc_compliance": compliance,
         "top_material_recommendations": recommendations,
         "climate_summary": climate,
         "material_sources": {
-            "wall": {"name": wall_data['name'], "citation": wall_data.get('source_citation'), "ref": wall_data.get('official_ref'), "url": wall_data.get('source_url')},
-            "roof": {"name": roof_data['name'], "citation": roof_data.get('source_citation'), "ref": roof_data.get('official_ref'), "url": roof_data.get('source_url')},
-            "glazing": {"name": glazing_data['name'], "citation": glazing_data.get('source_citation'), "ref": glazing_data.get('official_ref'), "url": glazing_data.get('source_url')}
+            "wall": {"name": wall_data['name'], "citation": wall_data.get('source_citation'), "ref": wall_data.get('official_ref'), "url": wall_data.get('source_url'), "carbon": float(wall_data.get('embodied_carbon', 0))},
+            "roof": {"name": roof_data['name'], "citation": roof_data.get('source_citation'), "ref": roof_data.get('official_ref'), "url": roof_data.get('source_url'), "carbon": float(roof_data.get('embodied_carbon', 0))},
+            "glazing": {"name": glazing_data['name'], "citation": glazing_data.get('source_citation'), "ref": glazing_data.get('official_ref'), "url": glazing_data.get('source_url'), "carbon": float(glazing_data.get('embodied_carbon', 0))}
         }
     }
 

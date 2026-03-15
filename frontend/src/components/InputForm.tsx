@@ -5,7 +5,7 @@ import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 
-export default function InputForm({ onPredict, loading }: any) {
+export default function InputForm({ onPredict, onChange, loading }: any) {
     const [cities, setCities] = useState<string[]>([]);
     const [modelInfo, setModelInfo] = useState({ available_models: ["XGBoost"], metrics: {} as any });
     const [manualClimate, setManualClimate] = useState(false);
@@ -17,6 +17,8 @@ export default function InputForm({ onPredict, loading }: any) {
         floor_area_m2: 1200,
         wwr: 0.35,
         hvac_type: "VAV",
+        occupancy_density: 0.1,
+        equipment_load: 10.0,
         orientation: "South",
         model_type: "XGBoost",
         material_overrides: {} as any,
@@ -36,6 +38,12 @@ export default function InputForm({ onPredict, loading }: any) {
     const [manualMaterials, setManualMaterials] = useState(false);
     const [libraryMaterials, setLibraryMaterials] = useState<{name: string, type: string, props: any}[]>([]);
     const [customName, setCustomName] = useState("");
+
+    useEffect(() => {
+        if (onChange) {
+            onChange(formData);
+        }
+    }, [formData, onChange]);
 
     const saveToLibrary = (type: 'wall' | 'roof' | 'glazing') => {
         if (!customName) return;
@@ -228,19 +236,6 @@ export default function InputForm({ onPredict, loading }: any) {
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">ML Technique</label>
-                        <select
-                            className="w-full glass-input h-14 font-bold appearance-none bg-black border-primary/20"
-                            value={formData.model_type}
-                            onChange={(e) => setFormData({ ...formData, model_type: e.target.value })}
-                        >
-                            {modelInfo.available_models.map(m => (
-                                <option key={m} value={m}>{m} Architecture</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="space-y-3">
                         <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">HVAC System</label>
                         <select
                             className="w-full glass-input h-14 font-bold appearance-none bg-black"
@@ -252,6 +247,30 @@ export default function InputForm({ onPredict, loading }: any) {
                             <option value="Variable Refrigerant Flow (VRF)">Advanced VRF</option>
                             <option value="Evaporative Cooler">Evaporative (Desert) Cooler</option>
                         </select>
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            Occupancy Density <Definition text="Personnel per square meter (ppl/m²)" />
+                        </label>
+                        <input
+                            type="number" step="0.01" min="0.01" max="1.0"
+                            className="w-full glass-input h-14 font-bold bg-black"
+                            value={formData.occupancy_density}
+                            onChange={(e) => setFormData({ ...formData, occupancy_density: Number(e.target.value) })}
+                        />
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            Plug Loads <Definition text="Equipment load in Watts per square meter (W/m²)" />
+                        </label>
+                        <input
+                            type="number" step="1" min="0" max="100"
+                            className="w-full glass-input h-14 font-bold bg-black"
+                            value={formData.equipment_load}
+                            onChange={(e) => setFormData({ ...formData, equipment_load: Number(e.target.value) })}
+                        />
                     </div>
                 </div>
             </section>

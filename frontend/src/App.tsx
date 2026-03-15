@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api, { API_BASE } from './lib/api';
+import api from './lib/api';
 import {
   Zap,
   Globe,
@@ -25,23 +25,35 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'simulator' | 'materials' | 'intelligence'>('simulator');
   const [error, setError] = useState<string | null>(null);
 
+  const [formData, setFormData] = useState<any>(null);
+
   useEffect(() => {
     api.get(`/materials`).then(res => setMaterials(res.data)).catch(console.error);
   }, []);
 
-  const handlePredict = async (formData: any) => {
+  const handlePredict = async (data: any = formData) => {
+    if (!data) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await api.post(`/predict`, formData);
+      const response = await api.post(`/predict`, data);
       setResults(response.data);
     } catch (error: any) {
       console.error("Prediction failed", error);
-      setError(error.response?.data?.detail || `Connection failed to ${API_BASE}. Please ensure your VERCEL environment variable VITE_API_URL is set correctly.`);
+      setError(error.response?.data?.detail || `Connection failed. Please ensure backend is running.`);
     } finally {
       setLoading(false);
     }
   };
+
+  // Debounced effect for live updates
+  useEffect(() => {
+    if (!formData) return;
+    const timer = setTimeout(() => {
+        handlePredict(formData);
+    }, 1000); // 1s debounce
+    return () => clearTimeout(timer);
+  }, [formData]);
 
   const tabs = [
     { id: 'simulator', label: 'Simulator', icon: Zap },
@@ -121,7 +133,11 @@ export default function App() {
 
                 <div className="relative">
                   <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-5xl blur-2xl opacity-20 -z-10" />
-                  <InputForm onPredict={handlePredict} loading={loading} />
+                  <InputForm 
+                    onPredict={handlePredict} 
+                    onChange={setFormData}
+                    loading={loading} 
+                  />
                   
                   {error && (
                     <motion.div 

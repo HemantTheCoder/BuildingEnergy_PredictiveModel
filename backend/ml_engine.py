@@ -180,15 +180,18 @@ class MLEngine:
                         "predicted_eui": pred_res['predicted_eui'],
                         "wall_id": wall['id'],
                         "roof_id": roof['id'],
-                        "glazing_id": glass['id']
+                        "glazing_id": glass['id'],
+                        "embodied_carbon": float(wall.get('embodied_carbon', 0)) + float(roof.get('embodied_carbon', 0)) + float(glass.get('embodied_carbon', 0)),
+                        "cost_index": int(wall.get('cost_index', 5)) + int(roof.get('cost_index', 5)) + int(glass.get('cost_index', 5))
                     })
         
         results.sort(key=lambda x: x['predicted_eui'])
+        
+        # Diversity filter remains same but we can now sort by carbon or cost if needed
         diverse_top_3 = []
         seen_wall_types = set()
         
         for res in results:
-            # Simple diversity: check if wall material base type is different
             wall_type = res['wall'].split(' ')[0] 
             if wall_type not in seen_wall_types:
                 diverse_top_3.append(res)
@@ -197,11 +200,116 @@ class MLEngine:
             if len(diverse_top_3) >= 3:
                 break
         
-        # Fallback if diversity filter is too strict
         if len(diverse_top_3) < 3:
             diverse_top_3 = results[:3]
 
         return diverse_top_3
+
+    def get_sensitivity_analysis(self, base_input, orientation="South", model_type="XGBoost"):
+        """
+        Calculates how EUI changes when key design parameters vary by +/- 20%.
+        """
+        parameters = {
+            "wwr": [base_input['wwr'] * 0.8, base_input['wwr'] * 1.2],
+            "solrad": [base_input['solrad'] * 0.8, base_input['solrad'] * 1.2],
+            "u_wall": [base_input['u_wall'] * 0.8, base_input['u_wall'] * 1.2],
+            "u_roof": [base_input['u_roof'] * 0.8, base_input['u_roof'] * 1.2]
+        }
+        
+        base_pred = self.predict(base_input, orientation=orientation, model_type=model_type)['predicted_eui']
+        sensitivity = {}
+        
+        for param, values in parameters.items():
+            impacts = []
+            for val in values:
+                # Clamp WWR
+                if param == "wwr":
+                    val = max(0.1, min(0.9, val))
+                
+                test_input = base_input.copy()
+                test_input[param] = val
+                new_pred = self.predict(test_input, orientation=orientation, model_type=model_type)['predicted_eui']
+                impacts.append(new_pred - base_pred)
+            
+            sensitivity[param] = {
+                "low_impact": float(impacts[0]),
+                "high_impact": float(impacts[1]),
+                "relative_importance": float(abs(impacts[1] - impacts[0]))
+            }
+            
+        return sensitivity
+
+    def calculate_pmv(self, u_wall, u_roof, u_glass, solrad, cdd):
+        """
+        Calculates a proxy PMV (Predicted Mean Vote) thermal comfort index.
+        Range: -3 (Cold) to +3 (Hot), 0 is neutral.
+        Based on thermal transmittance and outdoor temperature proxy (CDD).
+        """
+        # Simplified PMV proxy:
+        # Comfort is affected by heat gain (U-values * CDD) and radiant solar gain (solrad)
+        # Higher U-values in hot climates (CDD > 0) lead to higher indoor radiant temp
+        
+        thermal_transmission = (u_wall * 0.4) + (u_roof * 0.3) + (u_glass * 0.3)
+        temp_stress = (cdd / 1500) # Proxy for temperature intensity
+        solar_stress = (solrad / 5.0) * 0.5
+        
+        # Base comfort - higher transmission in hot weather = hotter indoors
+        pmv_proxy = (thermal_transmission * temp_stress) + solar_stress
+        
+        # Clamp between -3 and 3
+        pmv_proxy = max(-3, min(3, pmv_proxy))
+        
+        status = "Neutral"
+        if pmv_proxy > 1.5: status = "Warm"
+        elif pmv_proxy > 2.5: status = "Hot"
+        elif pmv_proxy < -1.5: status = "Cool"
+        elif pmv_proxy < -2.5: status = "Cold"
+        
+        return {
+            "index": round(float(pmv_proxy), 2),
+            "status": status,
+            "label": f"{status} ({pmv_proxy:+.1f})"
+        }
+
+    def get_ecbc_compliance(self, u_wall, u_roof, u_glass, shgc, climate_zone="Warm-Humid"):
+        """
+        Determines ECBC 2017 Compliance status based on climate zone and material properties.
+        Indicative thresholds for ECBC-Compliant (Basic), ECBC+, and SuperECBC.
+        """
+        # indicitive ECBC 2017 Prescriptive thresholds (W/m2K)
+        # Hot-Dry/Warm-Humid benchmarks
+        thresholds = {
+            "wall": 0.44, # Super ECBC
+            "roof": 0.20, # Super ECBC
+            "glass": 1.8, # Super ECBC
+            "shgc": 0.25  # Super ECBC
+        }
+        
+        compliance_score = 0
+        if u_wall < thresholds["wall"]: compliance_score += 1
+        if u_roof < thresholds["roof"]: compliance_score += 1
+        if u_glass < thresholds["glass"]: compliance_score += 1
+        if shgc < thresholds["shgc"]: compliance_score += 1
+        
+        if compliance_score >= 4:
+            status = "Super ECBC"
+            color = "emerald"
+        elif compliance_score >= 2:
+            status = "ECBC+"
+            color = "sky"
+        elif compliance_score >= 1 or (u_wall < 1.0):
+            status = "ECBC Compliant"
+            color = "primary"
+        else:
+            status = "Non-Compliant"
+            color = "rose"
+            
+        return {
+            "status": status,
+            "score": compliance_score,
+            "color": color,
+            "is_compliant": compliance_score > 0
+        }
 
 if __name__ == "__main__":
     engine = MLEngine()
