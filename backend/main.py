@@ -67,6 +67,41 @@ class PredictRequest(BaseModel):
 async def root():
     return {"message": "Welcome to the Building Energy Predictor API"}
 
+@app.get("/debug/info")
+async def debug_info():
+    import sys
+    import xgboost as xgb
+    import sklearn
+    import joblib
+    import os
+    
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(backend_dir, "data")
+    models_dir = os.path.join(data_dir, "models")
+    
+    files = {
+        "backend_dir": backend_dir,
+        "data_dir_exists": os.path.exists(data_dir),
+        "models_dir_exists": os.path.exists(models_dir),
+        "bee_benchmarks_exists": os.path.exists(os.path.join(data_dir, "bee_benchmarks.csv")),
+        "materials_exists": os.path.exists(os.path.join(data_dir, "materials.csv")),
+        "models_files": os.listdir(models_dir) if os.path.exists(models_dir) else []
+    }
+    
+    versions = {
+        "python": sys.version,
+        "xgboost": xgb.__version__,
+        "sklearn": sklearn.__version__,
+        "joblib": joblib.__version__
+    }
+    
+    return {
+        "status": "healthy",
+        "files": files,
+        "versions": versions,
+        "env": dict(os.environ) # Be careful with sensitive info, but helpful here
+    }
+
 @app.get("/materials")
 async def get_materials():
     if not os.path.exists("data/materials.csv"):
