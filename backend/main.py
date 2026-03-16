@@ -65,7 +65,7 @@ class PredictRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Building Energy Predictor API"}
+    return {"message": "Welcome to the Building Energy Predictor API - v1.0.1 Debug"}
 
 @app.get("/debug/info")
 async def debug_info():
