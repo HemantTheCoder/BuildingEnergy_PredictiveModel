@@ -6,6 +6,7 @@ import uvicorn
 import os
 import json
 import pandas as pd
+import traceback
 from data_fetcher import ClimateFetcher
 from ml_engine import MLEngine
 
@@ -17,6 +18,19 @@ engine = MLEngine()
 engine.load_models()
 if not any(engine.models.values()):
     engine.train_all()
+
+@app.middleware("http")
+async def catch_exceptions_middleware(request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"DEBUG BACKEND ERROR:\n{tb}")
+        return json_response({"detail": str(e), "traceback": tb}, status_code=500)
+
+from fastapi.responses import JSONResponse
+def json_response(content, status_code=200):
+    return JSONResponse(content=content, status_code=status_code)
 
 # Enable CORS
 app.add_middleware(
