@@ -107,6 +107,24 @@ export default function ModelIntelligence({ results }: { results: any }) {
                         </div>
                     </div>
 
+                    <div className="premium-card p-10 space-y-8">
+                        <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Validation Methodology</h4>
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-4">
+                                <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5" />
+                                <p className="text-[10px] text-white/40 leading-relaxed">
+                                    <span className="text-white/60 font-bold">Protocol:</span> 5-Fold Cross-Validation on BEE indicative performance datasets.
+                                </p>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5" />
+                                <p className="text-[10px] text-white/40 leading-relaxed">
+                                    <span className="text-white/60 font-bold">Feature Selection:</span> ASHRAE 90.1 & ECBC 2017 core thermal drivers used.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="premium-card p-10 space-y-6 bg-secondary/[0.02]">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
