@@ -40,7 +40,14 @@ export default function App() {
       setResults(response.data);
     } catch (error: any) {
       console.error("Prediction failed", error);
-      setError(error.response?.data?.detail || `Connection failed. Please ensure backend is running.`);
+      const isNetworkError = !error.response;
+      let errMsg = error.response?.data?.detail || `Connection failed.`;
+      
+      if (isNetworkError) {
+        errMsg = `Connection failed to ${import.meta.env.VITE_API_URL || 'backend'}. Please ensure your VERCEL environment variable VITE_API_URL is set correctly and the backend at ${import.meta.env.VITE_API_URL} is running and accessible (no trailing slashes recommended).`;
+      }
+      
+      setError(errMsg);
     } finally {
       setLoading(false);
     }

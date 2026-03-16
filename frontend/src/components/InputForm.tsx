@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function InputForm({ onPredict, onChange, loading }: any) {
     const [cities, setCities] = useState<string[]>([]);
-    const [modelInfo, setModelInfo] = useState({ available_models: ["XGBoost"], metrics: {} as any });
     const [manualClimate, setManualClimate] = useState(false);
     const [fetchingClimate, setFetchingClimate] = useState(false);
 
@@ -69,7 +68,6 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
             })
             .catch(console.error);
 
-        api.get(`/models`).then(res => setModelInfo(res.data)).catch(console.error);
         api.get(`/materials`).then(res => setDbMaterials(res.data)).catch(console.error);
     }, []);
 
