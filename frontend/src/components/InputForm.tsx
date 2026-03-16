@@ -226,30 +226,43 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             value={formData.archetype}
                             onChange={(e) => setFormData({ ...formData, archetype: e.target.value })}
                         >
-                            <option value="office_small">Small Office</option>
-                            <option value="office_medium">Medium Institutional</option>
-                            <option value="retail">Commercial / Retail</option>
-                            <option value="healthcare">Critical Care / Healthcare</option>
+                            <option value="office_small">Small Office (BEE Standard)</option>
+                            <option value="office_medium">Medium Institutional (CPWD Style)</option>
+                            <option value="retail">Commercial / Mall (High Gains)</option>
+                            <option value="healthcare">Healthcare / Clinic (24/7 Load)</option>
                         </select>
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">HVAC System</label>
+                        <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Simulation Algorithm</label>
+                        <select
+                            className="w-full glass-input h-14 font-bold appearance-none bg-black border-primary/20"
+                            value={formData.model_type}
+                            onChange={(e) => setFormData({ ...formData, model_type: e.target.value })}
+                        >
+                            <option value="XGBoost">XGBoost (High Precision)</option>
+                            <option value="RandomForest">Random Forest (Stable)</option>
+                            <option value="RidgeRegression">Ridge Regression (Linear)</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">HVAC Strategy (Indian Context)</label>
                         <select
                             className="w-full glass-input h-14 font-bold appearance-none bg-black"
                             value={formData.hvac_type}
                             onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
                         >
-                            <option value="Split/Window AC">Split / Window AC (Typical India)</option>
-                            <option value="Central Chiller (VAV)">Central Chiller (VAV)</option>
-                            <option value="Variable Refrigerant Flow (VRF)">Advanced VRF</option>
-                            <option value="Evaporative Cooler">Evaporative (Desert) Cooler</option>
+                            <option value="Split/Window AC">Split / Window AC (Bureau of Energy Efficiency 3-Star)</option>
+                            <option value="Central Chiller (VAV)">Central Water-Cooled Chiller (VAV)</option>
+                            <option value="Variable Refrigerant Flow (VRF)">Inverter VRF (High Efficiency)</option>
+                            <option value="Evaporative Cooler">Desert / Evaporative Cooler (Dry Climates)</option>
                         </select>
                     </div>
 
                     <div className="space-y-3">
                         <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1 flex items-center gap-2">
-                            Occupancy Density <Definition text="Personnel per square meter (ppl/m²)" />
+                             Occupancy <Definition text="Personnel density (ppl/m²). Higher density increases heat gain and ventilation load." />
                         </label>
                         <input
                             type="number" step="0.01" min="0.01" max="1.0"
@@ -261,7 +274,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
                     <div className="space-y-3">
                         <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1 flex items-center gap-2">
-                            Plug Loads <Definition text="Equipment load in Watts per square meter (W/m²)" />
+                            Plug Loads <Definition text="Equipment heat load (Equipment/IT) in Watts per square meter (W/m²)." />
                         </label>
                         <input
                             type="number" step="1" min="0" max="100"
@@ -480,7 +493,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                     ))}
                 </div>
                 <p className="text-[9px] text-white/20 font-bold italic leading-relaxed">
-                    * Direction affects solar intensity: West (Peak Load), North (Shaded), South (Base).
+                    * Orientation is critical for Indian latitudes: West (Peak Cooling Load), South (High Winter Sun), North (Optimal for Daylighting).
                 </p>
 
                 <div className="pt-6 space-y-6">
@@ -523,6 +536,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         <Calculator className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                         <span className="mt-0.5">Initialize Thermal Simulation</span>
                         <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
+                        <div className="absolute right-[-2px] top-[-2px] w-3 h-3 bg-secondary rounded-full animate-ping opacity-40 shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
                     </>
                 )}
             </button>

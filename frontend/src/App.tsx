@@ -53,14 +53,6 @@ export default function App() {
     }
   };
 
-  // Debounced effect for live updates
-  useEffect(() => {
-    if (!formData) return;
-    const timer = setTimeout(() => {
-        handlePredict(formData);
-    }, 1000); // 1s debounce
-    return () => clearTimeout(timer);
-  }, [formData]);
 
   const tabs = [
     { id: 'simulator', label: 'Simulator', icon: Zap },
