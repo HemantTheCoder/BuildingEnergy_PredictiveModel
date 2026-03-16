@@ -77,17 +77,24 @@ class MLEngine:
         for name in self.models.keys():
             m_path = os.path.join(self.model_dir, f"{name}.joblib")
             met_path = os.path.join(self.model_dir, f"{name}_metrics.json")
-            if os.path.exists(m_path):
-                self.models[name] = joblib.load(m_path)
-            if os.path.exists(met_path):
-                with open(met_path, 'r') as f:
-                    self.metrics[name] = json.load(f)
+            try:
+                if os.path.exists(m_path):
+                    self.models[name] = joblib.load(m_path)
+                if os.path.exists(met_path):
+                    with open(met_path, 'r') as f:
+                        self.metrics[name] = json.load(f)
+            except Exception as e:
+                print(f"Failed to load model {name}: {e}. Will retrain.")
+                self.models[name] = None
         
         # Initialize explainers for tree-based models if models are loaded
-        if self.models.get("XGBoost") is not None:
-            self.explainers["XGBoost"] = shap.TreeExplainer(self.models["XGBoost"])
-        if self.models.get("RandomForest") is not None:
-            self.explainers["RandomForest"] = shap.TreeExplainer(self.models["RandomForest"])
+        try:
+            if self.models.get("XGBoost") is not None:
+                self.explainers["XGBoost"] = shap.TreeExplainer(self.models["XGBoost"])
+            if self.models.get("RandomForest") is not None:
+                self.explainers["RandomForest"] = shap.TreeExplainer(self.models["RandomForest"])
+        except Exception as e:
+            print(f"SHAP Explainer initialization failed: {e}")
 
     def get_metrics(self, model_type="XGBoost"):
         return self.metrics.get(model_type, {})

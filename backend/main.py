@@ -14,10 +14,18 @@ app = FastAPI(title="Climate-aware Material Recommendation & EUI Predictor")
 fetcher = ClimateFetcher()
 engine = MLEngine()
 
-# Ensure models are trained/loaded on startup
-engine.load_models()
-if not any(engine.models.values()):
-    engine.train_all()
+@app.on_event("startup")
+async def startup_event():
+    print("Starting up Energy Prediction Engine...")
+    try:
+        engine.load_models()
+        if not any(engine.models.values()):
+            print("No pre-trained models found. Training now (may take a moment)...")
+            engine.train_all()
+        print("Startup complete. Models ready.")
+    except Exception as e:
+        print(f"CRITICAL STARTUP ERROR: {e}")
+        traceback.print_exc()
 
 @app.middleware("http")
 async def catch_exceptions_middleware(request, call_next):
