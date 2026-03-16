@@ -27,19 +27,6 @@ async def startup_event():
         print(f"CRITICAL STARTUP ERROR: {e}")
         traceback.print_exc()
 
-@app.middleware("http")
-async def catch_exceptions_middleware(request, call_next):
-    try:
-        return await call_next(request)
-    except Exception as e:
-        tb = traceback.format_exc()
-        print(f"DEBUG BACKEND ERROR:\n{tb}")
-        return json_response({"detail": str(e), "traceback": tb}, status_code=500)
-
-from fastapi.responses import JSONResponse
-def json_response(content, status_code=200):
-    return JSONResponse(content=content, status_code=status_code)
-
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
@@ -65,42 +52,7 @@ class PredictRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Building Energy Predictor API - v1.0.1 Debug"}
-
-@app.get("/debug/info")
-async def debug_info():
-    import sys
-    import xgboost as xgb
-    import sklearn
-    import joblib
-    import os
-    
-    backend_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(backend_dir, "data")
-    models_dir = os.path.join(data_dir, "models")
-    
-    files = {
-        "backend_dir": backend_dir,
-        "data_dir_exists": os.path.exists(data_dir),
-        "models_dir_exists": os.path.exists(models_dir),
-        "bee_benchmarks_exists": os.path.exists(os.path.join(data_dir, "bee_benchmarks.csv")),
-        "materials_exists": os.path.exists(os.path.join(data_dir, "materials.csv")),
-        "models_files": os.listdir(models_dir) if os.path.exists(models_dir) else []
-    }
-    
-    versions = {
-        "python": sys.version,
-        "xgboost": xgb.__version__,
-        "sklearn": sklearn.__version__,
-        "joblib": joblib.__version__
-    }
-    
-    return {
-        "status": "healthy",
-        "files": files,
-        "versions": versions,
-        "env": dict(os.environ) # Be careful with sensitive info, but helpful here
-    }
+    return {"message": "Welcome to the Building Energy Predictor API"}
 
 @app.get("/materials")
 async def get_materials():

@@ -127,8 +127,9 @@ class MLEngine:
         X = pd.DataFrame([input_data])
         X['solrad'] = X['solrad'] * factor
         
-        # Ensure feature order
-        feature_order = ["floor_area", "wwr", "u_wall", "u_roof", "u_glass", "shgc", "cdd", "hdd", "solrad", "hvac_cop"]
+        # Ensure feature order matches training features Exactly:
+        # ["u_wall", "u_roof", "u_glass", "shgc", "cdd", "hvac_cop", "floor_area", "wwr", "hdd", "solrad"]
+        feature_order = ["u_wall", "u_roof", "u_glass", "shgc", "cdd", "hvac_cop", "floor_area", "wwr", "hdd", "solrad"]
         X = X[feature_order]
         
         pred = model.predict(X)[0]
