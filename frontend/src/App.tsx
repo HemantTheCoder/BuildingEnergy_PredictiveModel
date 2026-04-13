@@ -3,7 +3,6 @@ import api from './lib/api';
 import {
   Zap,
   Globe,
-  Menu,
   ShieldCheck,
   Activity,
   Sparkles,
@@ -61,8 +60,8 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen selection:bg-primary/30 relative flex flex-col">
-      <div className="mesh-gradient" />
+    <div className="h-screen overflow-hidden selection:bg-primary/30 relative flex flex-col bg-[#050505]">
+      <div className="mesh-gradient absolute inset-0 z-0 pointer-events-none" />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full z-[100] border-b border-white/[0.03] bg-black/40 backdrop-blur-3xl">
@@ -96,14 +95,11 @@ export default function App() {
               <Globe className="w-4 h-4 text-primary" />
               <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Asia • Mumbai-IND</span>
             </div>
-            <button className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-all">
-              <Menu className="w-5 h-5 text-white/60" />
-            </button>
           </div>
         </div>
       </nav>
 
-      <main className="pt-32 pb-16 px-8 max-w-[1600px] mx-auto w-full flex-grow">
+      <main className="pt-28 pb-6 px-8 max-w-[1700px] mx-auto w-full flex-grow relative z-10 flex min-h-0">
         <AnimatePresence mode="wait">
           {activeTab === 'simulator' && (
             <motion.div
@@ -111,27 +107,23 @@ export default function App() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-10"
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full h-full min-h-0"
             >
-              <section className="lg:col-span-4 space-y-12">
-                <div className="space-y-6 page-enter">
-                  <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/5 border border-primary/10">
-                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/80">Active Simulation Engine v4.0</span>
+              <section className="lg:col-span-4 flex flex-col min-h-0">
+                <div className="space-y-4 page-enter shrink-0 mb-6">
+                  <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.25em] text-primary/80">Active Simulation Engine v4.0</span>
                   </div>
 
-                  <h1 className="text-5xl font-bold tracking-tighter leading-[0.9] text-white">
+                  <h1 className="text-4xl font-bold tracking-tighter leading-[0.9] text-white">
                     Designing <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">Tomorrow's</span> Efficiency.
                   </h1>
-
-                  <p className="text-lg text-white/40 font-medium leading-relaxed max-w-md">
-                    Precision EUI forecasting for Indian climates, powered by 22 Official BEE Benchmarks and ECBC Standards.
-                  </p>
                 </div>
 
-                <div className="relative">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-5xl blur-2xl opacity-20 -z-10" />
+                <div className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-5xl blur-2xl opacity-10 -z-10" />
                   <InputForm 
                     onPredict={handlePredict} 
                     onChange={setFormData}
@@ -142,7 +134,7 @@ export default function App() {
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold text-center"
+                      className="mt-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold text-center shrink-0"
                     >
                       {error}
                     </motion.div>
@@ -150,7 +142,8 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="lg:col-span-8">
+              <section className="lg:col-span-8 flex flex-col min-h-0">
+                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar">
                 {results ? (
                   <ResultsDashboard results={results} />
                 ) : (
@@ -179,6 +172,7 @@ export default function App() {
                     </div>
                   </div>
                 )}
+                </div>
               </section>
             </motion.div>
           )}
@@ -207,35 +201,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* Extreme Footer */}
-      <footer className="border-t border-white/[0.03] bg-black/60 py-16">
-        <div className="max-w-[1500px] mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4 text-white/40" />
-              </div>
-              <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Government Standards Validated</span>
-            </div>
-            <p className="text-white/20 text-[11px] leading-relaxed max-w-xs font-medium">
-              Developed for the Climate-Aware Architectural Competition. All rights reserved © 2026.
-            </p>
-          </div>
-          <div className="flex items-center gap-12 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]">
-            <a href="#" className="hover:text-primary transition-all">Security</a>
-            <a href="#" className="hover:text-primary transition-all">API Docs</a>
-            <a href="#" className="hover:text-primary transition-all">Materials</a>
-            <a href="#" className="hover:text-primary transition-all">Sustainability</a>
-          </div>
-          <div className="flex flex-col items-end gap-3">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none">Global Relay</span>
-              <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_15px_rgba(45,212,191,0.6)] animate-pulse" />
-            </div>
-            <span className="text-[9px] font-medium text-white/20 tracking-tighter">SERVER IND-CLUSTER-001 • v4.28.1 ALPHA</span>
-          </div>
-        </div>
-      </footer>
+      {/* Removed Huge Footer to save vertical height constraint in Dashboard mode */}
     </div>
   );
 }
