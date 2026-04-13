@@ -48,13 +48,12 @@ MATERIALS_DATA = [
 ]
 
 def seed_materials():
-    file_path = "data/materials.csv"
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(backend_dir, "data", "materials.csv")
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     df = pd.DataFrame(MATERIALS_DATA)
     df.to_csv(file_path, index=False)
     print(f"Material database seeded at {file_path}")
 
 if __name__ == "__main__":
-    if not os.path.exists("data"):
-        os.makedirs("data")
     seed_materials()
