@@ -15,7 +15,10 @@ class MLEngine:
         # Resolve current directory
         self.backend_dir = os.path.dirname(os.path.abspath(__file__))
         self.model_dir = os.path.join(self.backend_dir, "data", "models")
-        os.makedirs(self.model_dir, exist_ok=True)
+        try:
+            os.makedirs(self.model_dir, exist_ok=True)
+        except Exception as e:
+            print(f"Warning: Could not create model directory {self.model_dir}: {e}")
         
         self.models = {
             "XGBoost": None,

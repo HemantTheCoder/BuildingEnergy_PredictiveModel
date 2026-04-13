@@ -46,7 +46,12 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={
             "detail": str(exc),
             "traceback": trace,
-            "message": "Internal Server Error - Check logs for details"
+            "message": "Internal Server Error - Detailed Traceback attached"
+        },
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*"
         }
     )
 
