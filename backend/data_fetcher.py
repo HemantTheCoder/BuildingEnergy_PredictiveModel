@@ -53,12 +53,27 @@ class ClimateFetcher:
         self.nasa_circuit_breaker = CircuitBreaker()
 
     def get_lat_lon(self, city_name):
+        # Pre-calculated common city coordinates to avoid geocoding limits
+        common_cities = {
+            "mumbai, india": (19.0760, 72.8777), "delhi, india": (28.7041, 77.1025),
+            "bangalore, india": (12.9716, 77.5946), "hyderabad, india": (17.3850, 78.4867),
+            "ahmedabad, india": (23.0225, 72.5714), "chennai, india": (13.0827, 80.2707),
+            "kolkata, india": (22.5726, 88.3639), "surat, india": (21.1702, 72.8311),
+            "pune, india": (18.5204, 73.8567), "jaipur, india": (26.9124, 75.7873),
+            "lucknow, india": (26.8467, 80.9462), "kanpur, india": (26.4499, 80.3319)
+        }
+        city_lower = city_name.lower().strip()
+        if city_lower in common_cities:
+            return common_cities[city_lower]
+
         if city_name in self.cache:
             entry = self.cache[city_name]
             if datetime.now() - entry.get('timestamp', datetime.min) < self.cache_ttl:
                 return entry.get('lat'), entry.get('lon')
         
         try:
+            # Change user agent to be more specific to avoid basic blocks
+            self.geolocator.headers = {"User-Agent": "Building_Energy_App_Edu/1.0"}
             location = self.geolocator.geocode(city_name, timeout=10)
             if location:
                 self.cache[city_name] = {"lat": location.latitude, "lon": location.longitude, "timestamp": datetime.now()}
