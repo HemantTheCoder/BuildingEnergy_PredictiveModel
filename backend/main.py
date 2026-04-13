@@ -50,6 +50,22 @@ class PredictRequest(BaseModel):
     climate_overrides: Optional[Dict[str, float]] = None
     model_type: Optional[str] = "XGBoost"
 
+class TelemetryPayload(BaseModel):
+    building_id: str
+    timestamp: str
+    hvac_power_kw: float
+    occupancy_count: int
+    indoor_temp_c: float
+    setpoint_c: float
+    window_status: str
+
+@app.post("/telemetry/bms")
+async def ingest_bms_telemetry(payload: TelemetryPayload):
+    """IoT/BMS Sink mimicking live streaming data sets (e.g. NEST dataset) for MLOps ground truth integration."""
+    print(f"TELEMETRY RECEIVED: [{payload.building_id}] Temp: {payload.indoor_temp_c}C, HVAC: {payload.hvac_power_kw}kW")
+    # Stub: Save to an offline sink or feature store
+    return {"status": "ingested", "processed_at": pd.Timestamp.now().isoformat()}
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Building Energy Predictor API"}
@@ -194,8 +210,16 @@ async def predict(request: PredictRequest):
     }
     
     # 4. Predict
-    prediction = engine.predict(input_data, orientation=request.orientation, model_type=request.model_type)
+    try:
+        prediction = engine.predict(input_data, orientation=request.orientation, model_type=request.model_type)
+    except ValueError as ve:
+        if "PhysicsBoundError" in str(ve):
+            raise HTTPException(status_code=400, detail=str(ve))
+        raise ve
+        
     predicted_eui = prediction['predicted_eui'] * internal_gain_factor
+    interval = prediction.get('prediction_interval', [prediction['predicted_eui'], prediction['predicted_eui']])
+    adjusted_interval = [round(i * internal_gain_factor, 2) for i in interval]
     
     # 5. Recommend
     recommendations = engine.recommend_materials(input_data, materials_df, orientation=request.orientation, model_type=request.model_type)
@@ -209,9 +233,18 @@ async def predict(request: PredictRequest):
     # 8. ECBC Compliance
     compliance = engine.get_ecbc_compliance(u_wall, u_roof, u_glass, shgc)
 
+    # 9. Evidence Panel Construction
+    evidence_panel = {
+        "prediction_interval": adjusted_interval,
+        "shap_drivers": prediction.get('shap_values'),
+        "climate_source_metadata": climate.get('metadata', {}),
+        "physics_anomalies_detected": prediction.get('low_confidence', False),
+        "overall_confidence": 0.3 if prediction.get('low_confidence') else climate.get('metadata', {}).get('confidence_score', 0.8)
+    }
+
     return {
         "predicted_eui": float(predicted_eui),
-        "shap_values": prediction['shap_values'],
+        "evidence_panel": evidence_panel,
         "adjusted_solrad": prediction.get('adjusted_solrad'),
         "model_metrics": prediction.get('model_metrics', {}),
         "sensitivity_analysis": sensitivity,

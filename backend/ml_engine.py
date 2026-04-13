@@ -99,7 +99,25 @@ class MLEngine:
     def get_metrics(self, model_type="XGBoost"):
         return self.metrics.get(model_type, {})
 
-    def predict(self, input_data, orientation="South", model_type="XGBoost"):
+    def validate_physics(self, input_data):
+        """Physics Guardrails: Checks if inputs are within realistic physical bounds."""
+        errors = []
+        if not (0 < input_data.get('u_wall', 1.0) <= 15.0): errors.append("u_wall must be between 0 and 15")
+        if not (0 < input_data.get('u_roof', 1.0) <= 15.0): errors.append("u_roof must be between 0 and 15")
+        if not (0 < input_data.get('u_glass', 1.0) <= 15.0): errors.append("u_glass must be between 0 and 15")
+        if not (0.0 <= input_data.get('shgc', 0.5) <= 1.0): errors.append("shgc must be between 0 and 1.0")
+        if not (0.0 <= input_data.get('wwr', 0.1) <= 0.95): errors.append("wwr must be between 0 and 0.95")
+        if not (0 < input_data.get('hvac_cop', 3.0) <= 8.5): errors.append("hvac_cop must be positive and realistic (<= 8.5)")
+        if input_data.get('floor_area', 100) <= 0: errors.append("floor_area must be positive")
+        if input_data.get('cdd', 0) < 0 or input_data.get('hdd', 0) < 0: errors.append("cdd/hdd cannot be negative")
+        
+        if errors:
+            raise ValueError(f"PhysicsBoundError: Invalid inputs: {', '.join(errors)}")
+
+    def predict(self, input_data, orientation="South", model_type="XGBoost", skip_logging=False):
+        # 1. Physics Guardrails Sanity Check
+        self.validate_physics(input_data)
+        
         if self.models.get(model_type) is None:
             self.load_models()
         
@@ -112,58 +130,108 @@ class MLEngine:
             model = self.models["XGBoost"]
             model_type = "XGBoost" # Update model_type for SHAP and metrics
 
-        # Apply Orientation Factor to Solar Radiation
-        # South is baseline (1.0). West is highest intensity in Indian climates (afternoon sun).
-        # Relative solar gain factors adapted from BEE ECBC & ISHRAE Fundamentals.
-        orientation_factors = {
-            "North": 0.65, # Reduced gain, but still diffuse radiation
-            "South": 1.0,  # Baseline/High gain in winter, shaded in summer
-            "East": 0.9,   # Morning sun
-            "West": 1.15   # Harsh afternoon sun, high peak cooling load
-        }
+        # Apply Orientation Factor
+        orientation_factors = {"North": 0.65, "South": 1.0, "East": 0.9, "West": 1.15}
         factor = orientation_factors.get(orientation, 1.0)
         
-        # input_data is a dict with all features
         X = pd.DataFrame([input_data])
         X['solrad'] = X['solrad'] * factor
         
-        # Ensure feature order matches training features Exactly:
-        # ["u_wall", "u_roof", "u_glass", "shgc", "cdd", "hvac_cop", "floor_area", "wwr", "hdd", "solrad"]
         feature_order = ["u_wall", "u_roof", "u_glass", "shgc", "cdd", "hvac_cop", "floor_area", "wwr", "hdd", "solrad"]
         X = X[feature_order]
         
+        # 2. Anomaly Detection (Drift tracking)
+        is_anomalous = False
+        if input_data.get('cdd', 0) > 8000 or input_data.get('hdd', 0) > 6000:
+            is_anomalous = True
+
         pred = model.predict(X)[0]
         
-        # Get SHAP values for this prediction (only for tree-based models)
+        # 3. Uncertainty-aware Predictions (Prediction Intervals based on MAE)
+        metrics = self.metrics.get(model_type, {})
+        mae = metrics.get('mae', 5.0)
+        interval = round(mae * 1.96, 2)
+        prediction_interval = [round(float(pred) - interval, 2), round(float(pred) + interval, 2)]
+
+        # Get SHAP values
         shap_dict = {}
         if model_type in ["XGBoost", "RandomForest"]:
             try:
-                # Ensure explainer is initialized for the specific model
                 if self.explainers.get(model_type) is None:
                     self.explainers[model_type] = shap.TreeExplainer(model)
-                
                 shap_values = self.explainers[model_type].shap_values(X)
-                # shap_values can be a list of arrays for multi-output models, but for regression it's usually one array
                 if isinstance(shap_values, list):
                     shap_dict = dict(zip(feature_order, shap_values[0].tolist()))
                 else:
                     shap_dict = dict(zip(feature_order, shap_values[0].tolist()))
-            except Exception as e:
-                print(f"SHAP explanation failed for {model_type}: {e}")
-                pass # Fallback for errors
+            except Exception:
+                pass 
         
-        return {
+        prediction_result = {
             "predicted_eui": float(pred),
+            "prediction_interval": prediction_interval,
             "shap_values": shap_dict,
             "adjusted_solrad": float(X['solrad'].iloc[0]),
-            "model_metrics": self.metrics.get(model_type, {})
+            "model_metrics": metrics,
+            "low_confidence": is_anomalous
         }
+        
+        # MLOps: Log the prediction and evaluate drift
+        if not skip_logging:
+            self.log_prediction(input_data, prediction_result['predicted_eui'])
+            self.evaluate_drift_and_retrain()
+        
+        return prediction_result
+
+    def log_prediction(self, input_data, prediction):
+        """Simulates logging to an offline feature store for model retraining monitoring."""
+        log_entry = input_data.copy()
+        log_entry['predicted_eui'] = prediction
+        log_entry['timestamp'] = pd.Timestamp.now().isoformat()
+        
+        log_path = os.path.join(self.model_dir, "prediction_logs.jsonl")
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json.dumps(log_entry) + '\n')
+        except Exception as e:
+            print(f"Failed to log prediction: {e}")
+
+    def evaluate_drift_and_retrain(self):
+        """Simulates a continuous training pipeline (MLOps) detecting drift."""
+        # In a real scenario, this would compare feature distributions of real-time incoming 
+        # logs to training datasets, or check if actual verified IoT data shows our EUI is degrading.
+        # Here we simulate triggering a retrain if log size hits a threshold (e.g. 10 new entries)
+        log_path = os.path.join(self.model_dir, "prediction_logs.jsonl")
+        
+        if not os.path.exists(log_path):
+            return
+            
+        try:
+            with open(log_path, 'r') as f:
+                logs = f.readlines()
+            
+            # Simulated MLOps Trigger
+            if len(logs) >= 10:  # Kept small for demonstration 
+                print("MLOps Pipeline: Sample size threshold reached for potential drift. Triggering retrain...")
+                # In real scenario, we merge actual outcomes from BMS/IoT here to create ground truth.
+                self.train_all()
+                # Archive logs after retraining
+                archive_name = f"prediction_logs_archived_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.jsonl"
+                os.rename(log_path, os.path.join(self.model_dir, archive_name))
+                print("MLOps Pipeline: Retraining complete and models seamlessly deployed.")
+        except Exception as e:
+            print(f"MLOps pipeline error: {e}")
 
     def recommend_materials(self, base_input, materials_df, orientation="South", model_type="XGBoost"):
         """
         Iterates through material combinations to find top energy-efficient options.
-        Ensures the 3 best shown have DIFFERENT materials (diversity).
+        Applies Smart Filtering based on climate context (Hot vs Cold).
         """
+        cdd = base_input.get('cdd', 0)
+        hdd = base_input.get('hdd', 0)
+        is_hot = cdd > 2000
+        is_cold = hdd > 1000
+        
         walls = materials_df[materials_df['component_type'] == 'wall']
         roofs = materials_df[materials_df['component_type'] == 'roof']
         glazing = materials_df[materials_df['component_type'] == 'glazing']
@@ -173,19 +241,43 @@ class MLEngine:
         for _, wall in walls.iterrows():
             for _, roof in roofs.iterrows():
                 for _, glass in glazing.iterrows():
+                    # Smart Climate Context Penalties
+                    malus = 0
+                    wall_u = float(wall.get('u_value', 2.0))
+                    wall_density = float(wall.get('density', 1000))
+                    roof_u = float(roof.get('u_value', 2.0))
+                    glass_u = float(glass.get('u_value', 3.0))
+
+                    if is_hot:
+                        # Hot climates punish high U-value roofs heavily and low thermal mass walls without insulation
+                        if roof_u > 2.0: malus += 25
+                        if wall_density < 800 and wall_u > 1.2: malus += 10
+                        if float(glass.get('shgc', 0.8)) > 0.6: malus += 15
+                        
+                    if is_cold:
+                        # Cold climates severely punish high thermal transmittance
+                        if wall_u > 1.5: malus += 20
+                        if glass_u > 3.0: malus += 20
+                        if roof_u > 1.0: malus += 15
+
                     test_input = base_input.copy()
-                    test_input['u_wall'] = float(wall['u_value'])
-                    test_input['u_roof'] = float(roof['u_value'])
-                    test_input['u_glass'] = float(glass['u_value'])
+                    test_input['u_wall'] = wall_u
+                    test_input['u_roof'] = roof_u
+                    test_input['u_glass'] = glass_u
                     test_input['shgc'] = float(glass.get('shgc', 0.82))
                     
-                    # Ensure base_input is passed correctly to trigger different predictions
-                    pred_res = self.predict(test_input, orientation=orientation, model_type=model_type)
+                    pred_res = self.predict(test_input, orientation=orientation, model_type=model_type, skip_logging=True)
+                    predicted_eui = pred_res['predicted_eui']
+                    
+                    # Final scoring = ML Prediction + Climate Architectural Penalty
+                    suitability_score = predicted_eui + malus
+                    
                     results.append({
                         "wall": wall['name'],
                         "roof": roof['name'],
                         "glazing": glass['name'],
-                        "predicted_eui": pred_res['predicted_eui'],
+                        "predicted_eui": predicted_eui,
+                        "suitability_score": suitability_score,
                         "wall_id": wall['id'],
                         "roof_id": roof['id'],
                         "glazing_id": glass['id'],
@@ -193,7 +285,8 @@ class MLEngine:
                         "cost_index": int(wall.get('cost_index', 5)) + int(roof.get('cost_index', 5)) + int(glass.get('cost_index', 5))
                     })
         
-        results.sort(key=lambda x: x['predicted_eui'])
+        # Sort by the heuristically adjusted suitability score, not just raw EUI
+        results.sort(key=lambda x: x['suitability_score'])
         
         # Diversity filter remains same but we can now sort by carbon or cost if needed
         diverse_top_3 = []
