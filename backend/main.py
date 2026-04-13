@@ -72,11 +72,13 @@ async def root():
 
 @app.get("/materials")
 async def get_materials():
-    if not os.path.exists("data/materials.csv"):
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    materials_path = os.path.join(backend_dir, "data", "materials.csv")
+    if not os.path.exists(materials_path):
         from material_db import seed_materials
         seed_materials()
     
-    df = pd.read_csv("data/materials.csv")
+    df = pd.read_csv(materials_path)
     records = df.to_dict(orient="records")
     # Robustly replace NaN with None for JSON compliance
     return [{k: (None if pd.isna(v) else v) for k, v in r.items()} for r in records]
@@ -144,10 +146,12 @@ async def predict(request: PredictRequest):
              }
     
     # 2. Get Materials
-    if not os.path.exists("data/materials.csv"):
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    materials_path = os.path.join(backend_dir, "data", "materials.csv")
+    if not os.path.exists(materials_path):
          from material_db import seed_materials
          seed_materials()
-    materials_df = pd.read_csv("data/materials.csv")
+    materials_df = pd.read_csv(materials_path)
     
     # Updated HVAC COP mapping for Indian Context
     cop_map = {
