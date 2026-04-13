@@ -49,6 +49,7 @@ MATERIALS_DATA = [
 
 def seed_materials():
     file_path = "data/materials.csv"
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     df = pd.DataFrame(MATERIALS_DATA)
     df.to_csv(file_path, index=False)
     print(f"Material database seeded at {file_path}")
