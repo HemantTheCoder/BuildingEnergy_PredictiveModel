@@ -203,12 +203,16 @@ async def predict(request: PredictRequest):
         # Adaptive Default Fallback
         is_cold = climate_data and climate_data.get('hdd', 0) > 1000
         defaults = {
-            "wall": "AAC Block Wall (200mm)" if not is_cold else "Insulated Brick Wall (230mm + 50mm EPS)",
-            "roof": "RCC Slab (150mm)" if not is_cold else "Insulated RCC Slab (150mm + 75mm XPS)", 
+            "wall": "AAC Block Wall (200mm)" if not is_cold else "Burnt Clay Brick Wall (230mm)",
+            "roof": "RCC Slab (150mm) - Standard" if not is_cold else "RCC (150mm) + 100mm Rockwool Insulation", 
             "glazing": "Single Clear Glass (6mm)" if not is_cold else "Double Glazed Low-E (6/12/6)"
         }
         match = materials_df[materials_df['name'] == defaults[comp_type]]
-        return match.iloc[0].to_dict()
+        if not match.empty:
+            return match.iloc[0].to_dict()
+        
+        # Hard fallback if even default is missing
+        return materials_df[materials_df['component_type'] == comp_type].iloc[0].to_dict()
 
     wall_data = get_material_data("wall", request.material_overrides.get("wall") if request.material_overrides else None, climate)
     roof_data = get_material_data("roof", request.material_overrides.get("roof") if request.material_overrides else None, climate)
