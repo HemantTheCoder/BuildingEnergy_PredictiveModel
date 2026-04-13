@@ -182,6 +182,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
+              className="w-full h-full min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar"
             >
               <MaterialLibrary materials={materials} />
             </motion.div>
@@ -193,6 +194,7 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.05 }}
+              className="w-full h-full min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar"
             >
               <ModelIntelligence results={results} />
             </motion.div>
