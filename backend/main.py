@@ -8,12 +8,24 @@ import os
 import json
 import pandas as pd
 import traceback
+import math
 from data_fetcher import ClimateFetcher
 from ml_engine import MLEngine
 
 app = FastAPI(title="Climate-aware Material Recommendation & EUI Predictor")
 fetcher = ClimateFetcher()
 engine = MLEngine()
+
+def sanitize_for_json(obj):
+    """Recursive helper to make everything JSON compliant (replaces NaN/Inf with None)."""
+    if isinstance(obj, dict):
+        return {k: sanitize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_for_json(v) for v in obj]
+    elif isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+    return obj
 
 @app.on_event("startup")
 async def startup_event():
@@ -126,7 +138,7 @@ async def get_cities():
         "Ujjain, India", "Loni, India", "Siliguri, India", "Jhansi, India", "Ulhasnagar, India", 
         "Gangtok, India", "Itanagar, India", "Kohima, India", "Imphal, India", "Aizawl, India"
     ]
-    return sorted(cities)
+    return sanitize_for_json(sorted(cities))
 
 @app.get("/models")
 async def get_models():
@@ -143,7 +155,7 @@ async def get_climate(city: str):
     data = fetcher.fetch_climate_data(lat, lon)
     if not data:
         raise HTTPException(status_code=500, detail="Error fetching climate data")
-    return {"lat": lat, "lon": lon, **data}
+    return sanitize_for_json({"lat": lat, "lon": lon, **data})
 
 @app.post("/predict")
 async def predict(request: PredictRequest):
@@ -269,7 +281,7 @@ async def predict(request: PredictRequest):
         "overall_confidence": 0.3 if prediction.get('low_confidence') else climate.get('metadata', {}).get('confidence_score', 0.8)
     }
 
-    return {
+    response = {
         "predicted_eui": float(predicted_eui),
         "evidence_panel": evidence_panel,
         "adjusted_solrad": prediction.get('adjusted_solrad'),
@@ -285,6 +297,7 @@ async def predict(request: PredictRequest):
             "glazing": {"name": glazing_data['name'], "citation": glazing_data.get('source_citation'), "ref": glazing_data.get('official_ref'), "url": glazing_data.get('source_url'), "carbon": float(glazing_data.get('embodied_carbon', 0))}
         }
     }
+    return sanitize_for_json(response)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
