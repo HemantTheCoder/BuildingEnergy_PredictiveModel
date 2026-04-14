@@ -62,18 +62,16 @@ export default function App() {
     <div className="h-screen overflow-hidden selection:bg-primary/30 relative flex flex-col bg-[#050505]">
       <div className="mesh-gradient absolute inset-0 z-0 pointer-events-none" />
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-[100] border-b border-white/[0.03] bg-black/40 backdrop-blur-3xl">
-        <div className="max-w-[1500px] mx-auto px-8 h-24 flex items-center justify-between">
-          <div className="flex items-center gap-5 group cursor-pointer" onClick={() => setActiveTab('simulator')}>
-            <div className="w-14 h-14 bg-primary rounded-[1.25rem] flex items-center justify-center shadow-[0_0_40px_rgba(45,212,191,0.2)] group-hover:scale-110 transition-transform duration-500 ease-out">
-              <Zap className="w-8 h-8 text-black" fill="currentColor" />
+      <nav className="fixed top-0 left-0 w-full z-[100] border-b border-white/5 bg-[#0f1115]/90 backdrop-blur-md">
+        <div className="max-w-[1500px] mx-auto px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveTab('simulator')}>
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+              <Zap className="w-5 h-5 text-primary" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-xl tracking-tighter leading-none flex items-center gap-2">
-                ECOSTRUCTURE <span className="text-white/20 font-light translate-y-[2px]">|</span> <span className="text-primary italic font-black">AI</span>
+              <span className="font-bold text-lg tracking-tight flex items-center gap-2">
+                PredictiveModel <span className="text-white/20 font-light translate-y-[1px]">|</span> <span className="text-white/60">Energy</span>
               </span>
-              <span className="text-[9px] font-black tracking-[0.4em] text-white/30 uppercase mt-1">Sustainable Systems</span>
             </div>
           </div>
 
@@ -90,9 +88,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="hidden lg:flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/[0.03] border border-white/[0.05]">
-              <Globe className="w-4 h-4 text-primary" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Asia • Mumbai-IND</span>
+            <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/5">
+              <Globe className="w-3.5 h-3.5 text-white/50" />
+              <span className="text-xs font-semibold text-white/60">BEE Standards</span>
             </div>
           </div>
         </div>
@@ -108,21 +106,15 @@ export default function App() {
               exit={{ opacity: 0, x: 20 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full h-full min-h-0"
             >
-              <section className="lg:col-span-4 flex flex-col min-h-0">
-                <div className="space-y-4 page-enter shrink-0 mb-6">
-                  <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.25em] text-primary/80">Active Simulation Engine v4.0</span>
-                  </div>
-
-                  <h1 className="text-4xl font-bold tracking-tighter leading-[0.9] text-white">
-                    Designing <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">Tomorrow's</span> Efficiency.
+              <section className="lg:col-span-4 flex flex-col min-h-0 border-r border-white/5 pr-8">
+                <div className="space-y-2 page-enter shrink-0 mb-6 border-b border-white/5 pb-6">
+                  <h1 className="text-2xl font-semibold tracking-tight text-white flex flex-col gap-1">
+                    <span>Performance</span>
+                    <span className="text-white/50">Simulation Setup</span>
                   </h1>
                 </div>
 
-                <div className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-5xl blur-2xl opacity-10 -z-10" />
+                <div className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-4 premium-scrollbar">
                   <InputForm 
                     onPredict={handlePredict} 
                     onChange={setFormData}
@@ -141,34 +133,17 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="lg:col-span-8 flex flex-col min-h-0">
-                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar">
+              <section className="lg:col-span-8 flex flex-col min-h-0 pl-2">
+                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-2 premium-scrollbar">
                 {results ? (
-                  <ResultsDashboard results={results} />
+                  <ResultsDashboard results={results} onPredict={handlePredict} formData={formData} />
                 ) : (
-                  <div className="h-full premium-card p-20 flex flex-col items-center justify-center text-center group relative overflow-hidden">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -z-10 animate-pulse-slow" />
-                    <div className="relative mb-12">
-                      <div className="w-36 h-36 bg-white/[0.02] border border-white/[0.05] rounded-[3rem] flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                        <Sparkles className="w-16 h-16 text-white/5 group-hover:text-primary/40 transition-colors duration-500" />
-                      </div>
-                      <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-black rounded-2xl flex items-center justify-center border border-white/5">
-                        <Activity className="w-5 h-5 text-primary/60" />
-                      </div>
-                    </div>
-                    <h3 className="text-4xl font-bold mb-6 tracking-tight">Intelligence Ready</h3>
-                    <p className="text-white/30 max-w-md text-xl leading-relaxed mb-12 font-medium">
-                      Configure your project parameters to initialize the hyper-spectral energy transition model.
+                  <div className="h-full flex flex-col items-center justify-center text-center group text-white/50 border border-white/5 rounded-2xl bg-white/[0.01]">
+                    <Activity className="w-10 h-10 mb-4 opacity-50" />
+                    <h3 className="text-lg font-semibold mb-2">Awaiting Parameters</h3>
+                    <p className="text-sm max-w-sm">
+                      Configure your building archetype and climate data on the left to initialize the predictive model.
                     </p>
-                    <div className="grid grid-cols-2 gap-6 w-full max-w-sm">
-                      {[{ label: 'NASA Power', status: 'Linked', color: 'bg-emerald-500' }, { label: 'BMTPC Core', status: 'Active', color: 'bg-sky-500' }].map(sys => (
-                        <div key={sys.label} className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.05] flex flex-col items-center gap-3">
-                          <div className={cn("w-2 h-2 rounded-full", sys.color, "animate-pulse")} />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">{sys.label}</span>
-                          <span className="text-xs font-bold text-white/60">{sys.status}</span>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
                 </div>

@@ -280,9 +280,16 @@ async def predict(request: PredictRequest):
         "physics_anomalies_detected": prediction.get('low_confidence', False),
         "overall_confidence": 0.3 if prediction.get('low_confidence') else climate.get('metadata', {}).get('confidence_score', 0.8)
     }
+    
+    # 10. Dynamic Financials
+    # In a fully fleshed system, baseline_eui comes from a benchmark database for the given city/archetype.
+    baseline_eui = 180.0 
+    annual_savings_inr = max(0, (baseline_eui - predicted_eui)) * request.floor_area_m2 * 9.0 # Assuming INR 9/kWh
 
     response = {
         "predicted_eui": float(predicted_eui),
+        "baseline_eui": float(baseline_eui),
+        "annual_savings_inr": float(annual_savings_inr),
         "evidence_panel": evidence_panel,
         "adjusted_solrad": prediction.get('adjusted_solrad'),
         "model_metrics": prediction.get('model_metrics', {}),

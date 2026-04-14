@@ -4,7 +4,6 @@ import api from '../lib/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
-
 export default function InputForm({ onPredict, onChange, loading }: any) {
     const [cities, setCities] = useState<string[]>([]);
     const [manualClimate, setManualClimate] = useState(false);
@@ -39,6 +38,8 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
     const [libraryMaterials, setLibraryMaterials] = useState<{name: string, type: string, props: any}[]>([]);
     const [customName, setCustomName] = useState("");
 
+    const [dbMaterials, setDbMaterials] = useState<any[]>([]);
+
     useEffect(() => {
         if (onChange) {
             onChange(formData);
@@ -56,12 +57,9 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
         setCustomName("");
     };
 
-    const [dbMaterials, setDbMaterials] = useState<any[]>([]);
-
     useEffect(() => {
         api.get(`/cities`)
             .then(res => {
-                console.log("Cities loaded:", res.data.length);
                 setCities(res.data);
                 if (res.data.some((c: string) => c.toLowerCase() === formData.city.toLowerCase())) {
                     fetchClimate(formData.city);
@@ -87,14 +85,6 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
             }));
         } catch (error) {
             console.error("Failed to fetch climate", error);
-            // Don't leave it in an inconsistent state
-            setFormData(prev => ({
-                ...prev,
-                climate_overrides: {
-                    ...prev.climate_overrides,
-                    source: "Error: Falling back to Manual"
-                }
-            }));
         } finally {
             setFetchingClimate(false);
         }
@@ -110,49 +100,44 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="premium-card p-8 space-y-8 relative group">
-            {/* Visual Accent */}
-            <div className="absolute top-0 right-12 w-40 h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-
+        <form onSubmit={handleSubmit} className="premium-card p-6 space-y-8 relative group">
+            
             {/* Mode Toggle Bar */}
-            <div className="flex justify-center mb-8">
-                <div className="flex p-1 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
-                    <button
-                        type="button"
-                        onClick={() => setIsAdvancedMode(false)}
-                        className={cn(
-                            "px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all",
-                            !isAdvancedMode ? "bg-primary text-black shadow-[0_0_15px_rgba(45,212,191,0.3)]" : "text-white/40 hover:text-white/80"
-                        )}
-                    >
-                        Simple
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setIsAdvancedMode(true)}
-                        className={cn(
-                            "px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all",
-                            isAdvancedMode ? "bg-secondary text-black shadow-[0_0_15px_rgba(167,139,250,0.3)]" : "text-white/40 hover:text-white/80"
-                        )}
-                    >
-                        Advanced
-                    </button>
-                </div>
+            <div className="flex border-b border-white/10 mb-6 pb-2">
+                <button
+                    type="button"
+                    onClick={() => setIsAdvancedMode(false)}
+                    className={cn(
+                        "px-6 py-2 text-sm font-semibold transition-all relative",
+                        !isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-white/50 hover:text-white"
+                    )}
+                >
+                    Simple Mode
+                    {!isAdvancedMode && <div className="absolute bottom-[-9px] left-0 w-full h-[2px] bg-primary" />}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setIsAdvancedMode(true)}
+                    className={cn(
+                        "px-6 py-2 text-sm font-semibold transition-all relative",
+                        isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-white/50 hover:text-white"
+                    )}
+                >
+                    Advanced Editor
+                    {isAdvancedMode && <div className="absolute bottom-[-9px] left-0 w-full h-[2px] bg-primary" />}
+                </button>
             </div>
 
             {/* Section 1: Geographic Intelligence */}
-            <section className="space-y-6">
+            <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/10">
-                            <MapPin className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40">Geographic Context</span>
-                    </div>
+                    <span className="section-label m-0 p-0 border-0 flex items-center gap-2">
+                        <MapPin className="w-4 h-4" /> Location & Climate
+                    </span>
                     {fetchingClimate && (
                         <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                            className="flex items-center gap-2 text-[10px] font-bold text-primary italic"
+                            className="flex items-center gap-2 text-xs font-semibold text-primary"
                         >
                             <RefreshCcw className="w-3 h-3 animate-spin" />
                             Fetching Climatology...
@@ -160,47 +145,47 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                     )}
                 </div>
 
-                <div className="relative group">
-                    <input
-                        list="indian-cities"
-                        type="text"
-                        value={formData.city}
-                        className="w-full glass-input h-14 text-base font-bold pl-8 group-hover:border-white/10 transition-all"
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            setFormData({ ...formData, city: val });
-                            // Trigger if exact match found
-                            if (cities.some(c => c.toLowerCase() === val.toLowerCase())) {
-                                fetchClimate(val);
-                            }
-                        }}
-                        placeholder="Select or enter city..."
-                    />
-                    <datalist id="indian-cities">
-                        {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                    </datalist>
-
-                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-3">
-                        <button
-                            type="button"
-                            title="Force Climate Fetch"
-                            onClick={() => fetchClimate(formData.city)}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all"
-                        >
-                            <RefreshCcw className={cn("w-4 h-4", fetchingClimate && "animate-spin")} />
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setManualClimate(!manualClimate)}
-                            className={cn(
-                                "flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all h-9",
-                                manualClimate ? "bg-primary/20 border-primary text-primary" : "bg-white/[0.03] border-white/[0.05] text-white/30 hover:text-white/60"
-                            )}
-                        >
-                            <Settings2 className="w-3.5 h-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Override</span>
-                        </button>
+                <div className="relative group flex gap-3">
+                    <div className="relative flex-1">
+                        <input
+                            list="indian-cities"
+                            type="text"
+                            value={formData.city}
+                            className="w-full glass-input h-12 text-sm pl-10"
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setFormData({ ...formData, city: val });
+                                if (cities.some(c => c.toLowerCase() === val.toLowerCase())) {
+                                    fetchClimate(val);
+                                }
+                            }}
+                            placeholder="Select or enter city..."
+                        />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <datalist id="indian-cities">
+                            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                        </datalist>
                     </div>
+
+                    <button
+                        type="button"
+                        title="Force Climate Fetch"
+                        onClick={() => fetchClimate(formData.city)}
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white/50"
+                    >
+                        <RefreshCcw className={cn("w-4 h-4", fetchingClimate && "animate-spin")} />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setManualClimate(!manualClimate)}
+                        className={cn(
+                            "flex items-center gap-2 px-4 h-12 rounded-xl border transition-all text-sm font-semibold",
+                            manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-white/5 border-white/10 text-white/50 hover:text-white/80"
+                        )}
+                    >
+                        <Settings2 className="w-4 h-4" />
+                        Override
+                    </button>
                 </div>
 
                 <AnimatePresence>
@@ -211,22 +196,22 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="grid grid-cols-3 gap-4 pt-4">
+                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
                                 <ClimateField
-                                    icon={<Thermometer className="w-3 h-3 text-rose-500" />}
-                                    label="CDD"
+                                    icon={<Thermometer className="w-4 h-4 text-rose-400" />}
+                                    label="Cooling Degree Days"
                                     value={formData.climate_overrides.cdd}
                                     onChange={(v: number) => setFormData({ ...formData, climate_overrides: { ...formData.climate_overrides, cdd: v } })}
                                 />
                                 <ClimateField
-                                    icon={<Wind className="w-3 h-3 text-sky-500" />}
-                                    label="HDD"
+                                    icon={<Wind className="w-4 h-4 text-sky-400" />}
+                                    label="Heating Degree Days"
                                     value={formData.climate_overrides.hdd}
                                     onChange={(v: number) => setFormData({ ...formData, climate_overrides: { ...formData.climate_overrides, hdd: v } })}
                                 />
                                 <ClimateField
-                                    icon={<Sun className="w-3 h-3 text-amber-500" />}
-                                    label="SOLRAD"
+                                    icon={<Sun className="w-4 h-4 text-amber-400" />}
+                                    label="Solar Radiation"
                                     value={formData.climate_overrides.annual_solrad}
                                     onChange={(v: number) => setFormData({ ...formData, climate_overrides: { ...formData.climate_overrides, annual_solrad: v } })}
                                 />
@@ -237,68 +222,78 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
             </section>
 
             {/* Section 2: Model Configuration */}
-            <section className="space-y-6">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 rounded-xl bg-secondary/5 flex items-center justify-center border border-secondary/10">
-                        <Cpu className="w-4 h-4 text-secondary" />
-                    </div>
-                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40">Simulation Model</span>
-                </div>
+            <section className="space-y-4">
+                <span className="section-label m-0 p-0 border-0 flex items-center gap-2">
+                    <Cpu className="w-4 h-4" /> Building Profile
+                </span>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Building Profile</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                        <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">Primary Archetype</label>
                         <select
-                            className="w-full glass-input h-14 font-bold appearance-none bg-black"
+                            className="w-full glass-input h-12"
                             value={formData.archetype}
                             onChange={(e) => setFormData({ ...formData, archetype: e.target.value })}
                         >
-                            <option value="office_small">Small Office (BEE Standard)</option>
-                            <option value="office_medium">Medium Institutional (CPWD Style)</option>
-                            <option value="retail">Commercial / Mall (High Gains)</option>
-                            <option value="healthcare">Healthcare / Clinic (24/7 Load)</option>
+                            <option value="office_small">Small Office</option>
+                            <option value="office_medium">Medium Institutional</option>
+                            <option value="retail">Commercial / Mall</option>
+                            <option value="healthcare">Healthcare / Clinic</option>
                         </select>
                     </div>
 
+                    <div className="space-y-2">
+                        <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">Net Floor Area (m²)</label>
+                        <div className="relative">
+                            <input
+                                type="number"
+                                className="w-full glass-input h-12 pr-12"
+                                value={formData.floor_area_m2}
+                                onChange={(e) => setFormData({ ...formData, floor_area_m2: Number(e.target.value) })}
+                            />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 font-medium text-sm text-white/40">m²</div>
+                        </div>
+                    </div>
+
                     {isAdvancedMode && (
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Simulation Algorithm</label>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">Simulation Model</label>
                             <select
-                                className="w-full glass-input h-14 font-bold appearance-none bg-black border-primary/20"
+                                className="w-full glass-input h-12"
                                 value={formData.model_type}
                                 onChange={(e) => setFormData({ ...formData, model_type: e.target.value })}
                             >
-                                <option value="XGBoost">XGBoost (High Precision)</option>
-                                <option value="RandomForest">Random Forest (Stable)</option>
-                                <option value="RidgeRegression">Ridge Regression (Linear)</option>
+                                <option value="XGBoost">XGBoost API</option>
+                                <option value="RandomForest">Random Forest API</option>
+                                <option value="RidgeRegression">Ridge Regression</option>
                             </select>
                         </div>
                     )}
 
                     {isAdvancedMode && (
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">HVAC Strategy (Indian Context)</label>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">HVAC Strategy</label>
                             <select
-                                className="w-full glass-input h-14 font-bold appearance-none bg-black"
+                                className="w-full glass-input h-12"
                                 value={formData.hvac_type}
                                 onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
                             >
-                                <option value="Split/Window AC">Split / Window AC (Bureau of Energy Efficiency 3-Star)</option>
-                                <option value="Central Chiller (VAV)">Central Water-Cooled Chiller (VAV)</option>
-                                <option value="Variable Refrigerant Flow (VRF)">Inverter VRF (High Efficiency)</option>
-                                <option value="Evaporative Cooler">Desert / Evaporative Cooler (Dry Climates)</option>
+                                <option value="Split/Window AC">Split / Window AC</option>
+                                <option value="Central Chiller (VAV)">Central Water-Cooled Chiller</option>
+                                <option value="Variable Refrigerant Flow (VRF)">Inverter VRF</option>
+                                <option value="Evaporative Cooler">Evaporative Cooler</option>
                             </select>
                         </div>
                     )}
 
                     {isAdvancedMode && (
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                Occupancy <Definition text="Personnel density (ppl/m²). Higher density increases heat gain and ventilation load." />
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide flex items-center gap-1.5">
+                                Occupancy Density <Definition text="Personnel density (ppl/m²)." />
                             </label>
                             <input
                                 type="number" step="0.01" min="0.01" max="1.0"
-                                className="w-full glass-input h-14 font-bold bg-black"
+                                className="w-full glass-input h-12"
                                 value={formData.occupancy_density}
                                 onChange={(e) => setFormData({ ...formData, occupancy_density: Number(e.target.value) })}
                             />
@@ -306,13 +301,13 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                     )}
 
                     {isAdvancedMode && (
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                Plug Loads <Definition text="Equipment heat load (Equipment/IT) in Watts per square meter (W/m²)." />
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide flex items-center gap-1.5">
+                                Plug Loads (W/m²) <Definition text="Equipment heat load." />
                             </label>
                             <input
                                 type="number" step="1" min="0" max="100"
-                                className="w-full glass-input h-14 font-bold bg-black"
+                                className="w-full glass-input h-12"
                                 value={formData.equipment_load}
                                 onChange={(e) => setFormData({ ...formData, equipment_load: Number(e.target.value) })}
                             />
@@ -323,15 +318,12 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
             {/* Section 2.1: Material Selection */}
             {isAdvancedMode && (
-                <section className="space-y-6">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/10">
-                            <Layers className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40">Baseline Envelope</span>
-                    </div>
+                <section className="space-y-4">
+                    <span className="section-label m-0 p-0 border-0 flex items-center gap-2">
+                        <Layers className="w-4 h-4" /> Baseline Envelope Settings
+                    </span>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <MaterialSelect 
                             label="Wall Assembly" 
                             value={formData.material_overrides['wall']}
@@ -357,40 +349,23 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                 </section>
             )}
 
-            <section className="space-y-3">
-                <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Net Floor Area (m²)</label>
-                <div className="relative">
-                    <input
-                        type="number"
-                        className="w-full glass-input h-14 text-lg font-black pr-20"
-                        value={formData.floor_area_m2}
-                        onChange={(e) => setFormData({ ...formData, floor_area_m2: Number(e.target.value) })}
-                    />
-                    <div className="absolute right-6 top-1/2 -translate-y-1/2 font-black text-sm text-primary italic">m²</div>
-                </div>
-            </section>
-
-
-            {/* Section 2.5: Material Performance Overrides */}
+            {/* Section 2.5: Thermal Performance Overrides */}
             {isAdvancedMode && (
-                <section className="space-y-6">
+                <section className="space-y-4 border-t border-white/5 pt-4">
                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-orange-500/5 flex items-center justify-center border border-orange-500/10">
-                                <Layers className="w-4 h-4 text-orange-500" />
-                            </div>
-                            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40">Thermal Performance</span>
-                        </div>
+                        <span className="text-sm font-semibold text-orange-400 flex items-center gap-2">
+                            <Layers className="w-4 h-4" /> Thermal Performance Overrides
+                        </span>
                         <button
                             type="button"
                             onClick={() => setManualMaterials(!manualMaterials)}
                             className={cn(
-                                "flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all h-9",
-                                manualMaterials ? "bg-orange-500/20 border-orange-500 text-orange-500" : "bg-white/[0.03] border-white/[0.05] text-white/30 hover:text-white/60"
+                                "flex items-center gap-2 px-4 h-9 rounded-xl border transition-all text-xs font-semibold",
+                                manualMaterials ? "bg-orange-500/10 border-orange-500/30 text-orange-500" : "bg-white/5 border-white/10 text-white/50 hover:text-white/80"
                             )}
                         >
                             <Settings2 className="w-3.5 h-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Custom Specs</span>
+                            Use Custom Specs
                         </button>
                     </div>
 
@@ -402,21 +377,21 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                 exit={{ height: 0, opacity: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="grid grid-cols-2 gap-4 pt-4">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-4">
                                     <ClimateField
-                                        icon={<Layers className="w-3 h-3 text-orange-500" />}
+                                        icon={<Layers className="w-3 h-3 text-orange-400" />}
                                         label="Wall U-Value"
                                         value={formData.property_overrides.u_wall}
                                         onChange={(v: number) => setFormData({ ...formData, property_overrides: { ...formData.property_overrides, u_wall: v } })}
                                     />
                                     <ClimateField
-                                        icon={<Layers className="w-3 h-3 text-orange-500" />}
+                                        icon={<Layers className="w-3 h-3 text-orange-400" />}
                                         label="Roof U-Value"
                                         value={formData.property_overrides.u_roof}
                                         onChange={(v: number) => setFormData({ ...formData, property_overrides: { ...formData.property_overrides, u_roof: v } })}
                                     />
                                     <ClimateField
-                                        icon={<Sun className="w-3 h-3 text-amber-500" />}
+                                        icon={<Sun className="w-3 h-3 text-amber-400" />}
                                         label="Glass U-Value"
                                         value={formData.property_overrides.u_glass}
                                         onChange={(v: number) => setFormData({ ...formData, property_overrides: { ...formData.property_overrides, u_glass: v } })}
@@ -428,44 +403,41 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                         onChange={(v: number) => setFormData({ ...formData, property_overrides: { ...formData.property_overrides, shgc: v } })}
                                     />
                                 </div>
-                                <div className="mt-6 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Material Identity</span>
-                                    </div>
+                                
+                                <div className="p-4 rounded-xl border border-white/10 bg-white/5 space-y-3">
+                                    <div className="text-xs font-semibold text-white/60">Save to Project Library</div>
                                     <div className="flex gap-3">
                                         <input 
                                             type="text" 
-                                            placeholder="Material Name (e.g. Bio-composite Wall)"
+                                            placeholder="Assembly Name"
                                             value={customName}
                                             onChange={(e) => setCustomName(e.target.value)}
-                                            className="flex-1 glass-input h-10 text-xs px-4"
+                                            className="flex-1 glass-input h-10 text-sm"
                                         />
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('wall')}
-                                            className="flex-1 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-500 text-[9px] font-black uppercase hover:bg-orange-500/20 transition-all"
+                                            className="px-4 h-10 rounded-lg bg-[#27272a] border border-[#3f3f46] text-orange-400 text-xs font-semibold hover:bg-[#3f3f46] transition-all"
                                         >
-                                            Wall
+                                            Save Wall
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('roof')}
-                                            className="flex-1 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[9px] font-black uppercase hover:bg-amber-500/20 transition-all"
+                                            className="px-4 h-10 rounded-lg bg-[#27272a] border border-[#3f3f46] text-amber-400 text-xs font-semibold hover:bg-[#3f3f46] transition-all"
                                         >
-                                            Roof
+                                            Save Roof
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('glazing')}
-                                            className="flex-1 h-10 rounded-xl bg-primary/10 border border-primary/30 text-primary text-[9px] font-black uppercase hover:bg-primary/20 transition-all"
+                                            className="px-4 h-10 rounded-lg bg-[#27272a] border border-[#3f3f46] text-primary text-xs font-semibold hover:bg-[#3f3f46] transition-all"
                                         >
-                                            Glass
+                                            Save Glass
                                         </button>
                                     </div>
                                     {libraryMaterials.length > 0 && (
                                         <div className="pt-2">
-                                            <div className="text-[8px] font-black text-white/10 uppercase mb-2">Saved Library</div>
                                             <div className="flex flex-wrap gap-2">
                                                 {libraryMaterials.map((m, i) => (
                                                     <button
@@ -476,7 +448,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                                             property_overrides: { ...m.props },
                                                             material_overrides: { ...formData.material_overrides, [m.type]: m.name }
                                                         })}
-                                                        className="px-2 py-1 rounded bg-white/5 border border-white/10 text-[8px] font-bold text-white/40 hover:text-white transition-colors"
+                                                        className="px-3 py-1.5 rounded-md bg-[#27272a] border border-[#3f3f46] text-xs font-medium text-white/70 hover:text-white transition-colors"
                                                     >
                                                         {m.name.replace('Custom: ', '')}
                                                     </button>
@@ -485,25 +457,19 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                         </div>
                                     )}
                                 </div>
-                                <p className="mt-4 text-[9px] text-white/20 font-bold italic">
-                                    * Overriding these values will bypass the standard material selections.
-                                </p>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </section>
             )}
 
-            {/* Section 3: Orientation & Envelope */}
+            {/* Section 3: Orientation & WWR */}
             {isAdvancedMode && (
-                <section className="space-y-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/10">
-                            <Sun className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40">Building Orientation</span>
-                    </div>
-
+                <section className="space-y-4">
+                    <span className="section-label m-0 p-0 border-0 flex items-center gap-2">
+                        <Sun className="w-4 h-4" /> Solar & Envelope Design
+                    </span>
+                    
                     <div className="grid grid-cols-4 gap-4">
                         {['North', 'South', 'East', 'West'].map((dir) => (
                             <button
@@ -511,76 +477,59 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, orientation: dir })}
                                 className={cn(
-                                    "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all relative group/dir",
+                                    "p-3 rounded-xl border transition-all text-sm font-semibold flex items-center justify-center gap-2",
                                     formData.orientation === dir 
-                                        ? "bg-primary/10 border-primary text-primary shadow-[0_0_20px_rgba(45,212,191,0.1)]" 
-                                        : "bg-white/[0.02] border-white/[0.05] text-white/30 hover:border-white/10"
+                                        ? "bg-primary/10 border-primary/40 text-primary" 
+                                        : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10"
                                 )}
                             >
                                 <div className={cn(
-                                    "w-2 h-2 rounded-full mb-1 transition-all duration-500",
-                                    formData.orientation === dir ? "bg-primary scale-125" : "bg-white/10"
+                                    "w-1.5 h-1.5 rounded-full transition-all duration-300",
+                                    formData.orientation === dir ? "bg-primary" : "bg-white/20"
                                 )} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">{dir}</span>
-                                
-                                {formData.orientation === dir && (
-                                    <motion.div 
-                                        layoutId="dir-glow"
-                                        className="absolute inset-0 bg-primary/5 rounded-[inherit] -z-10"
-                                    />
-                                )}
+                                {dir}
                             </button>
                         ))}
                     </div>
-                    <p className="text-[9px] text-white/20 font-bold italic leading-relaxed">
-                        * Orientation is critical for Indian latitudes: West (Peak Cooling Load), South (High Winter Sun), North (Optimal for Daylighting).
-                    </p>
                 </section>
             )}
 
-            <section className="space-y-6">
+            <section className="space-y-4 pb-4">
+                <div className="flex justify-between items-center">
+                    <label className="text-sm font-semibold text-white flex items-center gap-2">
+                         Window to Wall Ratio (WWR)
+                    </label>
+                    <div className="text-xl font-bold text-primary">{(formData.wwr * 100).toFixed(0)}%</div>
+                </div>
 
-                <div className="pt-6 space-y-6">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-accent/5 flex items-center justify-center border border-accent/10">
-                                <Wind className="w-4 h-4 text-accent" />
-                            </div>
-                            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40">Window to Wall Ratio</span>
-                        </div>
-                        <div className="text-3xl font-black text-primary italic tracking-tight">{(formData.wwr * 100).toFixed(0)}<span className="text-sm not-italic opacity-40 ml-1">%</span></div>
-                    </div>
-
-                    <div className="relative pt-2 pb-4">
-                        <input
-                            type="range"
-                            min="0.05"
-                            max="0.8"
-                            step="0.05"
-                            className="w-full h-2 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-secondary transition-all"
-                            value={formData.wwr}
-                            onChange={(e) => setFormData({ ...formData, wwr: Number(e.target.value) })}
-                        />
-                    </div>
+                <div className="relative pt-2 pb-4">
+                    <input
+                        type="range"
+                        min="0.05"
+                        max="0.8"
+                        step="0.05"
+                        className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary-light transition-all"
+                        value={formData.wwr}
+                        onChange={(e) => setFormData({ ...formData, wwr: Number(e.target.value) })}
+                    />
                 </div>
             </section>
 
             <button
                 type="submit"
                 disabled={loading || fetchingClimate}
-                className="w-full btn-premium h-16 group disabled:opacity-50"
+                className="w-full btn-premium h-14 group disabled:opacity-50 text-sm"
             >
                 {loading ? (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <RefreshCcw className="w-5 h-5 animate-spin" />
-                        <span className="font-black text-[10px] tracking-widest uppercase italic">Inferring EUI from Benchmarks...</span>
+                        <span className="font-semibold text-sm">Processing Simulation...</span>
                     </div>
                 ) : (
                     <>
-                        <Calculator className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                        <span className="mt-0.5">Initialize Thermal Simulation</span>
-                        <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
-                        <div className="absolute right-[-2px] top-[-2px] w-3 h-3 bg-secondary rounded-full animate-ping opacity-40 shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
+                        <Calculator className="w-5 h-5" />
+                        <span>Run Energy Simulation</span>
+                        <ChevronRight className="w-5 h-5 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </>
                 )}
             </button>
@@ -590,9 +539,9 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
 function Definition({ text }: { text: string }) {
     return (
-        <div className="group/def relative inline-block ml-2 cursor-help">
-            <Info className="w-2.5 h-2.5 text-white/20 group-hover/def:text-primary transition-colors" />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 rounded-xl bg-black/90 border border-white/10 backdrop-blur-xl opacity-0 group-hover/def:opacity-100 pointer-events-none transition-all z-50 text-[10px] font-medium leading-relaxed text-white/60 shadow-2xl">
+        <div className="group/def relative inline-block cursor-help align-middle">
+            <Info className="w-3.5 h-3.5 text-white/30 group-hover/def:text-white transition-colors" />
+            <div className="absolute bottom-[120%] left-1/2 -translate-x-1/2 mb-2 w-56 p-3 rounded-xl bg-[#27272a] border border-white/10 opacity-0 group-hover/def:opacity-100 pointer-events-none transition-all z-50 text-xs font-medium leading-relaxed text-white shadow-xl">
                 {text}
             </div>
         </div>
@@ -600,41 +549,31 @@ function Definition({ text }: { text: string }) {
 }
 
 function ClimateField({ icon, label, value, onChange }: any) {
-    const definitions: Record<string, string> = {
-        "CDD": "Cooling Degree Days: Sum of degrees that the average temperature is above 18°C. Higher means more cooling needed.",
-        "HDD": "Heating Degree Days: Sum of degrees below 18°C. Common in North Indian winters.",
-        "SOLRAD": "Solar Radiation: Average daily solar energy received per square meter.",
-        "Wall U-Value": "Measures heat transfer through walls. Lower is better for insulation.",
-        "Roof U-Value": "Heat transfer through roof. Critical for top-floor cooling loads.",
-        "Glass U-Value": "Insulating value of windows.",
-        "Glass SHGC": "Solar Heat Gain Coefficient: Ratio of solar heat that passes through the glass."
-    };
-
     return (
-        <div className="space-y-2 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+        <div className="space-y-2 p-3 rounded-xl bg-white/5 border border-white/10">
             <div className="flex items-center gap-2">
                 {icon}
-                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">{label}</span>
-                {definitions[label] && <Definition text={definitions[label]} />}
+                <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wide">{label}</span>
             </div>
             <input
                 type="number"
                 value={value}
                 onChange={(e) => onChange(Number(e.target.value))}
-                className="w-full bg-transparent text-sm font-bold focus:outline-none text-white/80"
+                className="w-full bg-transparent text-lg font-bold focus:outline-none text-white/90"
             />
         </div>
     );
 }
+
 function MaterialSelect({ label, value, options, customOptions, onChange }: any) {
     return (
-        <div className="space-y-3">
-            <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">{label}</label>
+        <div className="space-y-2">
+            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">{label}</label>
             <div className="relative group/sel">
                 <select 
                     value={value || ""}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full glass-input h-12 text-[11px] font-bold appearance-none bg-black/40 pr-10 border-white/5 hover:border-white/20 transition-all"
+                    className="w-full glass-input h-12 text-sm appearance-none pr-10"
                 >
                     <option value="">System Default</option>
                     {customOptions.length > 0 && (
@@ -650,8 +589,8 @@ function MaterialSelect({ label, value, options, customOptions, onChange }: any)
                         ))}
                     </optgroup>
                 </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/10 group-hover/sel:text-primary transition-colors">
-                    <ChevronRight className="w-3 h-3 rotate-90" />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/20 group-hover/sel:text-primary transition-colors">
+                    <ChevronRight className="w-4 h-4 rotate-90" />
                 </div>
             </div>
         </div>
