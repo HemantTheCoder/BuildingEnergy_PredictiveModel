@@ -4,7 +4,6 @@ import {
   Zap,
   Globe,
   Activity,
-  Sparkles,
   Database,
   Cpu
 } from 'lucide-react';
