@@ -94,7 +94,8 @@ def load_verified_data():
     ]
     df = pd.concat([df, pd.DataFrame(REAL_BENCHMARKS)], ignore_index=True)
 
-    output_dir = "backend/data"
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(backend_dir, "data")
     if not os.path.exists(output_dir): os.makedirs(output_dir)
     
     file_path = os.path.join(output_dir, "bee_benchmarks.csv")

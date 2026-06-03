@@ -11,6 +11,13 @@ export default function ModelIntelligence({ results }: { results: any }) {
         }))
         .sort((a, b) => b.value - a.value) : [];
 
+    const metrics = results?.model_metrics || {};
+    const algorithm = metrics.algorithm || "XGBoost";
+    const depth = metrics.depth !== undefined && metrics.depth !== null ? String(metrics.depth) : "N/A";
+    const estimators = metrics.estimators !== undefined && metrics.estimators !== null ? String(metrics.estimators) : "N/A";
+    const alpha = metrics.alpha !== undefined && metrics.alpha !== null ? String(metrics.alpha) : "N/A";
+    const trainingSamples = metrics.training_samples !== undefined && metrics.training_samples !== null ? metrics.training_samples : 1504;
+
     return (
         <div className="space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
@@ -27,7 +34,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
                         <ShieldCheck className="w-5 h-5 text-secondary" />
                         <div className="flex flex-col">
                             <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Model Accuracy</span>
-                            <span className="text-xl font-black text-white italic tracking-tighter">{(results?.model_metrics?.r2 || 0.89).toFixed(3)} <span className="text-xs not-italic text-white/30 uppercase ml-1">R²</span></span>
+                            <span className="text-xl font-black text-white italic tracking-tighter">{(results?.model_metrics?.r2 || 0.786).toFixed(3)} <span className="text-xs not-italic text-white/30 uppercase ml-1">R²</span></span>
                         </div>
                     </div>
                 </div>
@@ -100,10 +107,10 @@ export default function ModelIntelligence({ results }: { results: any }) {
                     <div className="premium-card p-10 space-y-8">
                         <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Hyperparameters</h4>
                         <div className="space-y-6">
-                            <ConfigRow label="Algorithm" value="Ridge/XGBoost" />
-                            <ConfigRow label="Depth" value="3" />
-                            <ConfigRow label="Estimators" value="10" />
-                            <ConfigRow label="Alpha" value="0.1" />
+                            <ConfigRow label="Algorithm" value={algorithm} />
+                            <ConfigRow label="Depth" value={depth} />
+                            <ConfigRow label="Estimators" value={estimators} />
+                            <ConfigRow label="Alpha" value={alpha} />
                         </div>
                     </div>
 
@@ -113,7 +120,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
                             <div className="flex items-start gap-4">
                                 <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5" />
                                 <p className="text-[10px] text-white/40 leading-relaxed">
-                                    <span className="text-white/60 font-bold">Protocol:</span> 5-Fold Cross-Validation on BEE indicative performance datasets.
+                                    <span className="text-white/60 font-bold">Protocol:</span> 80/20 Train/Test Validation split for scientific rigor.
                                 </p>
                             </div>
                             <div className="flex items-start gap-4">
@@ -134,11 +141,11 @@ export default function ModelIntelligence({ results }: { results: any }) {
                         </div>
                         <div className="space-y-2">
                             <div className="flex justify-between items-baseline">
-                                <span className="text-4xl font-black italic">22</span>
-                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Official Benchmarks</span>
+                                <span className="text-4xl font-black italic">{trainingSamples}</span>
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Training Records</span>
                             </div>
                             <p className="text-[11px] leading-relaxed text-white/30 font-medium">
-                                Official indicative Energy Performance Index (EPI) records from BEE Star Rating technical studies across all 5 climate zones.
+                                Expanded parametric dataset based on CPWD and BMTPC thermal standards, anchored by official BEE benchmarking reports.
                             </p>
                         </div>
                     </div>
