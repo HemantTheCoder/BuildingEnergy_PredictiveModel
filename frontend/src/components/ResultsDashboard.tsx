@@ -320,7 +320,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                             <YAxis dataKey="parameter" type="category" tick={{fill: '#475569', fontSize: 10}} axisLine={false} tickLine={false} width={80} />
                                             <RechartsTooltip content={<CustomTooltip />} />
                                             <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}}/>
-                                            <Bar dataKey="LowImpact" name="Low Estimate" fill="#0d9488" stackId="stack" radius={[4, 0, 0, 4]} />
+                                            <Bar dataKey="LowImpact" name="Low Estimate" fill="#0C7277" stackId="stack" radius={[4, 0, 0, 4]} />
                                             <Bar dataKey="HighImpact" name="High Estimate" fill="#ea580c" stackId="stack" radius={[0, 4, 4, 0]} />
                                         </BarChart>
                                     </ResponsiveContainer>
@@ -389,7 +389,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                                 <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}}/>
                                                 <Bar dataKey="eui" name="Predicted EUI" radius={[4, 4, 0, 0]} maxBarSize={50}>
                                                     {euiComparisonData.map((_, index) => (
-                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#94a3b8' : index === 1 ? '#ea580c' : '#1d4ed8'} />
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#94a3b8' : index === 1 ? '#ea580c' : '#042642'} />
                                                     ))}
                                                 </Bar>
                                             </BarChart>
@@ -412,7 +412,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                                 <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}}/>
                                                 <Bar dataKey="carbon" name="Embodied Carbon" radius={[4, 4, 0, 0]} maxBarSize={50}>
                                                      {carbonComparisonData.map((_, index) => (
-                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#94a3b8' : '#0d9488'} />
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#94a3b8' : '#0C7277'} />
                                                     ))}
                                                 </Bar>
                                             </BarChart>

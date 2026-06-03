@@ -86,7 +86,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
                                         {shapData.map((entry: any, index: number) => (
                                             <Cell
                                                 key={`cell-${index}`}
-                                                fill={entry.original > 0 ? '#ea580c' : '#0d9488'}
+                                                fill={entry.original > 0 ? '#ea580c' : '#0C7277'}
                                                 fillOpacity={0.8}
                                             />
                                         ))}
