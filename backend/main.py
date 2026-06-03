@@ -152,19 +152,19 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     <title>BuildingEnergy API Status & Developer Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#6366f1',
-                        secondary: '#22c55e',
-                        accent: '#f43f5e',
+                        primary: '#1d4ed8',
+                        secondary: '#0d9488',
+                        accent: '#ea580c',
                     }
                 }
             }
@@ -173,45 +173,41 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
-            background-color: #030303;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(34, 197, 94, 0.05) 0px, transparent 50%);
-            background-attachment: fixed;
+            background-color: #f8fafc;
         }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.01);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
         .glowing-dot {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+            box-shadow: 0 0 10px rgba(13, 148, 136, 0.4);
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 0.7; transform: scale(0.9); }
         }
     </style>
 </head>
-<body class="text-white font-sans min-h-screen flex flex-col justify-between">
-    <nav class="border-b border-white/5 bg-[#0a0a0c]/80 backdrop-blur-md sticky top-0 z-50">
+<body class="text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+    <nav class="border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
                     <i data-lucide="cpu" class="w-4 h-4 text-primary"></i>
                 </div>
-                <span class="font-bold text-sm tracking-wide">BuildingEnergy <span class="text-white/40">API Status</span></span>
+                <span class="font-bold text-sm tracking-wide text-slate-800">BuildingEnergy <span class="text-slate-400">API Status</span></span>
             </div>
             
             <div class="flex items-center gap-6">
-                <div class="flex items-center gap-2 px-3 py-1 rounded bg-[#22c55e]/10 border border-[#22c55e]/20 text-xs font-bold text-secondary">
+                <div class="flex items-center gap-2 px-3 py-1 rounded bg-[#0d9488]/10 border border-[#0d9488]/20 text-xs font-bold text-secondary">
                     <span class="w-2 h-2 rounded-full bg-secondary glowing-dot"></span>
                     ONLINE
                 </div>
-                <button onclick="toggleAdminPanel()" id="nav-admin-btn" class="text-xs font-semibold px-4 py-1.5 rounded-xl border border-white/10 hover:bg-white/5 hover:text-primary transition-all">
+                <button onclick="toggleAdminPanel()" id="nav-admin-btn" class="text-xs font-semibold px-4 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 hover:text-primary transition-all text-slate-600">
                     Admin Portal
                 </button>
             </div>
@@ -222,23 +218,23 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         
         <div id="status-view" class="space-y-8 block">
             <div class="space-y-2">
-                <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-white/80 to-white/40 bg-clip-text text-transparent">API Inference Dashboard</h1>
-                <p class="text-white/40 text-sm">Real-time diagnostics and model telemetry endpoints for Building Energy Predictive Model.</p>
+                <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">API Inference Dashboard</h1>
+                <p class="text-slate-500 text-sm">Real-time diagnostics and model telemetry endpoints for Building Energy Predictive Model.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-bold text-white/40 uppercase tracking-wider">System State</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">System State</span>
                         <i data-lucide="activity" class="w-4.5 h-4.5 text-secondary"></i>
                     </div>
                     <div class="space-y-4">
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Hosting Mode</span>
-                            <span class="text-lg font-bold text-white">Local Dev Server</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Hosting Mode</span>
+                            <span class="text-lg font-bold text-slate-800">Local Dev Server</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Active Address</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Active Address</span>
                             <span class="text-sm font-semibold text-primary">http://127.0.0.1:8000</span>
                         </div>
                     </div>
@@ -246,16 +242,16 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
                 <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-bold text-white/40 uppercase tracking-wider">Model Status</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Model Status</span>
                         <i data-lucide="database" class="w-4.5 h-4.5 text-primary"></i>
                     </div>
                     <div class="space-y-4">
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Pre-trained Models</span>
-                            <span class="text-lg font-bold text-white">XGBoost, RF, Ridge</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Pre-trained Models</span>
+                            <span class="text-lg font-bold text-slate-800">XGBoost, RF, Ridge</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Continuous Retraining (CT)</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Continuous Retraining (CT)</span>
                             <span class="text-xs font-semibold text-secondary flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Enabled (Active Logs Monitor)
                             </span>
@@ -265,17 +261,17 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
                 <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-bold text-white/40 uppercase tracking-wider">API Health</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">API Health</span>
                         <i data-lucide="shield-check" class="w-4.5 h-4.5 text-secondary"></i>
                     </div>
                     <div class="space-y-4">
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">FastAPI Lifespan</span>
-                            <span class="text-lg font-bold text-white">Operational</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">FastAPI Lifespan</span>
+                            <span class="text-lg font-bold text-slate-800">Operational</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Active Endpoints</span>
-                            <span class="text-xs font-semibold text-white/60">/predict, /fetch_climate, /materials</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Active Endpoints</span>
+                            <span class="text-xs font-semibold text-slate-600">/predict, /fetch_climate, /materials</span>
                         </div>
                     </div>
                 </div>
@@ -283,12 +279,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
             <div class="glass-panel p-8 rounded-2xl space-y-6">
                 <div>
-                    <h3 class="text-xl font-bold tracking-tight">Active Model Validation Metrics</h3>
-                    <p class="text-xs text-white/40 mt-1">Metrics compiled automatically using our 80/20 train/test evaluation split.</p>
+                    <h3 class="text-xl font-bold tracking-tight text-slate-800">Active Model Validation Metrics</h3>
+                    <p class="text-xs text-slate-500 mt-1">Metrics compiled automatically using our 80/20 train/test evaluation split.</p>
                 </div>
                 
                 <div id="metrics-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                    <div class="flex justify-center py-6 text-white/20 italic">Loading performance stats...</div>
+                    <div class="flex justify-center py-6 text-slate-400 italic">Loading performance stats...</div>
                 </div>
             </div>
         </div>
@@ -298,17 +294,17 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 <div class="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-2">
                     <i data-lucide="lock" class="w-6 h-6 text-primary"></i>
                 </div>
-                <h2 class="text-2xl font-bold">Admin Portal Authorization</h2>
-                <p class="text-xs text-white/40 leading-relaxed">Please authenticate with your passcode to access MLOps retraining tools and telemetry logs.</p>
+                <h2 class="text-2xl font-bold text-slate-900">Admin Portal Authorization</h2>
+                <p class="text-xs text-slate-500 leading-relaxed">Please authenticate with your passcode to access MLOps retraining tools and telemetry logs.</p>
             </div>
             
             <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-xs font-semibold text-white/40 uppercase tracking-wider block">Admin Passcode</label>
-                    <input type="password" id="admin-pass-input" class="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:outline-none focus:border-primary transition-all text-center tracking-[0.2em]" placeholder="••••••••">
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Admin Passcode</label>
+                    <input type="password" id="admin-pass-input" class="w-full h-11 bg-white border border-slate-300 rounded-xl px-4 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-center tracking-[0.2em]" placeholder="••••••••">
                 </div>
                 <div id="login-error-msg" class="text-xs font-bold text-accent text-center hidden">Invalid credentials, access denied.</div>
-                <button onclick="submitLogin()" class="w-full h-11 bg-primary text-black font-bold text-sm rounded-xl hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+                <button onclick="submitLogin()" class="w-full h-11 bg-primary text-white font-bold text-sm rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-sm">
                     <i data-lucide="key-round" class="w-4 h-4"></i> Sign In
                 </button>
             </div>
@@ -318,9 +314,9 @@ DASHBOARD_HTML = """<!DOCTYPE html>
             <div class="flex justify-between items-end">
                 <div class="space-y-2">
                     <div class="text-xs font-black text-primary uppercase tracking-[0.3em]">MLOps Center</div>
-                    <h2 class="text-4xl font-extrabold tracking-tight">Admin & Continuous Training</h2>
+                    <h2 class="text-4xl font-extrabold tracking-tight text-slate-900">Admin & Continuous Training</h2>
                 </div>
-                <button onclick="logOut()" class="text-xs font-semibold px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 hover:text-accent border border-white/10 transition-all flex items-center gap-2">
+                <button onclick="logOut()" class="text-xs font-semibold px-4 py-2 rounded-xl bg-white hover:bg-slate-50 hover:text-accent border border-slate-200 text-slate-600 transition-all flex items-center gap-2 shadow-sm">
                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sign Out
                 </button>
             </div>
@@ -328,15 +324,15 @@ DASHBOARD_HTML = """<!DOCTYPE html>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="glass-panel p-8 rounded-3xl space-y-6">
                     <div>
-                        <h3 class="text-xl font-bold">Manual Pipeline Control</h3>
-                        <p class="text-xs text-white/40 mt-1">Force immediate model retraining on current prediction features to deploy weights.</p>
+                        <h3 class="text-xl font-bold text-slate-800">Manual Pipeline Control</h3>
+                        <p class="text-xs text-slate-500 mt-1">Force immediate model retraining on current prediction features to deploy weights.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <button onclick="triggerManualRetrain()" id="retrain-btn" class="flex-1 h-12 bg-primary text-black font-bold text-sm rounded-xl hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+                        <button onclick="triggerManualRetrain()" id="retrain-btn" class="flex-1 h-12 bg-primary text-white font-bold text-sm rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-sm">
                             <i data-lucide="refresh-cw" id="retrain-icon" class="w-4 h-4"></i> 
                             <span id="retrain-text">Force Retrain Pipeline</span>
                         </button>
-                        <button onclick="clearTelemetryLogs()" class="h-12 border border-white/10 hover:bg-white/5 text-white/80 px-6 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2">
+                        <button onclick="clearTelemetryLogs()" class="h-12 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-6 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
                             <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Logs
                         </button>
                     </div>
@@ -344,17 +340,17 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
                 <div class="glass-panel p-8 rounded-3xl flex flex-col justify-between">
                     <div>
-                        <h3 class="text-xl font-bold">Operational Context</h3>
-                        <p class="text-xs text-white/40 mt-1">Overview of parameters currently used for modeling continuous retraining drift.</p>
+                        <h3 class="text-xl font-bold text-slate-800">Operational Context</h3>
+                        <p class="text-xs text-slate-500 mt-1">Overview of parameters currently used for modeling continuous retraining drift.</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/5">
+                    <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-slate-200">
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Retraining Threshold</span>
-                            <span class="text-md font-bold text-white">10 Simulated Predictions</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Retraining Threshold</span>
+                            <span class="text-md font-bold text-slate-800">10 Simulated Predictions</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Source Database</span>
-                            <span class="text-md font-bold text-white" id="dataset-count-lbl">1504 samples</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Source Database</span>
+                            <span class="text-md font-bold text-slate-800" id="dataset-count-lbl">1504 samples</span>
                         </div>
                     </div>
                 </div>
@@ -363,10 +359,10 @@ DASHBOARD_HTML = """<!DOCTYPE html>
             <div class="glass-panel p-8 rounded-3xl space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h3 class="text-xl font-bold">Simulation Telemetry Logs</h3>
-                        <p class="text-xs text-white/40 mt-1">Latest simulation prediction runs registered by local users (stored in prediction_logs.jsonl).</p>
+                        <h3 class="text-xl font-bold text-slate-800">Simulation Telemetry Logs</h3>
+                        <p class="text-xs text-slate-500 mt-1">Latest simulation prediction runs registered by local users (stored in prediction_logs.jsonl).</p>
                     </div>
-                    <button onclick="fetchLogs()" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 flex items-center justify-center transition-all">
+                    <button onclick="fetchLogs()" class="w-8 h-8 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center transition-all shadow-sm">
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -374,7 +370,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
-                            <tr class="border-b border-white/10 text-white/40 uppercase font-black tracking-wider text-[10px]">
+                            <tr class="border-b border-slate-200 text-slate-400 uppercase font-black tracking-wider text-[10px]">
                                 <th class="py-3 px-4">Timestamp</th>
                                 <th class="py-3 px-4">City</th>
                                 <th class="py-3 px-4">Archetype</th>
@@ -383,9 +379,9 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                                 <th class="py-3 px-4">Predicted EUI</th>
                             </tr>
                         </thead>
-                        <tbody id="logs-table-body" class="divide-y divide-white/5 text-white/70 font-medium">
+                        <tbody id="logs-table-body" class="divide-y divide-slate-100 text-slate-600 font-medium">
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-white/20 italic">No telemetry logs found. Run simulator to populate.</td>
+                                <td colspan="6" class="py-8 text-center text-slate-400 italic">No telemetry logs found. Run simulator to populate.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -394,7 +390,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         </div>
     </main>
 
-    <footer class="border-t border-white/5 bg-[#070709] py-6 text-center text-xs text-white/20 font-medium">
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 font-medium mt-auto">
         <div class="max-w-[1400px] mx-auto px-6 flex justify-between items-center">
             <span>© 2026 Climate-aware EUI Prediction System</span>
             <span class="flex items-center gap-1"><i data-lucide="code" class="w-3.5 h-3.5"></i> with <i data-lucide="heart" class="w-3.5 h-3.5 text-accent fill-accent"></i> in India</span>
@@ -449,16 +445,13 @@ DASHBOARD_HTML = """<!DOCTYPE html>
             if (viewName === "status") {
                 document.getElementById("status-view").classList.remove("hidden");
                 adminBtn.innerText = "Admin Portal";
-                adminBtn.classList.remove("border-primary", "text-primary");
             } else if (viewName === "login") {
                 document.getElementById("admin-login-view").classList.remove("hidden");
                 adminBtn.innerText = "Simulator Dashboard";
-                adminBtn.classList.add("border-primary", "text-primary");
                 document.getElementById("admin-pass-input").focus();
             } else if (viewName === "admin") {
                 document.getElementById("admin-panel-view").classList.remove("hidden");
                 adminBtn.innerText = "Simulator Dashboard";
-                adminBtn.classList.add("border-primary", "text-primary");
                 fetchLogs();
             }
         }
@@ -474,22 +467,22 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 if (data.metrics) {
                     Object.entries(data.metrics).forEach(([modelName, metrics]) => {
                         const card = document.createElement("div");
-                        card.className = "glass-panel p-6 rounded-xl flex flex-col justify-between border-t-2 " + 
+                        card.className = "bg-white p-6 rounded-xl flex flex-col justify-between border border-slate-200 border-t-2 shadow-sm " + 
                             (modelName === "XGBoost" ? "border-t-primary" : modelName === "RandomForest" ? "border-t-secondary" : "border-t-accent");
                         
                         card.innerHTML = `
                             <div class="flex justify-between items-baseline mb-4">
-                                <span class="font-bold text-sm text-white/80">${modelName}</span>
-                                <span class="text-[9px] uppercase font-black text-white/30 tracking-wider">Predictor</span>
+                                <span class="font-bold text-sm text-slate-800">${modelName}</span>
+                                <span class="text-[9px] uppercase font-black text-slate-400 tracking-wider">Predictor</span>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Accuracy R²</span>
-                                    <span class="text-2xl font-extrabold italic text-white">${metrics.r2.toFixed(4)}</span>
+                                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Accuracy R²</span>
+                                    <span class="text-2xl font-extrabold italic text-slate-900">${metrics.r2.toFixed(4)}</span>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] text-white/30 uppercase tracking-widest font-black block">Variance MAE</span>
-                                    <span class="text-2xl font-extrabold italic text-white">${metrics.mae.toFixed(2)}</span>
+                                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Variance MAE</span>
+                                    <span class="text-2xl font-extrabold italic text-slate-900">${metrics.mae.toFixed(2)}</span>
                                 </div>
                             </div>
                         `;
@@ -548,7 +541,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 if (data.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-white/20 italic">No telemetry logs found. Run simulator to populate.</td>
+                            <td colspan="6" class="py-8 text-center text-slate-400 italic">No telemetry logs found. Run simulator to populate.</td>
                         </tr>
                     `;
                     document.getElementById("dataset-count-lbl").innerText = "1504 samples";
@@ -559,17 +552,17 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
                 data.forEach((log) => {
                     const row = document.createElement("tr");
-                    row.className = "hover:bg-white/[0.02] transition-colors border-b border-white/5";
+                    row.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
                     
                     const dateStr = log.timestamp ? new Date(log.timestamp).toLocaleString("en-IN", { hour12: false }) : "N/A";
                     const copVal = log.hvac_cop !== undefined ? log.hvac_cop.toFixed(2) : "N/A";
                     
                     row.innerHTML = `
-                        <td class="py-3 px-4 font-mono text-[10px] text-white/40">${dateStr}</td>
-                        <td class="py-3 px-4 text-white font-semibold">${log.city || 'Mumbai, India'}</td>
+                        <td class="py-3 px-4 font-mono text-[10px] text-slate-400">${dateStr}</td>
+                        <td class="py-3 px-4 text-slate-800 font-semibold">${log.city || 'Mumbai, India'}</td>
                         <td class="py-3 px-4 uppercase text-[10px] font-black text-primary">${(log.archetype || 'Office').replace('_', ' ')}</td>
-                        <td class="py-3 px-4 font-mono font-bold">${log.wwr !== undefined ? (log.wwr * 100).toFixed(0) + '%' : 'N/A'}</td>
-                        <td class="py-3 px-4 font-mono text-white/50">${copVal}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-slate-600">${log.wwr !== undefined ? (log.wwr * 100).toFixed(0) + '%' : 'N/A'}</td>
+                        <td class="py-3 px-4 font-mono text-slate-500">${copVal}</td>
                         <td class="py-3 px-4 font-mono text-secondary font-black">${log.predicted_eui !== undefined ? log.predicted_eui.toFixed(2) : 'N/A'} kWh/m²</td>
                     `;
                     tbody.appendChild(row);

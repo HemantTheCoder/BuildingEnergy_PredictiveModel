@@ -41,7 +41,7 @@ export default function App() {
       let errMsg = error.response?.data?.detail || `Connection failed.`;
       
       if (isNetworkError) {
-        errMsg = `Connection failed to ${import.meta.env.VITE_API_URL || 'backend'}. Please ensure your VERCEL environment variable VITE_API_URL is set correctly and the backend at ${import.meta.env.VITE_API_URL} is running and accessible (no trailing slashes recommended).`;
+        errMsg = `Connection failed to ${import.meta.env.VITE_API_URL || 'backend'}. Please ensure your VERCEL environment variable VITE_API_URL is set correctly and the backend at ${import.meta.env.VITE_API_URL} is running and accessible.`;
       }
       
       setError(errMsg);
@@ -58,18 +58,16 @@ export default function App() {
   ];
 
   return (
-    <div className="h-screen overflow-hidden selection:bg-primary/30 relative flex flex-col bg-[#050505]">
-      <div className="mesh-gradient absolute inset-0 z-0 pointer-events-none" />
-
-      <nav className="fixed top-0 left-0 w-full z-[100] border-b border-white/5 bg-[#0f1115]/90 backdrop-blur-md">
+    <div className="h-screen overflow-hidden selection:bg-primary/20 relative flex flex-col bg-slate-50 text-slate-900">
+      <nav className="fixed top-0 left-0 w-full z-[100] border-b border-slate-200 bg-white/90 backdrop-blur-md">
         <div className="max-w-[1500px] mx-auto px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveTab('simulator')}>
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
               <Zap className="w-5 h-5 text-primary" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight flex items-center gap-2">
-                PredictiveModel <span className="text-white/20 font-light translate-y-[1px]">|</span> <span className="text-white/60">Energy</span>
+              <span className="font-bold text-lg tracking-tight flex items-center gap-2 text-slate-800">
+                PredictiveModel <span className="text-slate-300 font-light translate-y-[1px]">|</span> <span className="text-slate-500">Energy</span>
               </span>
             </div>
           </div>
@@ -87,9 +85,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/5">
-              <Globe className="w-3.5 h-3.5 text-white/50" />
-              <span className="text-xs font-semibold text-white/60">BEE Standards</span>
+            <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 border border-slate-200">
+              <Globe className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-xs font-semibold text-slate-600">BEE Standards</span>
             </div>
           </div>
         </div>
@@ -105,11 +103,11 @@ export default function App() {
               exit={{ opacity: 0, x: 20 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full h-full min-h-0"
             >
-              <section className="lg:col-span-4 flex flex-col min-h-0 border-r border-white/5 pr-8">
-                <div className="space-y-2 page-enter shrink-0 mb-6 border-b border-white/5 pb-6">
-                  <h1 className="text-2xl font-semibold tracking-tight text-white flex flex-col gap-1">
+              <section className="lg:col-span-4 flex flex-col min-h-0 border-r border-slate-200 pr-8">
+                <div className="space-y-2 page-enter shrink-0 mb-6 border-b border-slate-200 pb-6">
+                  <h1 className="text-2xl font-semibold tracking-tight text-slate-800 flex flex-col gap-1">
                     <span>Performance</span>
-                    <span className="text-white/50">Simulation Setup</span>
+                    <span className="text-slate-500">Simulation Setup</span>
                   </h1>
                 </div>
 
@@ -124,7 +122,7 @@ export default function App() {
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold text-center shrink-0"
+                      className="mt-6 p-4 rounded-2xl bg-orange-100 border border-orange-200 text-orange-600 text-xs font-bold text-center shrink-0"
                     >
                       {error}
                     </motion.div>
@@ -137,9 +135,9 @@ export default function App() {
                 {results ? (
                   <ResultsDashboard results={results} onPredict={handlePredict} formData={formData} />
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-center group text-white/50 border border-white/5 rounded-2xl bg-white/[0.01]">
+                  <div className="h-full flex flex-col items-center justify-center text-center group text-slate-400 border border-slate-200 rounded-2xl bg-white/50">
                     <Activity className="w-10 h-10 mb-4 opacity-50" />
-                    <h3 className="text-lg font-semibold mb-2">Awaiting Parameters</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-slate-600">Awaiting Parameters</h3>
                     <p className="text-sm max-w-sm">
                       Configure your building archetype and climate data on the left to initialize the predictive model.
                     </p>
@@ -175,8 +173,6 @@ export default function App() {
           )}
         </AnimatePresence>
       </main>
-
-      {/* Removed Huge Footer to save vertical height constraint in Dashboard mode */}
     </div>
   );
 }

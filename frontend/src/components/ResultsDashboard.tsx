@@ -8,32 +8,64 @@ import {
     FileDown,
     ThermometerSnowflake,
     Zap,
-    AlertTriangle
+    AlertTriangle,
+    Database,
+    Cpu,
+    Globe,
+    MapPin
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
-  AreaChart, Area
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, Legend
 } from 'recharts';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-[#0f1115] border border-white/10 p-3 rounded-lg shadow-xl">
-                <p className="text-white font-semibold text-sm mb-2">{label}</p>
+            <div className="bg-white border border-slate-200 p-3 rounded-lg shadow-xl text-slate-800">
+                <p className="font-semibold text-sm mb-2 text-slate-800">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 text-xs">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                        <span className="text-white/60">{entry.name}:</span>
-                        <span className="text-white font-bold">{entry.value.toFixed(1)}</span>
+                        <span className="text-slate-500">{entry.name}:</span>
+                        <span className="font-bold text-slate-800">{entry.value.toFixed(1)}</span>
                     </div>
                 ))}
             </div>
         );
     }
     return null;
+};
+
+const getClimateContext = (climate: any) => {
+    if (!climate) return { zone: "Unknown Climate", insight: "Awaiting climate data." };
+    
+    const isHot = climate.cdd > 2000;
+    const isCold = climate.hdd > 1500;
+    const highSolar = climate.annual_solrad > 4.5;
+    
+    if (isHot && highSolar) {
+        return {
+            zone: "Warm-Humid / Hot-Dry Climate Zone",
+            insight: "High solar loads detected. Low SHGC glazing and insulated roofs recommended."
+        };
+    } else if (isHot) {
+        return {
+            zone: "Warm Climate Zone",
+            insight: "Cooling dominated thermal profile. Focus on external shading and natural ventilation."
+        };
+    } else if (isCold) {
+        return {
+            zone: "Cold Climate Zone",
+            insight: "Heating dominated thermal profile. High insulation and passive solar heating recommended."
+        };
+    } else {
+        return {
+            zone: "Composite Climate Zone",
+            insight: "Mixed thermal loads detected. Balanced insulation and adaptive strategies recommended."
+        };
+    }
 };
 
 export default function ResultsDashboard({ results, onPredict, formData }: any) {
@@ -47,7 +79,6 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
         model_metrics, 
         sensitivity_analysis,
         thermal_comfort,
-        ecbc_compliance,
         evidence_panel
     } = results;
     
@@ -76,26 +107,26 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     // --- Chart Data Preparation ---
     const euiComparisonData = [
         { name: 'Baseline', eui: currentBaseline },
-        { name: 'Predicted (Current)', eui: predicted_eui },
+        { name: 'Predicted', eui: predicted_eui },
         ...(top_material_recommendations || []).slice(0, 3).map((rec: any, i: number) => ({
-            name: i === 0 ? "Optimum" : i === 1 ? "Balanced" : "Eco-Lead",
+            name: i === 0 ? "Optimum" : i === 1 ? "Balanced" : "Eco",
             eui: rec.predicted_eui
         }))
     ];
 
     const carbonComparisonData = [
-        { name: 'Current Config', carbon: totalEmbodiedCarbon },
+        { name: 'Current', carbon: totalEmbodiedCarbon },
         ...(top_material_recommendations || []).slice(0, 3).map((rec: any, i: number) => ({
-            name: i === 0 ? "Optimum" : i === 1 ? "Balanced" : "Eco-Lead",
+            name: i === 0 ? "Optimum" : i === 1 ? "Balanced" : "Eco",
             carbon: rec.embodied_carbon
         }))
     ];
 
+    // Format for Tornado chart (horizontal bar)
     const sensitivityData = sensitivity_analysis ? Object.entries(sensitivity_analysis).map(([param, data]: [string, any]) => ({
-        parameter: param.replace('_', ' ').substring(0, 10) + '...', // Shorten for radar
-        fullParam: param.replace('_', ' '),
-        importance: data.relative_importance,
-        impactRange: Math.abs(data.high_impact - data.low_impact)
+        parameter: param.replace('_', ' ').substring(0, 10), 
+        LowImpact: data.low_impact, // Negative values extend left
+        HighImpact: data.high_impact // Positive values extend right
     })) : [];
 
     return (
@@ -104,30 +135,64 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
             animate={{ opacity: 1, scale: 1 }}
             className="space-y-6"
         >
+            {/* Climate-aware contextual banner */}
+            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-5 flex items-start md:items-center justify-between flex-col md:flex-row gap-4 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -z-10 translate-x-1/2 -translate-y-1/2" />
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center border border-slate-200 shrink-0 shadow-sm">
+                        <MapPin className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800">{climate_summary?.city || "Unknown Location"}</h3>
+                        <p className="text-sm font-bold text-primary tracking-wide uppercase">{getClimateContext(climate_summary).zone}</p>
+                    </div>
+                </div>
+                <div className="md:text-right md:border-l-2 border-primary/20 md:pl-6">
+                    <p className="text-sm font-medium text-slate-600 leading-relaxed max-w-sm">
+                        {getClimateContext(climate_summary).insight}
+                    </p>
+                </div>
+            </div>
+
             {/* Top KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 premium-card p-6 bg-white/5 border border-white/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-60 h-60 bg-primary/10 rounded-full blur-[80px] -z-10" />
+                <div className="md:col-span-2 premium-card p-6 border-slate-200 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-60 h-60 bg-primary/5 rounded-full blur-[80px] -z-10" />
+                    
+                    {/* Top Right Confidence Box */}
+                    <div className="absolute top-4 right-4 bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex flex-col gap-1 text-right">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Data Provenance</span>
+                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1">
+                            <Globe className="w-3 h-3 text-primary" /> {evidence_panel?.climate_source_metadata?.source || "NASA POWER"}
+                        </div>
+                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1">
+                            <Database className="w-3 h-3 text-secondary" /> CPWD & BMTPC
+                        </div>
+                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1">
+                            <Cpu className="w-3 h-3 text-accent" /> System Confidence: {evidence_panel ? (evidence_panel.overall_confidence * 100).toFixed(0) : "80"}%
+                        </div>
+                    </div>
+
                     <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                            <div className="text-sm font-semibold text-white/50 uppercase">Energy Intensity</div>
+                        <div className="space-y-1 mt-2">
+                            <div className="text-sm font-semibold text-slate-500 uppercase">Energy Intensity</div>
                             <div className="flex items-baseline gap-4 mb-3">
                                 <span className={cn("text-7xl font-bold tracking-tight leading-none", getEUIColor(predicted_eui))}>
                                     {predicted_eui.toFixed(1)}
                                 </span>
                                 <div className="flex flex-col">
-                                    <span className="text-white/40 font-bold text-xl leading-none">kWh/m²·yr</span>
+                                    <span className="text-slate-400 font-bold text-xl leading-none">kWh/m²·yr</span>
                                     <span className="text-xs font-semibold text-primary/80 mt-2 uppercase">Operational Forecast</span>
                                 </div>
                             </div>
                             
                             {evidence_panel?.prediction_interval && (
                                 <div className="flex flex-wrap items-center gap-2 mt-4">
-                                    <div className="px-3 py-1 rounded bg-black/20 border border-white/10 text-xs font-semibold text-white/60">
+                                    <div className="px-3 py-1 rounded bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-500">
                                         Evidence CI: {evidence_panel.prediction_interval[0].toFixed(1)} - {evidence_panel.prediction_interval[1].toFixed(1)}
                                     </div>
                                     {evidence_panel.physics_anomalies_detected && (
-                                        <div className="px-3 py-1 rounded bg-rose-500/10 border border-rose-500/20 text-xs font-bold text-rose-500 flex items-center gap-1.5">
+                                        <div className="px-3 py-1 rounded bg-orange-100 border border-orange-200 text-xs font-bold text-accent flex items-center gap-1.5">
                                             <AlertTriangle className="w-3.5 h-3.5" />
                                             Drift Detected
                                         </div>
@@ -135,55 +200,45 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             )}
                         </div>
-                        <div className="flex flex-col items-end gap-3 text-right">
+                        <div className="flex flex-col items-end gap-3 text-right mt-32">
                             <div className="flex flex-col gap-1 items-end">
-                                <span className="text-xs font-semibold text-white/40 uppercase">Est. Annual Savings</span>
+                                <span className="text-xs font-semibold text-slate-400 uppercase">Est. Annual Savings</span>
                                 <span className="text-2xl font-bold text-secondary">₹{savings > 0 ? (savings/1000).toFixed(1) : "0"}K</span>
                             </div>
-                            {ecbc_compliance && (
-                                <div className={cn("px-3 py-1 rounded font-bold text-xs uppercase", 
-                                    ecbc_compliance.color === 'emerald' ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500" :
-                                    ecbc_compliance.color === 'sky' ? "bg-sky-500/10 border border-sky-500/20 text-sky-500" :
-                                    ecbc_compliance.color === 'primary' ? "bg-primary/10 border border-primary/20 text-primary" :
-                                    "bg-rose-500/10 border border-rose-500/20 text-rose-500"
-                                )}>
-                                    {ecbc_compliance.status}
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
 
-                <div className="premium-card p-6 flex flex-col justify-between border-white/10 bg-white/5">
+                <div className="premium-card p-6 flex flex-col justify-between border-slate-200">
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-white/50 uppercase">Thermal Comfort</span>
+                            <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Comfort</span>
                             <ThermometerSnowflake className="w-4 h-4 text-primary" />
                         </div>
                         <div className="space-y-1">
-                            <span className="text-xs font-semibold text-white/40 uppercase">Predicted Mean Vote (PMV)</span>
+                            <span className="text-xs font-semibold text-slate-400 uppercase">Predicted Mean Vote (PMV)</span>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-3xl font-bold text-white">{thermal_comfort?.index?.toFixed(1) || "0.0"}</span>
+                                <span className="text-3xl font-bold text-slate-800">{thermal_comfort?.index?.toFixed(1) || "0.0"}</span>
                                 <span className={cn("text-xs font-bold uppercase", 
-                                    thermal_comfort?.status === 'Warm' || thermal_comfort?.status === 'Hot' ? "text-rose-400" : 
-                                    thermal_comfort?.status === 'Cool' || thermal_comfort?.status === 'Cold' ? "text-sky-400" : "text-primary"
+                                    thermal_comfort?.status === 'Warm' || thermal_comfort?.status === 'Hot' ? "text-accent" : 
+                                    thermal_comfort?.status === 'Cool' || thermal_comfort?.status === 'Cold' ? "text-primary" : "text-secondary"
                                 )}>
                                     {thermal_comfort?.status || "Neutral"}
                                 </span>
                             </div>
                         </div>
                         <div className="relative h-6 flex items-center">
-                            <div className="absolute inset-0 bg-gradient-to-r from-sky-500 via-primary to-rose-500 rounded-full h-1 opacity-40" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent rounded-full h-1 opacity-20" />
                             <motion.div 
                                 initial={{ left: "50%" }}
                                 animate={{ left: `${50 + (thermal_comfort?.index || 0) * 16.66}%` }}
-                                className="absolute w-3 h-3 bg-white rounded-full border border-primary z-10"
+                                className="absolute w-3 h-3 bg-white rounded-full border-2 border-primary z-10 shadow-sm"
                             />
                         </div>
                     </div>
                     <button 
                         onClick={handleExportPDF}
-                        className="mt-6 w-full h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group/btn"
+                        className="mt-6 w-full h-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 group/btn text-slate-700"
                     >
                         <FileDown className="w-4 h-4" />
                         <span className="text-xs font-semibold uppercase">Generate Report</span>
@@ -192,8 +247,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
             </div>
 
             {/* Bottom Tabs with Visualizations */}
-            <section className="premium-card p-0 overflow-hidden bg-white/5 border border-white/10">
-                <div className="flex border-b border-white/10 overflow-x-auto bg-[#1a1e27]">
+            <section className="premium-card p-0 overflow-hidden">
+                <div className="flex border-b border-slate-200 overflow-x-auto bg-slate-50/50">
                     {[
                         { id: 'analytics', label: 'Design Analytics' },
                         { id: 'comparison', label: 'Material Scenarios' },
@@ -203,7 +258,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <button 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={cn("px-6 py-4 text-xs font-semibold whitespace-nowrap transition-all relative", activeTab === tab.id ? "text-white bg-white/5" : "text-white/50 hover:text-white/80")}
+                            className={cn("px-6 py-4 text-xs font-semibold whitespace-nowrap transition-all relative", activeTab === tab.id ? "text-primary bg-white" : "text-slate-500 hover:text-slate-700")}
                         >
                             {tab.label}
                             {activeTab === tab.id && <motion.div layoutId="tab-active" className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-t-full" />}
@@ -211,7 +266,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     ))}
                 </div>
 
-                <div className="p-8">
+                <div className="p-8 bg-white">
                     {activeTab === 'analytics' && (
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                             {/* Sensitivity Bars (Left) */}
@@ -219,20 +274,20 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2">
                                         <Activity className="w-4 h-4 text-primary" />
-                                        <h4 className="text-sm font-semibold text-white/80">Sensitivity Analysis (Tornado Impact)</h4>
+                                        <h4 className="text-sm font-semibold text-slate-800">Sensitivity Analysis Impact</h4>
                                     </div>
                                     <div className="space-y-6 pt-4">
                                         {sensitivity_analysis && Object.entries(sensitivity_analysis).map(([param, data]: [string, any]) => (
                                             <div key={param} className="space-y-2">
-                                                <div className="flex justify-between text-xs font-semibold text-white/50 uppercase">
+                                                <div className="flex justify-between text-xs font-semibold text-slate-500 uppercase">
                                                     <span>{param.replace('_', ' ')}</span>
                                                     <span className="flex gap-4">
-                                                        <span className="text-rose-400">-{Math.abs(data.low_impact).toFixed(1)}</span>
-                                                        <span className="text-primary">+{Math.abs(data.high_impact).toFixed(1)}</span>
+                                                        <span className="text-secondary">-{Math.abs(data.low_impact).toFixed(1)}</span>
+                                                        <span className="text-accent">+{Math.abs(data.high_impact).toFixed(1)}</span>
                                                     </span>
                                                 </div>
-                                                <div className="relative h-2 w-full bg-white/5 rounded-full flex justify-center items-center">
-                                                    <div className="absolute w-px h-4 bg-white/10 left-1/2" />
+                                                <div className="relative h-2 w-full bg-slate-100 rounded-full flex justify-center items-center">
+                                                    <div className="absolute w-px h-4 bg-slate-300 left-1/2" />
                                                     <motion.div 
                                                         initial={{ scaleX: 0 }}
                                                         animate={{ scaleX: 1 }}
@@ -249,25 +304,28 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             </div>
 
-                            {/* Sensitivity Radar Chart (Right) */}
+                            {/* Sensitivity Tornado Chart (Right) */}
                             <div className="lg:col-span-6 flex flex-col space-y-6 justify-between">
-                                <div className="premium-card bg-white/5 p-6 h-64 border-white/5">
-                                    <span className="text-xs font-semibold text-white/50 uppercase mb-4 block">Parameter Importance Radar</span>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart data={sensitivityData} outerRadius="70%">
-                                            <PolarGrid stroke="#ffffff20" />
-                                            <PolarAngleAxis dataKey="parameter" tick={{fill: '#ffffff60', fontSize: 10}} />
-                                            <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={false} axisLine={false} />
-                                            <Radar name="Importance" dataKey="importance" stroke="#00d2ff" fill="#00d2ff" fillOpacity={0.3} />
+                                <div className="premium-card bg-slate-50 p-6 h-72 border-slate-200">
+                                    <span className="text-xs font-bold text-slate-800 uppercase mb-2 block">Tornado Impact Analysis</span>
+                                    <span className="text-[10px] text-slate-400 block mb-4">Shows variable influence on EUI (negative = energy reduction)</span>
+                                    <ResponsiveContainer width="100%" height="80%">
+                                        <BarChart layout="vertical" data={sensitivityData} margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
+                                            <XAxis type="number" tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
+                                            <YAxis dataKey="parameter" type="category" tick={{fill: '#475569', fontSize: 10}} axisLine={false} tickLine={false} width={80} />
                                             <RechartsTooltip content={<CustomTooltip />} />
-                                        </RadarChart>
+                                            <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}}/>
+                                            <Bar dataKey="LowImpact" name="Low Estimate" fill="#0d9488" stackId="stack" radius={[4, 0, 0, 4]} />
+                                            <Bar dataKey="HighImpact" name="High Estimate" fill="#ea580c" stackId="stack" radius={[0, 4, 4, 0]} />
+                                        </BarChart>
                                     </ResponsiveContainer>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <span className="text-sm font-semibold text-white/80">Strategic Insight</span>
-                                    <p className="text-sm text-white/60 leading-relaxed italic border-l-2 border-primary/50 pl-4">
-                                        "Parameter sensitivity reveals that <span className="text-white font-bold">WWR</span> is your dominant lever for optimization in {climate_summary?.city || 'this climate'}. A 20% reduction could yield substantial energy savings without compromising daylighting."
+                                    <span className="text-sm font-semibold text-slate-800">Strategic Insight</span>
+                                    <p className="text-sm text-slate-600 leading-relaxed border-l-2 border-primary/50 pl-4 bg-slate-50 py-2 pr-2">
+                                        Parameter sensitivity reveals that <span className="text-slate-900 font-bold">WWR</span> is your dominant lever for optimization in {climate_summary?.city || 'this climate'}. A 20% reduction could yield substantial energy savings without compromising daylighting.
                                     </p>
                                 </div>
                             </div>
@@ -283,26 +341,26 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         whileHover={{ y: -4 }}
                                         className={cn(
                                             "premium-card p-5 flex flex-col gap-4 relative group border transition-all duration-500",
-                                            i === 0 ? "border-primary/40 bg-primary/[0.02] z-10" : "border-white/[0.03]"
+                                            i === 0 ? "border-primary/30 bg-primary/[0.02] shadow-md z-10" : "border-slate-200 bg-white"
                                         )}
                                     >
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs font-semibold text-primary/80 uppercase">
+                                            <span className="text-xs font-bold text-primary uppercase">
                                                 {i === 0 ? "Optimum (Max Efficiency)" : i === 1 ? "Balanced Cost" : "Sustainability Leader"}
                                             </span>
-                                            {i === 0 && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                                            {i === 0 && <CheckCircle2 className="w-4 h-4 text-primary" />}
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <p className="text-sm font-medium text-white/90 truncate">{rec.wall}</p>
-                                            <p className="text-sm font-medium text-white/70 truncate">{rec.roof}</p>
+                                            <p className="text-sm font-semibold text-slate-800 truncate">{rec.wall}</p>
+                                            <p className="text-sm font-medium text-slate-500 truncate">{rec.roof}</p>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/10">
+                                        <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-100">
                                             <div>
-                                                <span className="text-[10px] font-semibold text-white/40 uppercase block">EUI</span>
-                                                <span className="text-lg font-bold text-white">{rec.predicted_eui.toFixed(1)}</span>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase block">EUI</span>
+                                                <span className="text-lg font-bold text-slate-800">{rec.predicted_eui.toFixed(1)}</span>
                                             </div>
                                             <div>
-                                                <span className="text-[10px] font-semibold text-white/40 uppercase block">Carbon</span>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase block">Carbon</span>
                                                 <span className="text-lg font-bold text-secondary">{rec.embodied_carbon.toFixed(1)}</span>
                                             </div>
                                         </div>
@@ -312,18 +370,22 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             
                             {/* Charts (Right Side) */}
                             <div className="lg:col-span-7 flex flex-col gap-6">
-                                <div className="premium-card p-6 bg-white/5 border border-white/10 flex-1 flex flex-col">
-                                    <span className="text-xs font-semibold text-white/50 uppercase mb-4">EUI Trajectory Comparison</span>
-                                    <div className="flex-1 min-h-[180px]">
+                                <div className="premium-card p-6 bg-slate-50 border border-slate-200 flex-1 flex flex-col">
+                                    <div className="mb-4">
+                                        <span className="text-xs font-bold text-slate-800 uppercase block">EUI Trajectory Comparison</span>
+                                        <span className="text-[10px] text-slate-500 block">Lower EUI indicates better operational efficiency (kWh/m²·yr)</span>
+                                    </div>
+                                    <div className="flex-1 min-h-[160px]">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <BarChart data={euiComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                                                <XAxis dataKey="name" tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
-                                                <YAxis tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                                <XAxis dataKey="name" tick={{fill: '#64748b', fontSize: 11}} axisLine={false} tickLine={false} />
+                                                <YAxis tick={{fill: '#64748b', fontSize: 11}} axisLine={false} tickLine={false} />
                                                 <RechartsTooltip content={<CustomTooltip />} />
-                                                <Bar dataKey="eui" radius={[4, 4, 0, 0]}>
+                                                <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}}/>
+                                                <Bar dataKey="eui" name="Predicted EUI" radius={[4, 4, 0, 0]} maxBarSize={50}>
                                                     {euiComparisonData.map((_, index) => (
-                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#3b82f6' : index === 1 ? '#00d2ff' : '#10b981'} />
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#94a3b8' : index === 1 ? '#ea580c' : '#1d4ed8'} />
                                                     ))}
                                                 </Bar>
                                             </BarChart>
@@ -331,23 +393,25 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </div>
                                 </div>
 
-                                <div className="premium-card p-6 bg-white/5 border border-white/10 flex-1 flex flex-col">
-                                    <span className="text-xs font-semibold text-white/50 uppercase mb-4">Embodied Carbon Footprint</span>
-                                    <div className="flex-1 min-h-[180px]">
+                                <div className="premium-card p-6 bg-slate-50 border border-slate-200 flex-1 flex flex-col">
+                                    <div className="mb-4">
+                                        <span className="text-xs font-bold text-slate-800 uppercase block">Embodied Carbon Footprint</span>
+                                        <span className="text-[10px] text-slate-500 block">Lower is better for sustainability (kgCO2e)</span>
+                                    </div>
+                                    <div className="flex-1 min-h-[160px]">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <AreaChart data={carbonComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                                <defs>
-                                                    <linearGradient id="colorCarbon" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
-                                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                                    </linearGradient>
-                                                </defs>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                                                <XAxis dataKey="name" tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
-                                                <YAxis tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
+                                            <BarChart data={carbonComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                                <XAxis dataKey="name" tick={{fill: '#64748b', fontSize: 11}} axisLine={false} tickLine={false} />
+                                                <YAxis tick={{fill: '#64748b', fontSize: 11}} axisLine={false} tickLine={false} />
                                                 <RechartsTooltip content={<CustomTooltip />} />
-                                                <Area type="monotone" dataKey="carbon" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCarbon)" />
-                                            </AreaChart>
+                                                <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}}/>
+                                                <Bar dataKey="carbon" name="Embodied Carbon" radius={[4, 4, 0, 0]} maxBarSize={50}>
+                                                     {carbonComparisonData.map((_, index) => (
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#94a3b8' : '#0d9488'} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
@@ -378,29 +442,29 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         onChange={(v: string) => setSimulatorOverrides({ ...simulatorOverrides, glazing: v })}
                                     />
                                 </div>
-                                <div className="p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-6 mt-6">
+                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-6 mt-6">
                                     <Info className="w-5 h-5 text-primary shrink-0" />
-                                    <p className="text-sm text-white/80 leading-relaxed font-medium italic border-l-2 border-primary/50 pl-4">
-                                        "Scientific Note: Switching to <span className="text-white font-bold">{material_sources?.wall.name}</span> contributes <span className="text-white font-bold">{(material_sources.wall.carbon || 0).toFixed(2)} kgCO2e/kg</span> to the project's total embodied carbon of <span className="text-secondary font-bold">{totalEmbodiedCarbon.toFixed(2)}</span>."
+                                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                                        <span className="font-bold text-slate-900">Scientific Note:</span> Switching to <span className="font-bold">{material_sources?.wall.name}</span> contributes <span className="font-bold">{(material_sources.wall.carbon || 0).toFixed(2)} kgCO2e/kg</span> to the project's total embodied carbon of <span className="text-secondary font-bold">{totalEmbodiedCarbon.toFixed(2)}</span>.
                                     </p>
                                 </div>
                             </div>
                             <div className="lg:col-span-4 rounded-3xl bg-secondary/10 border border-secondary/20 p-8 flex flex-col items-center justify-center text-center gap-6">
                                 <div className="space-y-1">
-                                    <span className="text-xs font-semibold text-white/50 uppercase tracking-wide block">Operational Impact</span>
+                                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">Operational Impact</span>
                                     <div className="flex items-baseline justify-center gap-2">
-                                        <TrendingDown className="w-6 h-6 text-secondary/80" />
-                                        <span className="text-6xl font-bold text-white tracking-tight">{Math.abs(((currentBaseline - predicted_eui)/currentBaseline) * 100).toFixed(0)}%</span>
+                                        <TrendingDown className="w-6 h-6 text-secondary" />
+                                        <span className="text-6xl font-bold text-slate-800 tracking-tight">{Math.abs(((currentBaseline - predicted_eui)/currentBaseline) * 100).toFixed(0)}%</span>
                                     </div>
-                                    <span className="text-xs font-medium text-secondary/80 uppercase">Efficiency vs Baseline</span>
+                                    <span className="text-xs font-medium text-slate-500 uppercase">Efficiency vs Baseline</span>
                                 </div>
                                 
-                                <div className="w-full space-y-3 pt-6 border-t border-white/10">
-                                    <div className="flex justify-between text-xs font-semibold uppercase text-white/50">
+                                <div className="w-full space-y-3 pt-6 border-t border-slate-200">
+                                    <div className="flex justify-between text-xs font-semibold uppercase text-slate-500">
                                         <span>Embodied Carbon</span>
-                                        <span className="text-white">{totalEmbodiedCarbon.toFixed(1)}</span>
+                                        <span className="text-slate-800">{totalEmbodiedCarbon.toFixed(1)}</span>
                                     </div>
-                                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                                         <div className="h-full bg-secondary transition-all" style={{ width: `${Math.min(100, (totalEmbodiedCarbon/5)*100)}%` }} />
                                     </div>
                                 </div>
@@ -419,7 +483,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                             onPredict(updatedData);
                                         }
                                     }}
-                                    className="w-full py-4 bg-primary text-black rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary-light transition-colors mt-4"
+                                    className="w-full py-4 bg-primary text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary-light transition-colors mt-4 shadow-sm"
                                 >
                                     <Zap className="w-4 h-4" />
                                     Recalculate Path
@@ -436,37 +500,37 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <SourceItem title="Glazing Properties" source={material_sources.glazing} model_metrics={model_metrics} />
                             </div>
                             
-                            <div className="pt-10 border-t border-white/10 grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div className="pt-10 border-t border-slate-200 grid grid-cols-1 lg:grid-cols-2 gap-10">
                                 <div className="space-y-4">
-                                    <div className="text-sm font-semibold text-white/80 uppercase">Data Provenance & MLOps</div>
+                                    <div className="text-sm font-bold text-slate-800 uppercase">Data Provenance & MLOps</div>
                                     <div className="space-y-2">
-                                        <p className="text-sm text-white/60 font-medium">
-                                            <span className="text-white/80">Climate Source:</span> {evidence_panel?.climate_source_metadata?.source || "NASA POWER"}
+                                        <p className="text-sm text-slate-500 font-medium">
+                                            <span className="text-slate-700">Climate Source:</span> {evidence_panel?.climate_source_metadata?.source || "NASA POWER"}
                                         </p>
-                                        <p className="text-sm text-white/60 font-medium">
-                                            <span className="text-white/80">System Confidence:</span> {evidence_panel ? (evidence_panel.overall_confidence * 100).toFixed(0) : "80"}%
+                                        <p className="text-sm text-slate-500 font-medium">
+                                            <span className="text-slate-700">System Confidence:</span> {evidence_panel ? (evidence_panel.overall_confidence * 100).toFixed(0) : "80"}%
                                         </p>
-                                        <p className="text-sm text-white/60 font-medium">
-                                            <span className="text-white/80">Last Sync:</span> {evidence_panel?.climate_source_metadata?.retrieval_date || "Cached"}
+                                        <p className="text-sm text-slate-500 font-medium">
+                                            <span className="text-slate-700">Last Sync:</span> {evidence_panel?.climate_source_metadata?.retrieval_date || "Cached"}
                                         </p>
                                     </div>
-                                    <p className="text-sm text-white/60 font-medium mt-2 border-t border-white/10 pt-4">
-                                        This engine utilizes an ensemble of <span className="text-white">XGBoost, RandomForest, and Ridge Regression</span>. Anomaly triggers are actively monitored.
+                                    <p className="text-sm text-slate-500 font-medium mt-2 border-t border-slate-200 pt-4">
+                                        This engine utilizes an ensemble of <span className="text-slate-800 font-semibold">XGBoost, RandomForest, and Ridge Regression</span>. Anomaly triggers are actively monitored.
                                     </p>
                                     <div className="flex gap-4 pt-2">
-                                        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase">
                                             <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                                             Continuous Retraining (CT)
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs font-semibold text-secondary uppercase">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-secondary uppercase">
                                             <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
                                             Physics Guardrails Active
                                         </div>
                                     </div>
                                 </div>
-                                <div className="premium-card p-6 bg-white/5 border border-white/10 flex flex-col justify-center">
-                                    <div className="text-xs font-semibold text-white/40 mb-3 uppercase">Citation Metadata</div>
-                                    <p className="text-sm font-medium text-white/80 leading-relaxed max-w-md">
+                                <div className="premium-card p-6 bg-slate-50 border border-slate-200 flex flex-col justify-center">
+                                    <div className="text-xs font-bold text-slate-400 mb-3 uppercase">Citation Metadata</div>
+                                    <p className="text-sm font-medium text-slate-700 leading-relaxed max-w-md">
                                         Recommended materials comply with BMTPC Schedule of Rates 2024 and CPWD Thermal Integrity standards for Indian Housing (Pradhan Mantri Awas Yojana).
                                     </p>
                                 </div>
@@ -482,18 +546,18 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
 function SimulatorSelect({ label, options, defaultValue, onChange }: any) {
     return (
         <div className="space-y-2">
-            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide ml-1">{label}</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide ml-1">{label}</label>
             <div className="relative group/sel">
                 <select 
                     value={defaultValue}
                     onChange={(e) => onChange && onChange(e.target.value)}
-                    className="w-full glass-input appearance-none cursor-pointer pr-10 hover:border-white/20"
+                    className="w-full glass-input appearance-none cursor-pointer pr-10 hover:border-slate-300 bg-white text-slate-800"
                 >
                     {options.map((opt: string) => (
-                        <option key={opt} value={opt} className="bg-[#1a1e27]">{opt}</option>
+                        <option key={opt} value={opt}>{opt}</option>
                     ))}
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20 group-hover/sel:text-primary transition-colors">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover/sel:text-primary transition-colors">
                     <TrendingDown className="w-4 h-4 rotate-180" />
                 </div>
             </div>
@@ -503,40 +567,40 @@ function SimulatorSelect({ label, options, defaultValue, onChange }: any) {
 
 function SourceItem({ title, source, model_metrics }: any) {
     return (
-        <div className="space-y-4 p-4 rounded-xl border border-white/10 bg-white/5">
+        <div className="space-y-4 p-4 rounded-xl border border-slate-200 bg-slate-50">
             <div className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-white/40 uppercase tracking-wide">{title}</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{title}</span>
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">{source.name.replace('Custom: ', '')}</span>
+                    <span className="text-sm font-bold text-slate-800">{source.name.replace('Custom: ', '')}</span>
                     {source.name.startsWith('Custom:') && (
-                        <span className="px-2 py-0.5 rounded border border-primary/20 text-xs font-semibold text-primary uppercase">User Library</span>
+                        <span className="px-2 py-0.5 rounded border border-primary/20 text-xs font-bold text-primary uppercase">User Library</span>
                     )}
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
                 <div className="space-y-1">
-                    <span className="text-xs font-semibold text-white/40 uppercase">Training Precision</span>
+                    <span className="text-xs font-semibold text-slate-500 uppercase">Training Precision</span>
                     <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-bold text-white">{(model_metrics?.r2 || 0).toFixed(3)}</span>
-                        <span className="text-xs text-white/50">R²</span>
+                        <span className="text-sm font-bold text-slate-800">{(model_metrics?.r2 || 0).toFixed(3)}</span>
+                        <span className="text-xs text-slate-400">R²</span>
                     </div>
                 </div>
                 <div className="space-y-1">
-                    <span className="text-xs font-semibold text-white/40 uppercase">Avg Variance</span>
+                    <span className="text-xs font-semibold text-slate-500 uppercase">Avg Variance</span>
                     <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-bold text-white">{(model_metrics?.mae || 0).toFixed(1)}</span>
-                        <span className="text-xs text-white/50">MAE</span>
+                        <span className="text-sm font-bold text-slate-800">{(model_metrics?.mae || 0).toFixed(1)}</span>
+                        <span className="text-xs text-slate-400">MAE</span>
                     </div>
                 </div>
             </div>
-            <div className="space-y-3 pt-4 border-t border-white/10">
+            <div className="space-y-3 pt-4 border-t border-slate-200">
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-white/40 uppercase">Citation</span>
-                    <span className="text-sm text-white/80">{source.citation}</span>
+                    <span className="text-xs font-semibold text-slate-500 uppercase">Citation</span>
+                    <span className="text-sm text-slate-700">{source.citation}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-white/40 uppercase">Regulatory Ref</span>
-                    <span className="text-sm text-white/80">{source.ref}</span>
+                    <span className="text-xs font-semibold text-slate-500 uppercase">Regulatory Ref</span>
+                    <span className="text-sm text-slate-700">{source.ref}</span>
                 </div>
             </div>
             {source.url && (
@@ -544,9 +608,9 @@ function SourceItem({ title, source, model_metrics }: any) {
                     href={source.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="mt-4 flex items-center gap-2 group/link w-fit hover:bg-white/5 px-2 py-1 rounded transition-colors"
+                    className="mt-4 flex items-center gap-2 group/link w-fit hover:bg-slate-100 px-2 py-1 rounded transition-colors"
                 >
-                    <span className="text-xs font-semibold text-primary">View Official Doc</span>
+                    <span className="text-xs font-bold text-primary">View Official Doc</span>
                     <ArrowUpRight className="w-3 h-3 text-primary" />
                 </a>
             )}

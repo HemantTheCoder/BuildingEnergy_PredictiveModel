@@ -100,16 +100,16 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="premium-card p-6 space-y-8 relative group">
+        <form onSubmit={handleSubmit} className="premium-card p-6 space-y-8 relative group text-slate-800">
             
             {/* Mode Toggle Bar */}
-            <div className="flex border-b border-white/10 mb-6 pb-2">
+            <div className="flex border-b border-slate-200 mb-6 pb-2">
                 <button
                     type="button"
                     onClick={() => setIsAdvancedMode(false)}
                     className={cn(
                         "px-6 py-2 text-sm font-semibold transition-all relative",
-                        !isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-white/50 hover:text-white"
+                        !isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-slate-500 hover:text-slate-800"
                     )}
                 >
                     Simple Mode
@@ -120,7 +120,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                     onClick={() => setIsAdvancedMode(true)}
                     className={cn(
                         "px-6 py-2 text-sm font-semibold transition-all relative",
-                        isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-white/50 hover:text-white"
+                        isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-slate-500 hover:text-slate-800"
                     )}
                 >
                     Advanced Editor
@@ -151,7 +151,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             list="indian-cities"
                             type="text"
                             value={formData.city}
-                            className="w-full glass-input h-12 text-sm pl-10"
+                            className="w-full glass-input h-12 text-sm pl-10 bg-white"
                             onChange={(e) => {
                                 const val = e.target.value;
                                 setFormData({ ...formData, city: val });
@@ -161,7 +161,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             }}
                             placeholder="Select or enter city..."
                         />
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <datalist id="indian-cities">
                             {cities.map(c => <option key={c} value={c}>{c}</option>)}
                         </datalist>
@@ -171,7 +171,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         type="button"
                         title="Force Climate Fetch"
                         onClick={() => fetchClimate(formData.city)}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white/50"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all text-slate-500"
                     >
                         <RefreshCcw className={cn("w-4 h-4", fetchingClimate && "animate-spin")} />
                     </button>
@@ -180,7 +180,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         onClick={() => setManualClimate(!manualClimate)}
                         className={cn(
                             "flex items-center gap-2 px-4 h-12 rounded-xl border transition-all text-sm font-semibold",
-                            manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-white/5 border-white/10 text-white/50 hover:text-white/80"
+                            manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800"
                         )}
                     >
                         <Settings2 className="w-4 h-4" />
@@ -196,21 +196,21 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
+                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200">
                                 <ClimateField
-                                    icon={<Thermometer className="w-4 h-4 text-rose-400" />}
+                                    icon={<Thermometer className="w-4 h-4 text-orange-500" />}
                                     label="Cooling Degree Days"
                                     value={formData.climate_overrides.cdd}
                                     onChange={(v: number) => setFormData({ ...formData, climate_overrides: { ...formData.climate_overrides, cdd: v } })}
                                 />
                                 <ClimateField
-                                    icon={<Wind className="w-4 h-4 text-sky-400" />}
+                                    icon={<Wind className="w-4 h-4 text-sky-500" />}
                                     label="Heating Degree Days"
                                     value={formData.climate_overrides.hdd}
                                     onChange={(v: number) => setFormData({ ...formData, climate_overrides: { ...formData.climate_overrides, hdd: v } })}
                                 />
                                 <ClimateField
-                                    icon={<Sun className="w-4 h-4 text-amber-400" />}
+                                    icon={<Sun className="w-4 h-4 text-yellow-500" />}
                                     label="Solar Radiation"
                                     value={formData.climate_overrides.annual_solrad}
                                     onChange={(v: number) => setFormData({ ...formData, climate_overrides: { ...formData.climate_overrides, annual_solrad: v } })}
@@ -229,7 +229,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">Primary Archetype</label>
+                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Primary Archetype</label>
                         <select
                             className="w-full glass-input h-12"
                             value={formData.archetype}
@@ -243,7 +243,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">Net Floor Area (m²)</label>
+                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Net Floor Area (m²)</label>
                         <div className="relative">
                             <input
                                 type="number"
@@ -251,13 +251,13 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                 value={formData.floor_area_m2}
                                 onChange={(e) => setFormData({ ...formData, floor_area_m2: Number(e.target.value) })}
                             />
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 font-medium text-sm text-white/40">m²</div>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 font-medium text-sm text-slate-400">m²</div>
                         </div>
                     </div>
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">Simulation Model</label>
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Simulation Model</label>
                             <select
                                 className="w-full glass-input h-12"
                                 value={formData.model_type}
@@ -272,7 +272,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">HVAC Strategy</label>
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">HVAC Strategy</label>
                             <select
                                 className="w-full glass-input h-12"
                                 value={formData.hvac_type}
@@ -288,7 +288,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide flex items-center gap-1.5">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
                                 Occupancy Density <Definition text="Personnel density (ppl/m²)." />
                             </label>
                             <input
@@ -302,7 +302,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide flex items-center gap-1.5">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
                                 Plug Loads (W/m²) <Definition text="Equipment heat load." />
                             </label>
                             <input
@@ -351,9 +351,9 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
             {/* Section 2.5: Thermal Performance Overrides */}
             {isAdvancedMode && (
-                <section className="space-y-4 border-t border-white/5 pt-4">
+                <section className="space-y-4 border-t border-slate-200 pt-4">
                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-orange-400 flex items-center gap-2">
+                        <span className="text-sm font-semibold text-accent flex items-center gap-2">
                             <Layers className="w-4 h-4" /> Thermal Performance Overrides
                         </span>
                         <button
@@ -361,7 +361,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             onClick={() => setManualMaterials(!manualMaterials)}
                             className={cn(
                                 "flex items-center gap-2 px-4 h-9 rounded-xl border transition-all text-xs font-semibold",
-                                manualMaterials ? "bg-orange-500/10 border-orange-500/30 text-orange-500" : "bg-white/5 border-white/10 text-white/50 hover:text-white/80"
+                                manualMaterials ? "bg-orange-100 border-orange-300 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700"
                             )}
                         >
                             <Settings2 className="w-3.5 h-3.5" />
@@ -379,19 +379,19 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             >
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-4">
                                     <ClimateField
-                                        icon={<Layers className="w-3 h-3 text-orange-400" />}
+                                        icon={<Layers className="w-3 h-3 text-accent" />}
                                         label="Wall U-Value"
                                         value={formData.property_overrides.u_wall}
                                         onChange={(v: number) => setFormData({ ...formData, property_overrides: { ...formData.property_overrides, u_wall: v } })}
                                     />
                                     <ClimateField
-                                        icon={<Layers className="w-3 h-3 text-orange-400" />}
+                                        icon={<Layers className="w-3 h-3 text-accent" />}
                                         label="Roof U-Value"
                                         value={formData.property_overrides.u_roof}
                                         onChange={(v: number) => setFormData({ ...formData, property_overrides: { ...formData.property_overrides, u_roof: v } })}
                                     />
                                     <ClimateField
-                                        icon={<Sun className="w-3 h-3 text-amber-400" />}
+                                        icon={<Sun className="w-3 h-3 text-yellow-500" />}
                                         label="Glass U-Value"
                                         value={formData.property_overrides.u_glass}
                                         onChange={(v: number) => setFormData({ ...formData, property_overrides: { ...formData.property_overrides, u_glass: v } })}
@@ -404,8 +404,8 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                     />
                                 </div>
                                 
-                                <div className="p-4 rounded-xl border border-white/10 bg-white/5 space-y-3">
-                                    <div className="text-xs font-semibold text-white/60">Save to Project Library</div>
+                                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+                                    <div className="text-xs font-semibold text-slate-500">Save to Project Library</div>
                                     <div className="flex gap-3">
                                         <input 
                                             type="text" 
@@ -417,21 +417,21 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('wall')}
-                                            className="px-4 h-10 rounded-lg bg-[#27272a] border border-[#3f3f46] text-orange-400 text-xs font-semibold hover:bg-[#3f3f46] transition-all"
+                                            className="px-4 h-10 rounded-lg bg-white border border-slate-200 text-orange-600 text-xs font-semibold hover:bg-slate-100 transition-all"
                                         >
                                             Save Wall
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('roof')}
-                                            className="px-4 h-10 rounded-lg bg-[#27272a] border border-[#3f3f46] text-amber-400 text-xs font-semibold hover:bg-[#3f3f46] transition-all"
+                                            className="px-4 h-10 rounded-lg bg-white border border-slate-200 text-yellow-600 text-xs font-semibold hover:bg-slate-100 transition-all"
                                         >
                                             Save Roof
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('glazing')}
-                                            className="px-4 h-10 rounded-lg bg-[#27272a] border border-[#3f3f46] text-primary text-xs font-semibold hover:bg-[#3f3f46] transition-all"
+                                            className="px-4 h-10 rounded-lg bg-white border border-slate-200 text-primary text-xs font-semibold hover:bg-slate-100 transition-all"
                                         >
                                             Save Glass
                                         </button>
@@ -448,7 +448,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                                             property_overrides: { ...m.props },
                                                             material_overrides: { ...formData.material_overrides, [m.type]: m.name }
                                                         })}
-                                                        className="px-3 py-1.5 rounded-md bg-[#27272a] border border-[#3f3f46] text-xs font-medium text-white/70 hover:text-white transition-colors"
+                                                        className="px-3 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors shadow-sm"
                                                     >
                                                         {m.name.replace('Custom: ', '')}
                                                     </button>
@@ -477,15 +477,15 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, orientation: dir })}
                                 className={cn(
-                                    "p-3 rounded-xl border transition-all text-sm font-semibold flex items-center justify-center gap-2",
+                                    "p-3 rounded-xl border transition-all text-sm font-semibold flex items-center justify-center gap-2 shadow-sm",
                                     formData.orientation === dir 
                                         ? "bg-primary/10 border-primary/40 text-primary" 
-                                        : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10"
+                                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
                                 )}
                             >
                                 <div className={cn(
                                     "w-1.5 h-1.5 rounded-full transition-all duration-300",
-                                    formData.orientation === dir ? "bg-primary" : "bg-white/20"
+                                    formData.orientation === dir ? "bg-primary" : "bg-slate-300"
                                 )} />
                                 {dir}
                             </button>
@@ -496,7 +496,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
             <section className="space-y-4 pb-4">
                 <div className="flex justify-between items-center">
-                    <label className="text-sm font-semibold text-white flex items-center gap-2">
+                    <label className="text-sm font-semibold text-slate-800 flex items-center gap-2">
                          Window to Wall Ratio (WWR)
                     </label>
                     <div className="text-xl font-bold text-primary">{(formData.wwr * 100).toFixed(0)}%</div>
@@ -508,7 +508,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         min="0.05"
                         max="0.8"
                         step="0.05"
-                        className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary-light transition-all"
+                        className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary-light transition-all"
                         value={formData.wwr}
                         onChange={(e) => setFormData({ ...formData, wwr: Number(e.target.value) })}
                     />
@@ -540,8 +540,8 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 function Definition({ text }: { text: string }) {
     return (
         <div className="group/def relative inline-block cursor-help align-middle">
-            <Info className="w-3.5 h-3.5 text-white/30 group-hover/def:text-white transition-colors" />
-            <div className="absolute bottom-[120%] left-1/2 -translate-x-1/2 mb-2 w-56 p-3 rounded-xl bg-[#27272a] border border-white/10 opacity-0 group-hover/def:opacity-100 pointer-events-none transition-all z-50 text-xs font-medium leading-relaxed text-white shadow-xl">
+            <Info className="w-3.5 h-3.5 text-slate-400 group-hover/def:text-slate-600 transition-colors" />
+            <div className="absolute bottom-[120%] left-1/2 -translate-x-1/2 mb-2 w-56 p-3 rounded-xl bg-white border border-slate-200 opacity-0 group-hover/def:opacity-100 pointer-events-none transition-all z-50 text-xs font-medium leading-relaxed text-slate-700 shadow-xl">
                 {text}
             </div>
         </div>
@@ -550,16 +550,16 @@ function Definition({ text }: { text: string }) {
 
 function ClimateField({ icon, label, value, onChange }: any) {
     return (
-        <div className="space-y-2 p-3 rounded-xl bg-white/5 border border-white/10">
+        <div className="space-y-2 p-3 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2">
                 {icon}
-                <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wide">{label}</span>
+                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{label}</span>
             </div>
             <input
                 type="number"
                 value={value}
                 onChange={(e) => onChange(Number(e.target.value))}
-                className="w-full bg-transparent text-lg font-bold focus:outline-none text-white/90"
+                className="w-full bg-transparent text-lg font-bold focus:outline-none text-slate-800"
             />
         </div>
     );
@@ -568,12 +568,12 @@ function ClimateField({ icon, label, value, onChange }: any) {
 function MaterialSelect({ label, value, options, customOptions, onChange }: any) {
     return (
         <div className="space-y-2">
-            <label className="text-xs font-semibold text-white/50 uppercase tracking-wide">{label}</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
             <div className="relative group/sel">
                 <select 
                     value={value || ""}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full glass-input h-12 text-sm appearance-none pr-10"
+                    className="w-full glass-input h-12 text-sm appearance-none pr-10 bg-white"
                 >
                     <option value="">System Default</option>
                     {customOptions.length > 0 && (
@@ -589,7 +589,7 @@ function MaterialSelect({ label, value, options, customOptions, onChange }: any)
                         ))}
                     </optgroup>
                 </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/20 group-hover/sel:text-primary transition-colors">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover/sel:text-primary transition-colors">
                     <ChevronRight className="w-4 h-4 rotate-90" />
                 </div>
             </div>
