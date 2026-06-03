@@ -12,7 +12,7 @@ import math
 from data_fetcher import ClimateFetcher
 from ml_engine import MLEngine
 
-app = FastAPI(title="Climate-aware Material Recommendation & EUI Predictor")
+app = FastAPI(title="ClimaBuild AI")
 fetcher = ClimateFetcher()
 engine = MLEngine()
 
@@ -149,7 +149,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BuildingEnergy API Status & Developer Portal</title>
+    <title>ClimaBuild AI - Developer Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -199,7 +199,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 <div class="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
                     <i data-lucide="cpu" class="w-4 h-4 text-primary"></i>
                 </div>
-                <span class="font-bold text-sm tracking-wide text-slate-800">BuildingEnergy <span class="text-slate-400">API Status</span></span>
+                <span class="font-bold text-sm tracking-wide text-slate-800">ClimaBuild <span class="text-slate-400">AI</span></span>
             </div>
             
             <div class="flex items-center gap-6">
@@ -219,7 +219,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <div id="status-view" class="space-y-8 block">
             <div class="space-y-2">
                 <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">API Inference Dashboard</h1>
-                <p class="text-slate-500 text-sm">Real-time diagnostics and model telemetry endpoints for Building Energy Predictive Model.</p>
+                <p class="text-slate-500 text-sm">Real-time diagnostics and model telemetry endpoints for ClimaBuild AI.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

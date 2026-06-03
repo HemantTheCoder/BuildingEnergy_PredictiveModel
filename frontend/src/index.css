@@ -3,11 +3,11 @@
 @theme {
   --font-sans: "Inter", "Poppins", "IBM Plex Sans", system-ui, sans-serif;
 
-  --color-background: #f8fafc; /* Light gray background */
+  --color-background: #eff2f7; /* Light slate background */
   --color-foreground: #0f172a; /* Slate 900 */
 
-  --color-primary: #1d4ed8; /* Deep Blue */
-  --color-primary-light: #3b82f6;
+  --color-primary: #052C4D; /* Deep Blue from Logo */
+  --color-primary-light: #104573;
   --color-secondary: #0d9488; /* Teal/Green */
   --color-accent: #ea580c; /* Orange for warnings */
 

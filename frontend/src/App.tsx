@@ -13,6 +13,7 @@ import InputForm from './components/InputForm';
 import ResultsDashboard from './components/ResultsDashboard';
 import MaterialLibrary from './components/MaterialLibrary';
 import ModelIntelligence from './components/ModelIntelligence';
+import SplashScreen from './components/SplashScreen';
 
 
 export default function App() {
@@ -21,8 +22,14 @@ export default function App() {
   const [materials, setMaterials] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'simulator' | 'materials' | 'intelligence'>('simulator');
   const [error, setError] = useState<string | null>(null);
+  const [showSplash, setShowSplash] = useState(true);
 
   const [formData, setFormData] = useState<any>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 3500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     api.get(`/materials`).then(res => setMaterials(res.data)).catch(console.error);
@@ -57,6 +64,10 @@ export default function App() {
     { id: 'intelligence', label: 'Model Intelligence', icon: Cpu },
   ];
 
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
   return (
     <div className="h-screen overflow-hidden selection:bg-primary/20 relative flex flex-col bg-slate-50 text-slate-900">
       <nav className="fixed top-0 left-0 w-full z-[100] border-b border-slate-200 bg-white/90 backdrop-blur-md">
@@ -67,7 +78,7 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg tracking-tight flex items-center gap-2 text-slate-800">
-                PredictiveModel <span className="text-slate-300 font-light translate-y-[1px]">|</span> <span className="text-slate-500">Energy</span>
+                ClimaBuild <span className="text-slate-300 font-light translate-y-[1px]">|</span> <span className="text-primary font-bold">AI</span>
               </span>
             </div>
           </div>
