@@ -6,9 +6,9 @@
   --color-background: #eff2f7; /* Light slate background */
   --color-foreground: #0f172a; /* Slate 900 */
 
-  --color-primary: #052C4D; /* Deep Blue from Logo */
-  --color-primary-light: #104573;
-  --color-secondary: #0d9488; /* Teal/Green */
+  --color-primary: #042642; /* Deep Blue from Logo */
+  --color-primary-light: #0C7277; /* Deep Teal swoosh from Logo */
+  --color-secondary: #7EB281; /* Sage green from Logo */
   --color-accent: #ea580c; /* Orange for warnings */
 
   --radius-xl: 1rem;
