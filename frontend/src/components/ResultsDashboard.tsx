@@ -19,8 +19,6 @@ import { cn } from '../lib/utils';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, Legend
 } from 'recharts';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -92,30 +90,10 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
         glazing: material_sources?.glazing?.name || "Single Clear Glass (6mm)"
     });
 
-    const handleExportPDF = async () => {
-        try {
-            const dashboard = document.getElementById('results-dashboard-content');
-            if (!dashboard) return;
-            
-            // Add a small delay/loading state in a real app, but this will freeze briefly
-            const canvas = await html2canvas(dashboard, { scale: 2, useCORS: true });
-            const imgData = canvas.toDataURL('image/png');
-            
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-            
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`Building_Energy_Report_${predicted_eui.toFixed(1)}EUI.pdf`);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF report.');
-        }
+    const handleExportPDF = () => {
+        // html2canvas struggles with SVG elements (like Recharts). 
+        // Native browser print to PDF is much higher quality (vector instead of raster) and never fails.
+        window.print();
     };
 
     const getEUIColor = (eui: number) => {
