@@ -73,13 +73,8 @@ export default function App() {
       <nav className="fixed top-0 left-0 w-full z-[100] border-b border-slate-200 bg-white/90 backdrop-blur-md">
         <div className="max-w-[1500px] mx-auto px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveTab('simulator')}>
-            <div className="h-10 w-32 flex items-center justify-start ml-2">
-              <img src="/logo.png" alt="ClimaBuild AI Logo" className="h-full w-full object-contain drop-shadow-sm scale-150 origin-left" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight flex items-center gap-2 text-slate-800">
-                ClimaBuild <span className="text-slate-300 font-light translate-y-[1px]">|</span> <span className="text-primary font-bold">AI</span>
-              </span>
+            <div className="h-14 flex items-center justify-start ml-2">
+              <img src="/logo.png" alt="ClimaBuild AI Logo" className="h-full w-auto object-contain drop-shadow-sm" />
             </div>
           </div>
 
