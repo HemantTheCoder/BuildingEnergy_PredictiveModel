@@ -143,7 +143,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <MapPin className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-slate-800">{climate_summary?.city || "Unknown Location"}</h3>
+                        <h3 className="text-xl font-bold text-slate-800">{formData?.city || climate_summary?.city || "Unknown Location"}</h3>
                         <p className="text-sm font-bold text-primary tracking-wide uppercase">{getClimateContext(climate_summary).zone}</p>
                     </div>
                 </div>
@@ -160,10 +160,11 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     <div className="absolute top-0 right-0 w-60 h-60 bg-primary/5 rounded-full blur-[80px] -z-10" />
                     
                     {/* Top Right Confidence Box */}
-                    <div className="absolute top-4 right-4 bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex flex-col gap-1 text-right">
+                    <div className="absolute top-4 right-4 bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex flex-col gap-1 text-right max-w-[240px]">
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Data Provenance</span>
-                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1">
-                            <Globe className="w-3 h-3 text-primary" /> {evidence_panel?.climate_source_metadata?.source || "NASA POWER"}
+                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1 w-full overflow-hidden" title={evidence_panel?.climate_source_metadata?.source || "NASA POWER"}>
+                            <Globe className="w-3 h-3 text-primary shrink-0" /> 
+                            <span className="truncate">{evidence_panel?.climate_source_metadata?.source || "NASA POWER"}</span>
                         </div>
                         <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1">
                             <Database className="w-3 h-3 text-secondary" /> CPWD & BMTPC

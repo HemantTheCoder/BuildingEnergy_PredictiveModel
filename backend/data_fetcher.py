@@ -100,8 +100,10 @@ class ClimateFetcher:
         if cache_key in self.cache:
             entry = self.cache[cache_key]
             if datetime.now() - entry['timestamp'] < self.cache_ttl:
-                data = entry['data'].copy()
-                data['metadata']['source'] = "Cached " + data['metadata']['source']
+                import copy
+                data = copy.deepcopy(entry['data'])
+                if not data['metadata']['source'].startswith("Cached"):
+                    data['metadata']['source'] = "Cached " + data['metadata']['source']
                 data['metadata']['confidence_score'] = 0.9 # Decreased confidence since it's cached
                 return data
 
