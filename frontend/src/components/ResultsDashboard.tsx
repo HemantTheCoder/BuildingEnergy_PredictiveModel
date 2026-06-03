@@ -12,6 +12,29 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  AreaChart, Area
+} from 'recharts';
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-[#0f1115] border border-white/10 p-3 rounded-lg shadow-xl">
+                <p className="text-white font-semibold text-sm mb-2">{label}</p>
+                {payload.map((entry: any, index: number) => (
+                    <div key={index} className="flex items-center gap-2 text-xs">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                        <span className="text-white/60">{entry.name}:</span>
+                        <span className="text-white font-bold">{entry.value.toFixed(1)}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
 
 export default function ResultsDashboard({ results, onPredict, formData }: any) {
     const { 
@@ -27,7 +50,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
         ecbc_compliance,
         evidence_panel
     } = results;
-    const [activeTab, setActiveTab] = useState<'simulator' | 'details' | 'comparison' | 'analytics'>('analytics');
+    
+    const [activeTab, setActiveTab] = useState<'analytics' | 'comparison' | 'simulator' | 'details'>('analytics');
     
     const [simulatorOverrides, setSimulatorOverrides] = useState<any>({
         wall: material_sources?.wall?.name || "AAC Block Wall (200mm)",
@@ -46,18 +70,42 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     };
 
     const totalEmbodiedCarbon = (material_sources.wall.carbon || 0) + (material_sources.roof.carbon || 0) + (material_sources.glazing.carbon || 0);
-    // Use dynamic backend savings if available, otherwise fallback
     const savings = annual_savings_inr !== undefined ? annual_savings_inr : (180 - predicted_eui) * 1200 * 9;
     const currentBaseline = baseline_eui !== undefined ? baseline_eui : 180;
+
+    // --- Chart Data Preparation ---
+    const euiComparisonData = [
+        { name: 'Baseline', eui: currentBaseline },
+        { name: 'Predicted (Current)', eui: predicted_eui },
+        ...(top_material_recommendations || []).slice(0, 3).map((rec: any, i: number) => ({
+            name: i === 0 ? "Optimum" : i === 1 ? "Balanced" : "Eco-Lead",
+            eui: rec.predicted_eui
+        }))
+    ];
+
+    const carbonComparisonData = [
+        { name: 'Current Config', carbon: totalEmbodiedCarbon },
+        ...(top_material_recommendations || []).slice(0, 3).map((rec: any, i: number) => ({
+            name: i === 0 ? "Optimum" : i === 1 ? "Balanced" : "Eco-Lead",
+            carbon: rec.embodied_carbon
+        }))
+    ];
+
+    const sensitivityData = sensitivity_analysis ? Object.entries(sensitivity_analysis).map(([param, data]: [string, any]) => ({
+        parameter: param.replace('_', ' ').substring(0, 10) + '...', // Shorten for radar
+        fullParam: param.replace('_', ' '),
+        importance: data.relative_importance,
+        impactRange: Math.abs(data.high_impact - data.low_impact)
+    })) : [];
 
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="space-y-8"
+            className="space-y-6"
         >
+            {/* Top KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Main EUI Card */}
                 <div className="md:col-span-2 premium-card p-6 bg-white/5 border border-white/10 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-60 h-60 bg-primary/10 rounded-full blur-[80px] -z-10" />
                     <div className="flex justify-between items-start">
@@ -106,7 +154,6 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     </div>
                 </div>
 
-                {/* Carbon & ROI Card */}
                 <div className="premium-card p-6 flex flex-col justify-between border-white/10 bg-white/5">
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
@@ -144,7 +191,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                 </div>
             </div>
 
-            <section className="premium-card p-0 overflow-hidden bg-white/5 border border-white/10 mt-8">
+            {/* Bottom Tabs with Visualizations */}
+            <section className="premium-card p-0 overflow-hidden bg-white/5 border border-white/10">
                 <div className="flex border-b border-white/10 overflow-x-auto bg-[#1a1e27]">
                     {[
                         { id: 'analytics', label: 'Design Analytics' },
@@ -164,9 +212,10 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                 </div>
 
                 <div className="p-8">
-                    {activeTab === 'analytics' ? (
+                    {activeTab === 'analytics' && (
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                            <div className="lg:col-span-7 space-y-8">
+                            {/* Sensitivity Bars (Left) */}
+                            <div className="lg:col-span-6 space-y-8">
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2">
                                         <Activity className="w-4 h-4 text-primary" />
@@ -199,67 +248,114 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </div>
                                 </div>
                             </div>
-                            <div className="lg:col-span-5 premium-card bg-white/5 p-6 space-y-6 flex flex-col justify-center">
+
+                            {/* Sensitivity Radar Chart (Right) */}
+                            <div className="lg:col-span-6 flex flex-col space-y-6 justify-between">
+                                <div className="premium-card bg-white/5 p-6 h-64 border-white/5">
+                                    <span className="text-xs font-semibold text-white/50 uppercase mb-4 block">Parameter Importance Radar</span>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <RadarChart data={sensitivityData} outerRadius="70%">
+                                            <PolarGrid stroke="#ffffff20" />
+                                            <PolarAngleAxis dataKey="parameter" tick={{fill: '#ffffff60', fontSize: 10}} />
+                                            <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={false} axisLine={false} />
+                                            <Radar name="Importance" dataKey="importance" stroke="#00d2ff" fill="#00d2ff" fillOpacity={0.3} />
+                                            <RechartsTooltip content={<CustomTooltip />} />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
+                                </div>
+
                                 <div className="space-y-2">
                                     <span className="text-sm font-semibold text-white/80">Strategic Insight</span>
                                     <p className="text-sm text-white/60 leading-relaxed italic border-l-2 border-primary/50 pl-4">
                                         "Parameter sensitivity reveals that <span className="text-white font-bold">WWR</span> is your dominant lever for optimization in {climate_summary?.city || 'this climate'}. A 20% reduction could yield substantial energy savings without compromising daylighting."
                                     </p>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-4 rounded-xl bg-black/20 border border-white/5">
-                                        <span className="text-xs font-semibold text-white/40 uppercase block mb-1">Payback Scale</span>
-                                        <span className="text-lg font-bold text-white tracking-tight">2.4 Years</span>
-                                    </div>
-                                    <div className="p-4 rounded-xl bg-black/20 border border-white/5">
-                                        <span className="text-xs font-semibold text-white/40 uppercase block mb-1">BEE Star Rating</span>
-                                        <div className="flex gap-1 pt-1">
-                                            {[1,2,3,4,5].map(s => <div key={s} className={cn("w-2 h-4 rounded-sm", s <= 4 ? "bg-primary" : "bg-white/10")} />)}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
-                    ) : activeTab === 'comparison' ? (
-                        <div className="space-y-8">
-                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    )}
+
+                    {activeTab === 'comparison' && (
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            <div className="lg:col-span-5 space-y-6">
                                 {top_material_recommendations.map((rec: any, i: number) => (
                                     <motion.div
                                         key={i}
-                                        whileHover={{ y: -6, scale: 1.01 }}
+                                        whileHover={{ y: -4 }}
                                         className={cn(
-                                            "premium-card p-6 flex flex-col gap-6 relative group border transition-all duration-500",
-                                            i === 0 ? "border-primary/40 bg-primary/[0.01] z-10" : "border-white/[0.03]"
+                                            "premium-card p-5 flex flex-col gap-4 relative group border transition-all duration-500",
+                                            i === 0 ? "border-primary/40 bg-primary/[0.02] z-10" : "border-white/[0.03]"
                                         )}
                                     >
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs font-semibold text-primary/80">{i === 0 ? "Max Efficiency" : i === 1 ? "Balanced Cost" : "Sustainability Leader"}</span>
-                                                {i === 0 && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
-                                            </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-semibold text-primary/80 uppercase">
+                                                {i === 0 ? "Optimum (Max Efficiency)" : i === 1 ? "Balanced Cost" : "Sustainability Leader"}
+                                            </span>
+                                            {i === 0 && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
                                         </div>
-                                        <div className="space-y-3">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-xs font-semibold text-white/40 uppercase">Assembly</span>
-                                                <p className="text-sm font-medium text-white/80">{rec.wall}</p>
-                                                <p className="text-sm font-medium text-white/80">{rec.roof}</p>
+                                        <div className="flex flex-col gap-1">
+                                            <p className="text-sm font-medium text-white/90 truncate">{rec.wall}</p>
+                                            <p className="text-sm font-medium text-white/70 truncate">{rec.roof}</p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/10">
+                                            <div>
+                                                <span className="text-[10px] font-semibold text-white/40 uppercase block">EUI</span>
+                                                <span className="text-lg font-bold text-white">{rec.predicted_eui.toFixed(1)}</span>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
-                                                <div>
-                                                    <span className="text-xs font-semibold text-white/40 uppercase block">EUI</span>
-                                                    <span className="text-xl font-bold text-white">{rec.predicted_eui.toFixed(1)}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="text-xs font-semibold text-white/40 uppercase block">Carbon</span>
-                                                    <span className="text-xl font-bold text-secondary">{rec.embodied_carbon.toFixed(1)}</span>
-                                                </div>
+                                            <div>
+                                                <span className="text-[10px] font-semibold text-white/40 uppercase block">Carbon</span>
+                                                <span className="text-lg font-bold text-secondary">{rec.embodied_carbon.toFixed(1)}</span>
                                             </div>
                                         </div>
                                     </motion.div>
                                 ))}
-                             </div>
+                            </div>
+                            
+                            {/* Charts (Right Side) */}
+                            <div className="lg:col-span-7 flex flex-col gap-6">
+                                <div className="premium-card p-6 bg-white/5 border border-white/10 flex-1 flex flex-col">
+                                    <span className="text-xs font-semibold text-white/50 uppercase mb-4">EUI Trajectory Comparison</span>
+                                    <div className="flex-1 min-h-[180px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={euiComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                                                <XAxis dataKey="name" tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
+                                                <YAxis tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
+                                                <RechartsTooltip content={<CustomTooltip />} />
+                                                <Bar dataKey="eui" radius={[4, 4, 0, 0]}>
+                                                    {euiComparisonData.map((_, index) => (
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#3b82f6' : index === 1 ? '#00d2ff' : '#10b981'} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                <div className="premium-card p-6 bg-white/5 border border-white/10 flex-1 flex flex-col">
+                                    <span className="text-xs font-semibold text-white/50 uppercase mb-4">Embodied Carbon Footprint</span>
+                                    <div className="flex-1 min-h-[180px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={carbonComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                <defs>
+                                                    <linearGradient id="colorCarbon" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                                                <XAxis dataKey="name" tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
+                                                <YAxis tick={{fill: '#ffffff60', fontSize: 11}} axisLine={false} tickLine={false} />
+                                                <RechartsTooltip content={<CustomTooltip />} />
+                                                <Area type="monotone" dataKey="carbon" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCarbon)" />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    ) : activeTab === 'simulator' ? (
+                    )}
+
+                    {activeTab === 'simulator' && (
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                             <div className="lg:col-span-8 space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -330,7 +426,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </button>
                             </div>
                         </div>
-                    ) : (
+                    )}
+
+                    {activeTab === 'details' && (
                         <div className="space-y-12">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                                 <SourceItem title="Wall Properties" source={material_sources.wall} model_metrics={model_metrics} />
@@ -392,7 +490,7 @@ function SimulatorSelect({ label, options, defaultValue, onChange }: any) {
                     className="w-full glass-input appearance-none cursor-pointer pr-10 hover:border-white/20"
                 >
                     {options.map((opt: string) => (
-                        <option key={opt} value={opt} className="bg-neutral-900">{opt}</option>
+                        <option key={opt} value={opt} className="bg-[#1a1e27]">{opt}</option>
                     ))}
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20 group-hover/sel:text-primary transition-colors">
