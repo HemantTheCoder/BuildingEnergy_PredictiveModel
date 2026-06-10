@@ -9,6 +9,17 @@ class EPWParser:
         """
         lines = content.splitlines()
         
+        # Parse LOCATION header for city metadata
+        location_name = "Custom EPW Location"
+        for line in lines:
+            if line.startswith('LOCATION'):
+                cols = line.split(',')
+                if len(cols) >= 4:
+                    city = cols[1].strip()
+                    country = cols[3].strip()
+                    location_name = f"{city}, {country}"
+                break
+                
         # EPW data typically starts after 8 header lines
         data_lines = [line for line in lines if len(line.split(',')) > 10 and not line.startswith(('LOCATION', 'DESIGN CONDITIONS', 'TYPICAL/EXTREME PERIODS', 'GROUND TEMPERATURES', 'HOLIDAYS/DAYLIGHT SAVINGS', 'COMMENTS', 'DATA PERIODS', 'DICTIONARY'))]
         
@@ -61,6 +72,7 @@ class EPWParser:
             idx += hours
             
         climate_data = {
+            "city": location_name,
             "annual_mean_temp": round(annual_mean_temp, 2),
             "annual_solrad": round(annual_solrad, 2),
             "cdd": round(cdd, 2),

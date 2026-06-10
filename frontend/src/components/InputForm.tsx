@@ -115,6 +115,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
             
             setFormData(prev => ({
                 ...prev,
+                city: res.data.city || prev.city,
                 climate_overrides: {
                     cdd: res.data.cdd,
                     hdd: res.data.hdd,
