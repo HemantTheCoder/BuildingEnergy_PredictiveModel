@@ -91,7 +91,8 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                 climate_overrides: {
                     cdd: res.data.cdd,
                     hdd: res.data.hdd,
-                    annual_solrad: res.data.annual_solrad
+                    annual_solrad: res.data.annual_solrad,
+                    metadata: res.data.metadata || { source: 'NASA POWER' }
                 }
             }));
         } catch (error) {
@@ -120,7 +121,8 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                 climate_overrides: {
                     cdd: res.data.cdd,
                     hdd: res.data.hdd,
-                    annual_solrad: res.data.annual_solrad
+                    annual_solrad: res.data.annual_solrad,
+                    metadata: res.data.metadata
                 }
             }));
             setManualClimate(true);
