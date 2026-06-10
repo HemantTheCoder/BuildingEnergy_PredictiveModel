@@ -48,7 +48,7 @@ export default function App() {
       let errMsg = error.response?.data?.detail || `Connection failed.`;
       
       if (Array.isArray(errMsg)) {
-        errMsg = errMsg.map((e: any) => e.msg).join(", ");
+        errMsg = errMsg.map((e: any) => `${e.loc?.join('.') || 'Field'}: ${e.msg}`).join(" | ");
       } else if (typeof errMsg === 'object') {
         errMsg = JSON.stringify(errMsg);
       }
