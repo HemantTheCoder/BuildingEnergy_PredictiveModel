@@ -609,10 +609,10 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {Object.entries(evidence_panel.shap_drivers).sort((a: any, b: any) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 6).map(([feature, impact]: [string, any], idx) => (
                                             <div key={idx} className="flex flex-col gap-2 p-4 rounded-xl border border-slate-200 bg-slate-50">
-                                                <span className="text-xs font-bold text-slate-500 uppercase">{feature.replace('_', ' ')}</span>
+                                                <span className="text-xs font-bold text-slate-500 uppercase">{feature ? feature.replace('_', ' ') : 'Unknown'}</span>
                                                 <div className="flex items-center justify-between">
                                                     <span className={cn("text-xl font-bold", impact > 0 ? "text-accent" : "text-primary")}>
-                                                        {impact > 0 ? "+" : ""}{impact.toFixed(2)}
+                                                        {impact > 0 ? "+" : ""}{Number(impact || 0).toFixed(2)}
                                                     </span>
                                                     <span className="text-[10px] uppercase font-bold text-slate-400">Impact on EUI</span>
                                                 </div>
@@ -696,8 +696,8 @@ function SourceItem({ title, source, model_metrics }: any) {
             <div className="flex flex-col gap-1">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{title}</span>
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-800">{source.name.replace('Custom: ', '')}</span>
-                    {source.name.startsWith('Custom:') && (
+                    <span className="text-sm font-bold text-slate-800">{source?.name ? source.name.replace('Custom: ', '') : 'Unknown'}</span>
+                    {source?.name && source.name.startsWith('Custom:') && (
                         <span className="px-2 py-0.5 rounded border border-primary/20 text-xs font-bold text-primary uppercase">User Library</span>
                     )}
                 </div>

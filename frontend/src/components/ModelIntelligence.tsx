@@ -3,11 +3,12 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 
 export default function ModelIntelligence({ results }: { results: any }) {
     // If no results, show generic model metadata
-    const shapData = results ? Object.entries(results.shap_values)
+    const shapValues = results?.evidence_panel?.shap_drivers || {};
+    const shapData = Object.keys(shapValues).length > 0 ? Object.entries(shapValues)
         .map(([name, value]: [string, any]) => ({
-            name: name.replace('_', ' ').toUpperCase(),
-            value: Math.abs(value),
-            original: value
+            name: name ? name.replace('_', ' ').toUpperCase() : 'UNKNOWN',
+            value: Math.abs(Number(value) || 0),
+            original: Number(value) || 0
         }))
         .sort((a, b) => b.value - a.value) : [];
 

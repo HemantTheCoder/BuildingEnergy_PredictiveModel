@@ -52,9 +52,9 @@ class EPWParser:
         
         annual_mean_temp = sum(temperatures) / len(temperatures)
         
-        # Annual Solar Radiation (kWh/m2)
-        # Sum of hourly Wh/m2 gives annual Wh/m2. Divide by 1000 for kWh/m2.
-        annual_solrad = sum(global_radiation_whm2) / 1000.0
+        # Annual Solar Radiation (kWh/m2/day)
+        # Sum of hourly Wh/m2 gives annual Wh/m2. Divide by 1000 for kWh/m2/yr, then divide by 365 for daily average.
+        annual_solrad = (sum(global_radiation_whm2) / 1000.0) / 365.0
         
         # Aggregate monthly temps for the UI
         # We assume 8760 hours starting Jan 1st.
