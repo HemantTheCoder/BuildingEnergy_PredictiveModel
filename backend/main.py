@@ -864,10 +864,10 @@ async def predict(request: PredictRequest):
     # 10. Dynamic Financials
     # In a fully fleshed system, baseline_eui comes from a benchmark database for the given city/archetype.
     baseline_eui = 180.0 
-    annual_savings_inr = max(0, (baseline_eui - predicted_eui)) * request.floor_area_m2 * 9.0 # Assuming INR 9/kWh
+    annual_savings_inr = max(0, (baseline_eui - final_eui)) * request.floor_area_m2 * 9.0 # Assuming INR 9/kWh
 
     response = {
-        "predicted_eui": float(predicted_eui),
+        "predicted_eui": float(final_eui),
         "baseline_eui": float(baseline_eui),
         "annual_savings_inr": float(annual_savings_inr),
         "evidence_panel": evidence_panel,
