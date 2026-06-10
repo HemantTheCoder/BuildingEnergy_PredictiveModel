@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity, Info, UploadCloud } from 'lucide-react';
+import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity, Info, UploadCloud, Globe } from 'lucide-react';
 import api from '../lib/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
