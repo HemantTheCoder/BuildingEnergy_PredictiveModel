@@ -590,6 +590,45 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </div>
                                 </div>
                             )}
+
+                            {/* Hybrid Physics Mathematics Section */}
+                            <div className="pt-10 border-t border-slate-200 pb-8">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <Calculator className="w-5 h-5 text-secondary" />
+                                    <h4 className="text-base font-bold text-slate-800 uppercase">Physics-Informed Hybrid Engine Math</h4>
+                                </div>
+                                <p className="text-sm text-slate-500 mb-6 max-w-3xl">
+                                    While the machine learning model calculates the baseline thermal envelope efficiency, we use deterministic thermodynamic equations to scale this baseline according to real-world operating schedules and plug loads.
+                                </p>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="p-6 rounded-xl border border-slate-200 bg-slate-50">
+                                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">1. Schedule & Occupancy Scaling</div>
+                                        <div className="font-mono text-sm text-slate-800 bg-white p-4 border border-slate-200 rounded-lg shadow-sm">
+                                            ThermalEUI = BaseML_EUI × (Hours / 50)<br/>
+                                            OccPenalty = 1.0 + (Density × 0.5)<br/>
+                                            <br/>
+                                            <span className="text-secondary font-bold">ScaledThermal = ThermalEUI × OccPenalty</span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-4 leading-relaxed">
+                                            The base AI model is trained on a standard 50-hour work week. We linearly scale the cooling/heating loads based on your selected operating hours, and apply a thermodynamic penalty for human heat signatures (occupancy density).
+                                        </p>
+                                    </div>
+
+                                    <div className="p-6 rounded-xl border border-slate-200 bg-slate-50">
+                                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">2. Deterministic Plug Loads</div>
+                                        <div className="font-mono text-sm text-slate-800 bg-white p-4 border border-slate-200 rounded-lg shadow-sm">
+                                            PlugEUI = <span className="text-slate-500">(W/m² × Hours/wk × 52) / 1000</span><br/>
+                                            <br/>
+                                            <span className="text-primary font-bold">Final EUI = ScaledThermal + PlugEUI</span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-4 leading-relaxed">
+                                            Unlike thermal dynamics, equipment electrical loads are purely deterministic. We calculate the exact kWh consumed by computers, lighting, and machinery over a year and add it directly to the scaled thermal prediction.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     )}
                 </div>
