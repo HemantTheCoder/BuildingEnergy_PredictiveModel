@@ -835,7 +835,8 @@ async def predict(request: PredictRequest):
         # Physics Override for Collinear Features (e.g., if ML drops solrad in favor of CDD)
         if param == "solrad" and abs(high_impact) < 1.0:
             delta_solrad = input_data['solrad'] * 0.5
-            phys_impact = round((delta_solrad * input_data['wwr'] * input_data['shgc'] * 8.5) * scaling_factor, 2)
+            # Thermodynamic conversion: (kWh/m2/day) * 365 days * 0.5 (effective exposure factor) / 3.0 (COP) ≈ 60.0
+            phys_impact = round((delta_solrad * input_data['wwr'] * input_data['shgc'] * 60.0) * scaling_factor, 2)
             low_impact = -phys_impact
             high_impact = phys_impact
             
