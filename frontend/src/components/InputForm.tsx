@@ -255,10 +255,14 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         )}>
                             <UploadCloud className={cn("w-6 h-6 text-slate-400 mb-2", uploadingEPW && "animate-bounce text-primary")} />
                             <span className="text-sm font-semibold text-slate-600">{uploadingEPW ? 'Parsing Data...' : 'Drop EPW file here or click to browse'}</span>
-                            <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">From climate.onebuilding.org</span>
+                            <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Standard .epw weather format</span>
                             <input type="file" accept=".epw" className="hidden" onChange={handleFileUpload} disabled={uploadingEPW} />
                         </label>
-                        <div className="flex justify-end">
+                        <div className="flex items-center justify-between">
+                            <a href="https://climate.onebuilding.org/" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                                Download EPW from Climate.OneBuilding
+                                <Globe className="w-3 h-3" />
+                            </a>
                             <button
                                 type="button"
                                 onClick={() => setManualClimate(!manualClimate)}

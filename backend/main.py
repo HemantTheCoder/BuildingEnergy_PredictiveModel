@@ -818,6 +818,9 @@ async def predict(request: PredictRequest):
     
     # 5. Recommend
     recommendations = engine.recommend_materials(input_data, materials_df, orientation=request.orientation, model_type=request.model_type)
+    for rec in recommendations:
+        rec_thermal_eui = rec['predicted_eui']
+        rec['predicted_eui'] = round((rec_thermal_eui * schedule_multiplier * occ_thermal_penalty) + plug_eui, 2)
     
     # 6. Sensitivity
     raw_sensitivity = engine.get_sensitivity_analysis(input_data, orientation=request.orientation, model_type=request.model_type)
