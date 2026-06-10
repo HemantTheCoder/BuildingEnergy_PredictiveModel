@@ -60,17 +60,17 @@ class MLEngine:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
         # 1. Ridge Regression (Best for small N, research-validated benchmarks)
-        ridge_model = Ridge(alpha=0.1)
+        ridge_model = Ridge(alpha=0.01)
         ridge_model.fit(X_train, y_train)
         self._save_model_and_metrics("RidgeRegression", ridge_model, X_train, y_train, X_test, y_test)
         
         # 2. RandomForest (Ensemble)
-        rf_model = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)
+        rf_model = RandomForestRegressor(n_estimators=300, max_depth=15, min_samples_split=2, random_state=42)
         rf_model.fit(X_train, y_train)
         self._save_model_and_metrics("RandomForest", rf_model, X_train, y_train, X_test, y_test)
         
         # 3. XGBoost
-        xgb_model = xgb.XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6, random_state=42)
+        xgb_model = xgb.XGBRegressor(n_estimators=400, learning_rate=0.05, max_depth=8, subsample=0.8, colsample_bytree=0.8, random_state=42)
         xgb_model.fit(X_train, y_train)
         self._save_model_and_metrics("XGBoost", xgb_model, X_train, y_train, X_test, y_test)
 
