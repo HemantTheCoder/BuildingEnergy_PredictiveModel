@@ -17,6 +17,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
     const [fetchingClimate, setFetchingClimate] = useState(false);
     const [uploadingEPW, setUploadingEPW] = useState(false);
     const [climateSource, setClimateSource] = useState<'nasa'|'epw'>('nasa');
+    const [detectedEPWCity, setDetectedEPWCity] = useState<string | null>(null);
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -123,6 +124,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                 }
             }));
             setManualClimate(true);
+            setDetectedEPWCity(res.data.city);
             alert(`EPW Parsed Successfully! Source: ${res.data.metadata.source}`);
         } catch (err) {
             alert("Failed to parse EPW file.");
@@ -264,11 +266,11 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                     <Globe className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                                     <span>Download EPW from Climate.OneBuilding</span>
                                 </a>
-                                {formData.city !== "Mumbai, India" && (
+                                {detectedEPWCity && (
                                     <div className="flex items-center gap-2 mt-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg w-fit">
                                         <MapPin className="w-3 h-3 text-secondary" />
                                         <span className="text-[10px] uppercase font-bold text-slate-500">Detected: </span>
-                                        <span className="text-xs font-bold text-slate-800">{formData.city}</span>
+                                        <span className="text-xs font-bold text-slate-800">{detectedEPWCity}</span>
                                     </div>
                                 )}
                             </div>
