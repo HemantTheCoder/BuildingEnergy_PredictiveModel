@@ -340,6 +340,13 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             <option value="retail">Commercial / Mall</option>
                             <option value="healthcare">Healthcare / Clinic</option>
                         </select>
+                        {!isAdvancedMode && (
+                            <div className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-500 font-medium leading-relaxed">
+                                <span className="font-bold text-slate-700">Physics Defaults Applied: </span>
+                                {ARCHETYPE_DEFAULTS[formData.archetype]?.hours || 50} hrs/wk, {ARCHETYPE_DEFAULTS[formData.archetype]?.occ || 0.1} ppl/m², {ARCHETYPE_DEFAULTS[formData.archetype]?.eq || 10.0} W/m².<br/>
+                                <span className="text-primary italic">Toggle Advanced Editor to manually override.</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-2">
