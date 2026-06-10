@@ -820,7 +820,17 @@ async def predict(request: PredictRequest):
     recommendations = engine.recommend_materials(input_data, materials_df, orientation=request.orientation, model_type=request.model_type)
     
     # 6. Sensitivity
-    sensitivity = engine.get_sensitivity_analysis(input_data, orientation=request.orientation, model_type=request.model_type)
+    raw_sensitivity = engine.get_sensitivity_analysis(input_data, orientation=request.orientation, model_type=request.model_type)
+    
+    # Scale sensitivity impacts to match the hybrid physics multiplier (Schedule & Occupancy)
+    scaling_factor = schedule_multiplier * occ_thermal_penalty
+    sensitivity = {}
+    for param, data in raw_sensitivity.items():
+        sensitivity[param] = {
+            "low_impact": round(data["low_impact"] * scaling_factor, 2),
+            "high_impact": round(data["high_impact"] * scaling_factor, 2),
+            "relative_importance": round(data["relative_importance"] * scaling_factor, 2)
+        }
 
     # 7. Thermal Comfort (PMV)
     comfort = engine.calculate_pmv(u_wall, u_roof, u_glass, climate['annual_solrad'], climate['cdd'])

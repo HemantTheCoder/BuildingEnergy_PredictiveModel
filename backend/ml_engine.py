@@ -381,10 +381,10 @@ class MLEngine:
         Calculates how EUI changes when key design parameters vary by +/- 20%.
         """
         parameters = {
-            "wwr": [base_input['wwr'] * 0.8, base_input['wwr'] * 1.2],
-            "solrad": [base_input['solrad'] * 0.8, base_input['solrad'] * 1.2],
-            "u_wall": [base_input['u_wall'] * 0.8, base_input['u_wall'] * 1.2],
-            "u_roof": [base_input['u_roof'] * 0.8, base_input['u_roof'] * 1.2]
+            "wwr": [base_input['wwr'] * 0.5, base_input['wwr'] * 1.5],
+            "solrad": [base_input['solrad'] * 0.5, base_input['solrad'] * 1.5],
+            "u_wall": [base_input['u_wall'] * 0.5, base_input['u_wall'] * 1.5],
+            "u_roof": [base_input['u_roof'] * 0.5, base_input['u_roof'] * 1.5]
         }
         
         base_pred = self.predict(base_input, orientation=orientation, model_type=model_type)['predicted_eui']
