@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -11,6 +11,7 @@ import traceback
 import math
 from data_fetcher import ClimateFetcher
 from ml_engine import MLEngine
+from epw_parser import EPWParser
 
 app = FastAPI(title="ClimaBuild AI")
 fetcher = ClimateFetcher()
@@ -683,6 +684,17 @@ async def get_climate(city: str):
     if not data:
         raise HTTPException(status_code=500, detail="Error fetching climate data")
     return sanitize_for_json({"lat": lat, "lon": lon, **data})
+
+@app.post("/upload_epw")
+async def upload_epw(file: UploadFile = File(...)):
+    if not file.filename.endswith('.epw'):
+        raise HTTPException(status_code=400, detail="Invalid file type. Must be an .epw file.")
+    try:
+        content = (await file.read()).decode('utf-8', errors='replace')
+        climate_data = EPWParser.parse_epw_content(content, source_name=file.filename)
+        return sanitize_for_json(climate_data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to parse EPW file: {str(e)}")
 
 @app.post("/predict")
 async def predict(request: PredictRequest):

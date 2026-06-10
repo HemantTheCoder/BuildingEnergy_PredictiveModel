@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity, Info } from 'lucide-react';
+import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity, Info, UploadCloud } from 'lucide-react';
 import api from '../lib/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,6 +8,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
     const [cities, setCities] = useState<string[]>([]);
     const [manualClimate, setManualClimate] = useState(false);
     const [fetchingClimate, setFetchingClimate] = useState(false);
+    const [uploadingEPW, setUploadingEPW] = useState(false);
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -87,6 +88,37 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
             console.error("Failed to fetch climate", error);
         } finally {
             setFetchingClimate(false);
+        }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingEPW(true);
+        const formPayload = new FormData();
+        formPayload.append("file", file);
+
+        try {
+            const res = await api.post('/upload_epw', formPayload, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            setFormData(prev => ({
+                ...prev,
+                climate_overrides: {
+                    cdd: res.data.cdd,
+                    hdd: res.data.hdd,
+                    annual_solrad: res.data.annual_solrad
+                }
+            }));
+            setManualClimate(true);
+            alert(`EPW Parsed Successfully! Source: ${res.data.metadata.source}`);
+        } catch (err) {
+            alert("Failed to parse EPW file.");
+            console.error(err);
+        } finally {
+            setUploadingEPW(false);
         }
     };
 
@@ -186,6 +218,14 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         <Settings2 className="w-4 h-4" />
                         Override
                     </button>
+                    <label className={cn(
+                        "flex items-center gap-2 px-4 h-12 rounded-xl border transition-all text-sm font-semibold cursor-pointer",
+                        uploadingEPW ? "bg-slate-100 opacity-50" : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800"
+                    )}>
+                        <UploadCloud className={cn("w-4 h-4", uploadingEPW && "animate-bounce")} />
+                        EPW
+                        <input type="file" accept=".epw" className="hidden" onChange={handleFileUpload} disabled={uploadingEPW} />
+                    </label>
                 </div>
 
                 <AnimatePresence>
