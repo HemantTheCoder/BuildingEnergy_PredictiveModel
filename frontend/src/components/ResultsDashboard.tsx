@@ -200,11 +200,41 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             </div>
                             
+                            
                             {/* Color Legend */}
                             <div className="flex items-center gap-3 mt-1 pb-2">
                                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /><span className="text-[10px] font-bold text-slate-500 uppercase">Excellent (&lt;80)</span></div>
                                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-secondary" /><span className="text-[10px] font-bold text-slate-500 uppercase">Standard (80-130)</span></div>
                                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /><span className="text-[10px] font-bold text-slate-500 uppercase">High (&gt;130)</span></div>
+                            </div>
+                            
+                            {/* Baseline Materials Insight */}
+                            <div className="mt-5 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                    <span>Baseline Envelope Properties</span>
+                                    <div className="relative group/db flex items-center gap-1 cursor-help">
+                                        <span className="text-[9px] text-secondary">Verified DB</span>
+                                        <Database className="w-3 h-3 text-secondary" />
+                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-800 text-white text-[10px] rounded-xl opacity-0 invisible group-hover/db:opacity-100 group-hover/db:visible transition-all z-50 shadow-xl pointer-events-none normal-case leading-relaxed">
+                                            Data rigorously sourced from CPWD (Central Public Works Dept) & BMTPC Schedule of Rates. U-Values & Embodied Carbon are deterministic physics constants, not AI-generated.
+                                            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-slate-800 rotate-45" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-semibold text-slate-500">Wall:</span>
+                                        <span className="font-bold text-slate-700 truncate max-w-[160px]" title={material_sources?.wall?.name}>{material_sources?.wall?.name || "Standard Wall"}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-semibold text-slate-500">Roof:</span>
+                                        <span className="font-bold text-slate-700 truncate max-w-[160px]" title={material_sources?.roof?.name}>{material_sources?.roof?.name || "Standard Roof"}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-semibold text-slate-500">Glass:</span>
+                                        <span className="font-bold text-slate-700 truncate max-w-[160px]" title={material_sources?.glazing?.name}>{material_sources?.glazing?.name || "Standard Glass"}</span>
+                                    </div>
+                                </div>
                             </div>
                             
                             {evidence_panel?.prediction_interval && (
