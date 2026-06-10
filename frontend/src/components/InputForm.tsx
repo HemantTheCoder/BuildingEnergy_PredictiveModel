@@ -258,10 +258,10 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Standard .epw weather format</span>
                             <input type="file" accept=".epw" className="hidden" onChange={handleFileUpload} disabled={uploadingEPW} />
                         </label>
-                        <div className="flex items-center justify-between">
-                            <a href="https://climate.onebuilding.org/" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
-                                Download EPW from Climate.OneBuilding
-                                <Globe className="w-3 h-3" />
+                        <div className="flex items-start justify-between gap-4 mt-1">
+                            <a href="https://climate.onebuilding.org/" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary hover:underline flex items-start gap-1.5 pt-1 max-w-[200px]">
+                                <Globe className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                <span>Download EPW from Climate.OneBuilding</span>
                             </a>
                             <button
                                 type="button"
