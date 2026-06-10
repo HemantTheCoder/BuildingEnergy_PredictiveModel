@@ -829,10 +829,20 @@ async def predict(request: PredictRequest):
     scaling_factor = schedule_multiplier * occ_thermal_penalty
     sensitivity = {}
     for param, data in raw_sensitivity.items():
+        low_impact = round(data["low_impact"] * scaling_factor, 2)
+        high_impact = round(data["high_impact"] * scaling_factor, 2)
+        
+        # Physics Override for Collinear Features (e.g., if ML drops solrad in favor of CDD)
+        if param == "solrad" and abs(high_impact) < 1.0:
+            delta_solrad = input_data['solrad'] * 0.5
+            phys_impact = round((delta_solrad * input_data['wwr'] * input_data['shgc'] * 8.5) * scaling_factor, 2)
+            low_impact = -phys_impact
+            high_impact = phys_impact
+            
         sensitivity[param] = {
-            "low_impact": round(data["low_impact"] * scaling_factor, 2),
-            "high_impact": round(data["high_impact"] * scaling_factor, 2),
-            "relative_importance": round(data["relative_importance"] * scaling_factor, 2)
+            "low_impact": low_impact,
+            "high_impact": high_impact,
+            "relative_importance": round(abs(high_impact - low_impact), 2)
         }
 
     # 7. Thermal Comfort (PMV)
