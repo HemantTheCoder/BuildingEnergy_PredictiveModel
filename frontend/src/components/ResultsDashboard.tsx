@@ -179,7 +179,16 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
 
                     <div className="flex justify-between items-start">
                         <div className="space-y-1 mt-2">
-                            <div className="text-sm font-semibold text-slate-500 uppercase">Energy Intensity</div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-sm font-semibold text-slate-500 uppercase">Energy Intensity (EUI)</div>
+                                <div className="relative group/info">
+                                    <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-800 text-white text-xs rounded-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-50 shadow-xl pointer-events-none">
+                                        Energy Use Intensity (kWh/m²·yr) represents the total energy consumed by the building in a year divided by its floor area. Lower is better.
+                                        <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45" />
+                                    </div>
+                                </div>
+                            </div>
                             <div className="flex items-baseline gap-4 mb-3">
                                 <span className={cn("text-7xl font-bold tracking-tight leading-none", getEUIColor(predicted_eui))}>
                                     {predicted_eui.toFixed(1)}
@@ -188,6 +197,13 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <span className="text-slate-400 font-bold text-xl leading-none">kWh/m²·yr</span>
                                     <span className="text-xs font-semibold text-primary/80 mt-2 uppercase">Operational Forecast</span>
                                 </div>
+                            </div>
+                            
+                            {/* Color Legend */}
+                            <div className="flex items-center gap-3 mt-1 pb-2">
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /><span className="text-[10px] font-bold text-slate-500 uppercase">Excellent (&lt;80)</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-secondary" /><span className="text-[10px] font-bold text-slate-500 uppercase">Standard (80-130)</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /><span className="text-[10px] font-bold text-slate-500 uppercase">High (&gt;130)</span></div>
                             </div>
                             
                             {evidence_panel?.prediction_interval && (
@@ -216,7 +232,16 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                 <div className="premium-card p-6 flex flex-col justify-between border-slate-200">
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Comfort</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Comfort</span>
+                                <div className="relative group/info">
+                                    <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                                    <div className="absolute right-0 bottom-full mb-2 w-64 p-3 bg-slate-800 text-white text-xs rounded-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-50 shadow-xl pointer-events-none">
+                                        Predicted Mean Vote (PMV) is a standard index that predicts the mean value of thermal sensation votes of a large group of people. 0 is Neutral/Comfortable, -3 is Cold, +3 is Hot.
+                                        <div className="absolute right-2 -bottom-1 w-2 h-2 bg-slate-800 rotate-45" />
+                                    </div>
+                                </div>
+                            </div>
                             <ThermometerSnowflake className="w-4 h-4 text-primary" />
                         </div>
                         <div className="space-y-1">
