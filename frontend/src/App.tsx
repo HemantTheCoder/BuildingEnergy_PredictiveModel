@@ -47,6 +47,12 @@ export default function App() {
       const isNetworkError = !error.response;
       let errMsg = error.response?.data?.detail || `Connection failed.`;
       
+      if (Array.isArray(errMsg)) {
+        errMsg = errMsg.map((e: any) => e.msg).join(", ");
+      } else if (typeof errMsg === 'object') {
+        errMsg = JSON.stringify(errMsg);
+      }
+      
       if (isNetworkError) {
         errMsg = `Connection failed to ${import.meta.env.VITE_API_URL || 'backend'}. Please ensure your VERCEL environment variable VITE_API_URL is set correctly and the backend at ${import.meta.env.VITE_API_URL} is running and accessible.`;
       }

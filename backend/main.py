@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import uvicorn
 import os
 import json
@@ -80,7 +80,7 @@ class PredictRequest(BaseModel):
     orientation: Optional[str] = "South"
     material_overrides: Optional[Dict[str, str]] = None
     property_overrides: Optional[Dict[str, float]] = None
-    climate_overrides: Optional[Dict[str, float]] = None
+    climate_overrides: Optional[Dict[str, Any]] = None
     model_type: Optional[str] = "XGBoost"
 
 class TelemetryPayload(BaseModel):
