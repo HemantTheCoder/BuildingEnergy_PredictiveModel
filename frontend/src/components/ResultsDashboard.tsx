@@ -103,7 +103,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     };
 
     const totalEmbodiedCarbon = (material_sources.wall.carbon || 0) + (material_sources.roof.carbon || 0) + (material_sources.glazing.carbon || 0);
-    const savings = annual_savings_inr !== undefined ? annual_savings_inr : (180 - predicted_eui) * 1200 * 9;
+    const savings = annual_savings_inr !== undefined ? annual_savings_inr : (180 - predicted_eui) * (formData?.floor_area_m2 || 1200) * 9;
     const currentBaseline = baseline_eui !== undefined ? baseline_eui : 180;
 
     // --- Chart Data Preparation ---
@@ -539,6 +539,32 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </p>
                                 </div>
                             </div>
+                            
+                            {/* SHAP Explainability Section */}
+                            {evidence_panel?.shap_drivers && Object.keys(evidence_panel.shap_drivers).length > 0 && (
+                                <div className="pt-10 border-t border-slate-200">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <Cpu className="w-5 h-5 text-accent" />
+                                        <h4 className="text-base font-bold text-slate-800 uppercase">AI Explainability (SHAP Values)</h4>
+                                    </div>
+                                    <p className="text-sm text-slate-500 mb-6 max-w-3xl">
+                                        SHAP (SHapley Additive exPlanations) values reveal exactly how the Machine Learning model arrived at its prediction. It breaks down the EUI prediction by showing how much each parameter pushed the energy intensity up (red) or down (green) relative to the baseline.
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {Object.entries(evidence_panel.shap_drivers).sort((a: any, b: any) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 6).map(([feature, impact]: [string, any], idx) => (
+                                            <div key={idx} className="flex flex-col gap-2 p-4 rounded-xl border border-slate-200 bg-slate-50">
+                                                <span className="text-xs font-bold text-slate-500 uppercase">{feature.replace('_', ' ')}</span>
+                                                <div className="flex items-center justify-between">
+                                                    <span className={cn("text-xl font-bold", impact > 0 ? "text-accent" : "text-primary")}>
+                                                        {impact > 0 ? "+" : ""}{impact.toFixed(2)}
+                                                    </span>
+                                                    <span className="text-[10px] uppercase font-bold text-slate-400">Impact on EUI</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
