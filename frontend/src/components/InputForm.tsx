@@ -9,6 +9,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
     const [manualClimate, setManualClimate] = useState(false);
     const [fetchingClimate, setFetchingClimate] = useState(false);
     const [uploadingEPW, setUploadingEPW] = useState(false);
+    const [climateSource, setClimateSource] = useState<'nasa'|'epw'>('nasa');
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -177,56 +178,92 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                     )}
                 </div>
 
-                <div className="relative group flex gap-3">
-                    <div className="relative flex-1">
-                        <input
-                            list="indian-cities"
-                            type="text"
-                            value={formData.city}
-                            className="w-full glass-input h-12 text-sm pl-10 bg-white"
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setFormData({ ...formData, city: val });
-                                if (cities.some(c => c.toLowerCase() === val.toLowerCase())) {
-                                    fetchClimate(val);
-                                }
-                            }}
-                            placeholder="Select or enter city..."
-                        />
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <datalist id="indian-cities">
-                            {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                        </datalist>
-                    </div>
-
-                    <button
-                        type="button"
-                        title="Force Climate Fetch"
-                        onClick={() => fetchClimate(formData.city)}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all text-slate-500"
+                <div className="flex bg-slate-100/50 p-1 rounded-xl w-full mb-2 border border-slate-200">
+                    <button 
+                        type="button" 
+                        onClick={() => setClimateSource('nasa')} 
+                        className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", climateSource === 'nasa' ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700")}
                     >
-                        <RefreshCcw className={cn("w-4 h-4", fetchingClimate && "animate-spin")} />
+                        NASA POWER API (Auto)
                     </button>
-                    <button
-                        type="button"
-                        onClick={() => setManualClimate(!manualClimate)}
-                        className={cn(
-                            "flex items-center gap-2 px-4 h-12 rounded-xl border transition-all text-sm font-semibold",
-                            manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800"
-                        )}
+                    <button 
+                        type="button" 
+                        onClick={() => setClimateSource('epw')} 
+                        className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", climateSource === 'epw' ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700")}
                     >
-                        <Settings2 className="w-4 h-4" />
-                        Override
+                        EPW File Upload
                     </button>
-                    <label className={cn(
-                        "flex items-center gap-2 px-4 h-12 rounded-xl border transition-all text-sm font-semibold cursor-pointer",
-                        uploadingEPW ? "bg-slate-100 opacity-50" : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800"
-                    )}>
-                        <UploadCloud className={cn("w-4 h-4", uploadingEPW && "animate-bounce")} />
-                        EPW
-                        <input type="file" accept=".epw" className="hidden" onChange={handleFileUpload} disabled={uploadingEPW} />
-                    </label>
                 </div>
+
+                {climateSource === 'nasa' ? (
+                    <div className="relative group flex gap-3">
+                        <div className="relative flex-1">
+                            <input
+                                list="indian-cities"
+                                type="text"
+                                value={formData.city}
+                                className="w-full glass-input h-12 text-sm pl-10 bg-white"
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFormData({ ...formData, city: val });
+                                    if (cities.some(c => c.toLowerCase() === val.toLowerCase())) {
+                                        fetchClimate(val);
+                                    }
+                                }}
+                                placeholder="Select or enter city..."
+                            />
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <datalist id="indian-cities">
+                                {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                            </datalist>
+                        </div>
+
+                        <button
+                            type="button"
+                            title="Force Climate Fetch"
+                            onClick={() => fetchClimate(formData.city)}
+                            className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all text-slate-500"
+                        >
+                            <RefreshCcw className={cn("w-4 h-4", fetchingClimate && "animate-spin")} />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setManualClimate(!manualClimate)}
+                            className={cn(
+                                "flex items-center gap-2 px-4 h-12 rounded-xl border transition-all text-sm font-semibold",
+                                manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800"
+                            )}
+                        >
+                            <Settings2 className="w-4 h-4" />
+                            Override
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <label className={cn(
+                            "flex flex-col items-center justify-center w-full h-28 rounded-xl border-2 border-dashed transition-all cursor-pointer",
+                            uploadingEPW ? "bg-slate-50 border-slate-300 opacity-70" : "bg-white border-slate-300 hover:border-primary hover:bg-primary/5"
+                        )}>
+                            <UploadCloud className={cn("w-6 h-6 text-slate-400 mb-2", uploadingEPW && "animate-bounce text-primary")} />
+                            <span className="text-sm font-semibold text-slate-600">{uploadingEPW ? 'Parsing Data...' : 'Drop EPW file here or click to browse'}</span>
+                            <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">From climate.onebuilding.org</span>
+                            <input type="file" accept=".epw" className="hidden" onChange={handleFileUpload} disabled={uploadingEPW} />
+                        </label>
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setManualClimate(!manualClimate)}
+                                className={cn(
+                                    "flex items-center gap-2 px-4 h-9 rounded-lg border transition-all text-xs font-semibold",
+                                    manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800"
+                                )}
+                            >
+                                <Settings2 className="w-3.5 h-3.5" />
+                                {manualClimate ? 'Hide Extracted Data' : 'View Extracted Data'}
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <AnimatePresence>
                     {manualClimate && (
