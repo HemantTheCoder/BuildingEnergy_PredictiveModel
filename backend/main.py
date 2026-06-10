@@ -74,6 +74,7 @@ class PredictRequest(BaseModel):
     floor_area_m2: float
     wwr: float
     hvac_type: str
+    operating_hours: Optional[float] = 50.0 # hrs/week
     occupancy_density: Optional[float] = 0.1 # ppl/m2
     equipment_load: Optional[float] = 10.0 # W/m2
     orientation: Optional[str] = "South"
@@ -731,10 +732,6 @@ async def predict(request: PredictRequest):
         "Evaporative Cooler": 8.0  # High 'apparent' COP but constrained by humidity
     }
     hvac_cop = cop_map.get(request.hvac_type, 3.0)
-    
-    # Internal Gains Adjustment
-    # EUI impact scale based on benchmarks: 10% increase per ppl/m2 and 5% per 10W load 
-    internal_gain_factor = 1.0 + (request.occupancy_density * 0.5) + (request.equipment_load / 100.0)
 
     # Find material properties (default or overrides)
     def get_material_data(comp_type, name_override=None, climate_data=None):
@@ -795,9 +792,29 @@ async def predict(request: PredictRequest):
             raise HTTPException(status_code=400, detail=str(ve))
         raise ve
         
-    predicted_eui = prediction['predicted_eui'] * internal_gain_factor
-    interval = prediction.get('prediction_interval', [prediction['predicted_eui'], prediction['predicted_eui']])
-    adjusted_interval = [round(i * internal_gain_factor, 2) for i in interval]
+    # Physics-Informed Hybrid Engine Math
+    base_thermal_eui = prediction['predicted_eui']
+    
+    # 1. Schedule Scaling (Base model trained on ~50 hr/wk office)
+    schedule_multiplier = request.operating_hours / 50.0
+    scaled_thermal_eui = base_thermal_eui * schedule_multiplier
+    
+    # 2. Deterministic Plug Loads EUI (kWh/m2/yr)
+    # (Watts/m2 * hours/week * 52 weeks) / 1000 = kWh/m2/yr
+    plug_eui = (request.equipment_load * request.operating_hours * 52) / 1000.0
+    
+    # 3. Occupancy Thermal Penalty (More people = more cooling load)
+    occ_thermal_penalty = 1.0 + (request.occupancy_density * 0.5)
+    
+    final_eui = (scaled_thermal_eui * occ_thermal_penalty) + plug_eui
+    prediction['predicted_eui'] = final_eui
+    
+    # Scale confidence intervals
+    interval = prediction.get('prediction_interval', [base_thermal_eui, base_thermal_eui])
+    adjusted_interval = [
+        round(((i * schedule_multiplier * occ_thermal_penalty) + plug_eui), 2) 
+        for i in interval
+    ]
     
     # 5. Recommend
     recommendations = engine.recommend_materials(input_data, materials_df, orientation=request.orientation, model_type=request.model_type)

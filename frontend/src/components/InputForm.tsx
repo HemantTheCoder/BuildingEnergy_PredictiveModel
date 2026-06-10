@@ -4,6 +4,13 @@ import api from '../lib/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const ARCHETYPE_DEFAULTS: Record<string, { hours: number, occ: number, eq: number }> = {
+    office_small: { hours: 50, occ: 0.1, eq: 10.0 },
+    office_medium: { hours: 55, occ: 0.15, eq: 12.0 },
+    retail: { hours: 80, occ: 0.25, eq: 25.0 },
+    healthcare: { hours: 168, occ: 0.20, eq: 30.0 }
+};
+
 export default function InputForm({ onPredict, onChange, loading }: any) {
     const [cities, setCities] = useState<string[]>([]);
     const [manualClimate, setManualClimate] = useState(false);
@@ -18,6 +25,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
         floor_area_m2: 1200,
         wwr: 0.35,
         hvac_type: "VAV",
+        operating_hours: 50,
         occupancy_density: 0.1,
         equipment_load: 10.0,
         orientation: "South",
@@ -310,7 +318,17 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         <select
                             className="w-full glass-input h-12"
                             value={formData.archetype}
-                            onChange={(e) => setFormData({ ...formData, archetype: e.target.value })}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                const defaults = ARCHETYPE_DEFAULTS[val] || ARCHETYPE_DEFAULTS['office_small'];
+                                setFormData({ 
+                                    ...formData, 
+                                    archetype: val,
+                                    operating_hours: defaults.hours,
+                                    occupancy_density: defaults.occ,
+                                    equipment_load: defaults.eq
+                                });
+                            }}
                         >
                             <option value="office_small">Small Office</option>
                             <option value="office_medium">Medium Institutional</option>
@@ -360,6 +378,20 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                                 <option value="Variable Refrigerant Flow (VRF)">Inverter VRF</option>
                                 <option value="Evaporative Cooler">Evaporative Cooler</option>
                             </select>
+                        </div>
+                    )}
+
+                    {isAdvancedMode && (
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                                Operating Hours / Wk <Definition text="Hours the building is fully active per week." />
+                            </label>
+                            <input
+                                type="number" step="1" min="10" max="168"
+                                className="w-full glass-input h-12"
+                                value={formData.operating_hours}
+                                onChange={(e) => setFormData({ ...formData, operating_hours: Number(e.target.value) })}
+                            />
                         </div>
                     )}
 
