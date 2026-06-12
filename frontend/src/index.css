@@ -33,6 +33,21 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     @apply font-sans antialiased overflow-x-hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: pan-y;
+  }
+
+  /* Prevent horizontal scroll bleed on all elements */
+  * { box-sizing: border-box; }
+
+  /* Smooth momentum scrolling on iOS */
+  .premium-scrollbar, main, section {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Better tap targets on mobile — minimum 44px */
+  button, a, [role="button"] {
+    min-height: 36px;
   }
 }
 

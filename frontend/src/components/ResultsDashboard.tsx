@@ -270,8 +270,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                 <div className="md:col-span-2 premium-card p-6 border-slate-200 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-60 h-60 bg-primary/5 rounded-full blur-[80px] -z-10" />
                     
-                    {/* Top Right Confidence Box */}
-                    <div className="absolute top-4 right-4 bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex flex-col gap-1 text-right max-w-[240px]">
+                    {/* Top Right Confidence Box — hidden on mobile (visible in Methodology tab) */}
+                    <div className="hidden md:flex absolute top-4 right-4 bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex-col gap-1 text-right max-w-[240px]">
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Data Provenance</span>
                         <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1 w-full overflow-hidden" title={evidence_panel?.climate_source_metadata?.source || "NASA POWER"}>
                             <Globe className="w-3 h-3 text-primary shrink-0" /> 
@@ -285,8 +285,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         </div>
                     </div>
 
-                    <div className="flex justify-between items-start">
-                        <div className="space-y-1 mt-2">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                        <div className="space-y-1 mt-2 flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                                 <div className="text-sm font-semibold text-slate-500 uppercase">Energy Intensity (EUI)</div>
                                 <div className="tooltip-wrap">
@@ -297,7 +297,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             </div>
                             <div className="flex items-baseline gap-4 mb-3">
-                                <span className={cn("text-7xl font-bold tracking-tight leading-none", getEUIColor(predicted_eui))}>
+                                <span className={cn("text-5xl md:text-7xl font-bold tracking-tight leading-none", getEUIColor(predicted_eui))}>
                                     {predicted_eui.toFixed(1)}
                                 </span>
                                 <div className="flex flex-col">
@@ -384,7 +384,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             )}
                         </div>
-                        <div className="flex flex-col items-end gap-3 text-right mt-32">
+                        <div className="flex flex-col md:items-end gap-3 md:text-right md:mt-32 shrink-0">
                             <div className="flex flex-col gap-1 items-end">
                                 <span className="text-xs font-semibold text-slate-400 uppercase">Est. Annual Savings</span>
                                 <span className="text-2xl font-bold text-secondary">₹{savings > 0 ? (savings/1000).toFixed(1) : "0"}K</span>
@@ -459,7 +459,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     ))}
                 </div>
 
-                <div className="p-8 bg-white">
+                <div className="p-4 md:p-8 bg-white">
                     {activeTab === 'analytics' && (
                         <div className="space-y-8">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -560,8 +560,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
 
                     {activeTab === 'comparison' && (
                         <div className="space-y-8">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            <div className="lg:col-span-5 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 md:gap-8">
+                            <div className="md:col-span-1 lg:col-span-5 space-y-4 md:space-y-6">
                                 {top_material_recommendations.map((rec: any, i: number) => (
                                     <motion.div
                                         key={i}
@@ -596,7 +596,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             </div>
                             
                             {/* Charts (Right Side) */}
-                            <div className="lg:col-span-7 flex flex-col gap-6">
+                            <div className="md:col-span-1 lg:col-span-7 flex flex-col gap-6">
                                 <div className="premium-card p-6 bg-slate-50 border border-slate-200 flex-1 flex flex-col">
                                     <div className="mb-4">
                                         <span className="text-xs font-bold text-slate-800 uppercase block">EUI Trajectory Comparison</span>
@@ -702,8 +702,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     )}
 
                     {activeTab === 'simulator' && (
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                            <div className="lg:col-span-8 space-y-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
+                            <div className="lg:col-span-8 space-y-6 md:space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <SimulatorSelect
                                         label="Wall Selection"
@@ -747,12 +747,12 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </p>
                                 </div>
                             </div>
-                            <div className="lg:col-span-4 rounded-3xl bg-secondary/10 border border-secondary/20 p-8 flex flex-col items-center justify-center text-center gap-6">
+                            <div className="lg:col-span-4 rounded-3xl bg-secondary/10 border border-secondary/20 p-6 md:p-8 flex flex-col items-center justify-center text-center gap-6">
                                 <div className="space-y-1">
                                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">Operational Impact</span>
                                     <div className="flex items-baseline justify-center gap-2">
                                         <TrendingDown className="w-6 h-6 text-secondary" />
-                                        <span className="text-6xl font-bold text-slate-800 tracking-tight">{Math.abs(((currentBaseline - predicted_eui)/currentBaseline) * 100).toFixed(0)}%</span>
+                                        <span className="text-4xl md:text-6xl font-bold text-slate-800 tracking-tight">{Math.abs(((currentBaseline - predicted_eui)/currentBaseline) * 100).toFixed(0)}%</span>
                                     </div>
                                     <span className="text-xs font-medium text-slate-500 uppercase">Efficiency vs Baseline</span>
                                 </div>
