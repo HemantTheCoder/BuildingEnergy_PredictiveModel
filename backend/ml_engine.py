@@ -87,7 +87,7 @@ class MLEngine:
         with open(os.path.join(self.model_dir, f"{name}_metrics.json"), 'w') as f:
             json.dump(self.metrics[name], f)
         
-        print(f"Model '{name}' Trained on REAL BENCHMARKS. R2: {r2:.4f}, MAE: {mae:.2f}")
+        print(f"Model '{name}' trained on physics-calibrated surrogate + published benchmarks. R²={r2:.4f}, MAE={mae:.2f} kWh/m²·yr")
 
     def load_models(self):
         for name in self.models.keys():
@@ -189,9 +189,9 @@ class MLEngine:
         # Build enriched model metrics with dynamic metadata
         enriched_metrics = metrics.copy()
         enriched_metrics["algorithm"] = model_type
-        enriched_metrics["depth"] = 6 if model_type == "XGBoost" else (10 if model_type == "RandomForest" else None)
-        enriched_metrics["estimators"] = 100 if model_type in ["XGBoost", "RandomForest"] else None
-        enriched_metrics["alpha"] = 0.1 if model_type == "RidgeRegression" else None
+        enriched_metrics["depth"] = 8 if model_type == "XGBoost" else (15 if model_type == "RandomForest" else None)
+        enriched_metrics["estimators"] = 400 if model_type == "XGBoost" else (300 if model_type == "RandomForest" else None)
+        enriched_metrics["alpha"] = 0.01 if model_type == "RidgeRegression" else None
         enriched_metrics["training_samples"] = self.get_training_samples_count()
 
         prediction_result = {

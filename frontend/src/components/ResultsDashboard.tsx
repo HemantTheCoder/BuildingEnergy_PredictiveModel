@@ -18,7 +18,7 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, Legend
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, Legend, ReferenceLine
 } from 'recharts';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -122,9 +122,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     const [activeTab, setActiveTab] = useState<'analytics' | 'comparison' | 'simulator' | 'details'>('analytics');
     
     const [simulatorOverrides, setSimulatorOverrides] = useState<any>({
-        wall: material_sources?.wall?.name || "AAC Block Wall (200mm)",
-        roof: material_sources?.roof?.name || "RCC Slab (150mm) - Standard",
-        glazing: material_sources?.glazing?.name || "Single Clear Glass (6mm)"
+        wall:    material_sources?.wall?.name    || "AAC Block Wall (200 mm)",
+        roof:    material_sources?.roof?.name    || "RCC Flat Slab (150 mm) \u2014 Baseline",
+        glazing: material_sources?.glazing?.name || "Single Clear Glass (6 mm)",
     });
 
     const handleExportPDF = () => {
@@ -423,14 +423,15 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <span className="text-xs font-bold text-slate-800 uppercase mb-2 block">Tornado Impact Analysis</span>
                                     <span className="text-[10px] text-slate-400 block mb-4">Shows variable influence on EUI (negative = energy reduction)</span>
                                     <ResponsiveContainer width="100%" height="80%">
-                                        <BarChart layout="vertical" data={sensitivityData} margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+                                        <BarChart layout="vertical" data={sensitivityData} margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
-                                            <XAxis type="number" tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
+                                            <XAxis type="number" tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false} unit=" kWh" />
                                             <YAxis dataKey="parameter" type="category" tick={{fill: '#475569', fontSize: 10}} axisLine={false} tickLine={false} width={80} />
                                             <RechartsTooltip content={<CustomTooltip />} />
                                             <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}}/>
-                                            <Bar dataKey="LowImpact" name="Low Estimate" fill="#0C7277" stackId="stack" radius={[4, 0, 0, 4]} />
-                                            <Bar dataKey="HighImpact" name="High Estimate" fill="#ea580c" stackId="stack" radius={[0, 4, 4, 0]} />
+                                            <ReferenceLine x={0} stroke="#94a3b8" strokeWidth={1.5} />
+                                            <Bar dataKey="LowImpact" name="Low scenario (−50%)" fill="#0d9488" radius={[4, 4, 4, 4]} maxBarSize={18} />
+                                            <Bar dataKey="HighImpact" name="High scenario (+50%)" fill="#ea580c" radius={[4, 4, 4, 4]} maxBarSize={18} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -537,21 +538,37 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                             <div className="lg:col-span-8 space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <SimulatorSelect 
-                                        label="Wall Selection" 
-                                        options={["AAC Block Wall (200mm)", "Autoclaved Aerated Block", "Burnt Clay Brick Wall (230mm)", "Fly Ash Brick Wall (230mm)", "Solid Concrete Block (200mm)"]} 
+                                    <SimulatorSelect
+                                        label="Wall Selection"
+                                        options={[
+                                            "AAC Block Wall (200 mm)",
+                                            "Burnt Clay Brick Wall (230 mm)",
+                                            "Fly Ash Brick Wall (230 mm)",
+                                            "Hollow Concrete Block (200 mm)",
+                                            "XPS Insulated Brick Wall (230+50 mm)",
+                                        ]}
                                         defaultValue={simulatorOverrides.wall}
                                         onChange={(v: string) => setSimulatorOverrides({ ...simulatorOverrides, wall: v })}
                                     />
-                                    <SimulatorSelect 
-                                        label="Roof Strategy" 
-                                        options={["RCC Slab (150mm) - Standard", "RCC (150mm) + 50mm EPS Insulation", "RCC (150mm) + 100mm Rockwool Insulation", "Smart Green Roof (Adaptive Irrigation)"]} 
+                                    <SimulatorSelect
+                                        label="Roof Strategy"
+                                        options={[
+                                            "RCC Flat Slab (150 mm) \u2014 Baseline",
+                                            "Ultra-Cool Roof (SRI \u2265 110 Coating on RCC)",
+                                            "RCC (150 mm) + 100 mm Rockwool Insulation",
+                                            "Adaptive Green Roof (Intensive, 450 mm substrate)",
+                                        ]}
                                         defaultValue={simulatorOverrides.roof}
                                         onChange={(v: string) => setSimulatorOverrides({ ...simulatorOverrides, roof: v })}
                                     />
-                                    <SimulatorSelect 
-                                        label="Glazing Config" 
-                                        options={["Single Clear Glass (6mm)", "Double Glazed Low-E (6/12/6)", "Double Glazed Heat Reflective (6/12/6)", "Triple Glazed Argon Fill"]} 
+                                    <SimulatorSelect
+                                        label="Glazing Config"
+                                        options={[
+                                            "Single Clear Glass (6 mm)",
+                                            "Double Glazed Low-E (6/12Ar/6 mm)",
+                                            "Double Tinted IGU (6/12air/6 mm)",
+                                            "Triple Glazed Argon Low-E IGU (6/12Ar/6/12Ar/6 mm)",
+                                        ]}
                                         defaultValue={simulatorOverrides.glazing}
                                         onChange={(v: string) => setSimulatorOverrides({ ...simulatorOverrides, glazing: v })}
                                     />
