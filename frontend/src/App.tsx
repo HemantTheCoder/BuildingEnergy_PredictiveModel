@@ -5,7 +5,8 @@ import {
   Globe,
   Activity,
   Database,
-  Cpu
+  Cpu,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from './lib/utils';
@@ -13,6 +14,7 @@ import InputForm from './components/InputForm';
 import ResultsDashboard from './components/ResultsDashboard';
 import MaterialLibrary from './components/MaterialLibrary';
 import ModelIntelligence from './components/ModelIntelligence';
+import KnowledgeBase from './components/KnowledgeBase';
 import SplashScreen from './components/SplashScreen';
 import ResearchContext from './components/ResearchContext';
 
@@ -21,7 +23,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [materials, setMaterials] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'simulator' | 'materials' | 'intelligence'>('simulator');
+  const [activeTab, setActiveTab] = useState<'simulator' | 'materials' | 'intelligence' | 'learn'>('simulator');
   const [error, setError] = useState<string | null>(null);
   const [showSplash, setShowSplash] = useState(true);
 
@@ -66,9 +68,10 @@ export default function App() {
 
 
   const tabs = [
-    { id: 'simulator', label: 'Simulator', icon: Zap },
-    { id: 'materials', label: 'Material Library', icon: Database },
-    { id: 'intelligence', label: 'Model Intelligence', icon: Cpu },
+    { id: 'simulator',   label: 'Simulator',          icon: Zap },
+    { id: 'materials',   label: 'Material Library',    icon: Database },
+    { id: 'intelligence',label: 'Model Intelligence',  icon: Cpu },
+    { id: 'learn',       label: 'Learn',               icon: BookOpen },
   ];
 
   if (showSplash) {
@@ -176,6 +179,18 @@ export default function App() {
               className="w-full h-full min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar"
             >
               <ModelIntelligence results={results} />
+            </motion.div>
+          )}
+
+          {activeTab === 'learn' && (
+            <motion.div
+              key="learn"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="w-full h-full min-h-0 overflow-y-auto overflow-x-hidden pr-2 premium-scrollbar"
+            >
+              <KnowledgeBase />
             </motion.div>
           )}
         </AnimatePresence>
