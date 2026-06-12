@@ -85,6 +85,22 @@
   @apply animate-fade-in-up;
 }
 
+/* Research-grade citation badge — academic reference tag */
+.citation-badge {
+  @apply inline-block text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-slate-100 border-slate-300 text-slate-500 leading-none cursor-default select-none;
+}
+
+/* Animate-in utility (used by ResearchContext) */
+.animate-in {
+  animation-fill-mode: both;
+}
+.fade-in {
+  animation-name: fadeInUp;
+}
+.duration-500 {
+  animation-duration: 0.5s;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }

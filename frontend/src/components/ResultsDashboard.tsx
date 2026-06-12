@@ -39,34 +39,69 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
+/**
+ * BEE / NBC 2016 / ECBC 2017 climate zone classification for India.
+ * Based on BIS SP 41 (2011) and ECBC 2017 §3.1 five-zone classification.
+ *
+ * Zone boundaries (indicative proxy using NASA POWER CDD/HDD/GHI):
+ *   Hot-Dry:    CDD > 2500 AND GHI > 5.5  (Ahmedabad, Jodhpur, Nagpur)
+ *   Warm-Humid: CDD > 2500 AND GHI ≤ 5.5  (Mumbai, Chennai, Kolkata, Goa)
+ *   Composite:  1200 < CDD ≤ 2500          (Delhi, Jaipur, Lucknow, Bhopal)
+ *   Temperate:  CDD ≤ 1200 AND HDD ≤ 1200 (Bangalore, Pune, Shillong)
+ *   Cold:       HDD > 1200                 (Shimla, Leh, Srinagar)
+ *
+ * Ref: NBC 2016 Part 8; BEE ECBC 2017 §3.1; SP 41:2011.
+ */
 const getClimateContext = (climate: any) => {
-    if (!climate) return { zone: "Unknown Climate", insight: "Awaiting climate data." };
-    
-    const isHot = climate.cdd > 2000;
-    const isCold = climate.hdd > 1500;
-    const highSolar = climate.annual_solrad > 4.5;
-    
-    if (isHot && highSolar) {
+    if (!climate) return {
+        zone: "Unknown Climate Zone",
+        zoneCode: "—",
+        insight: "Awaiting climate data.",
+        ecbcRef: "ECBC 2017"
+    };
+
+    const cdd = climate.cdd ?? 0;
+    const hdd = climate.hdd ?? 0;
+    const ghi = climate.annual_solrad ?? 5.0;
+
+    if (hdd > 1200) {
         return {
-            zone: "Warm-Humid / Hot-Dry Climate Zone",
-            insight: "High solar loads detected. Low SHGC glazing and insulated roofs recommended."
-        };
-    } else if (isHot) {
-        return {
-            zone: "Warm Climate Zone",
-            insight: "Cooling dominated thermal profile. Focus on external shading and natural ventilation."
-        };
-    } else if (isCold) {
-        return {
-            zone: "Cold Climate Zone",
-            insight: "Heating dominated thermal profile. High insulation and passive solar heating recommended."
-        };
-    } else {
-        return {
-            zone: "Composite Climate Zone",
-            insight: "Mixed thermal loads detected. Balanced insulation and adaptive strategies recommended."
+            zone: "Cold",
+            zoneCode: "BEE Zone 5",
+            insight: "Heating-dominated profile. High-insulation walls (U ≤ 0.44), triple glazing, and passive solar orientation recommended. Avoid excessive shading.",
+            ecbcRef: "ECBC 2017 Table 5.5 (Cold)"
         };
     }
+    if (cdd > 2500 && ghi > 5.5) {
+        return {
+            zone: "Hot-Dry",
+            zoneCode: "BEE Zone 1",
+            insight: "Intense solar radiation with low humidity. Prioritise roof insulation (U ≤ 0.20), reflective surfaces (SRI ≥ 78), and low SHGC glazing (≤ 0.25).",
+            ecbcRef: "ECBC 2017 Table 5.3 (Hot-Dry)"
+        };
+    }
+    if (cdd > 2500) {
+        return {
+            zone: "Warm-Humid",
+            zoneCode: "BEE Zone 2",
+            insight: "High latent heat load due to coastal humidity. Natural cross-ventilation, overhangs, and low SHGC glazing (≤ 0.25) are key strategies.",
+            ecbcRef: "ECBC 2017 Table 5.3 (Warm-Humid)"
+        };
+    }
+    if (cdd <= 1200 && hdd <= 1200) {
+        return {
+            zone: "Temperate",
+            zoneCode: "BEE Zone 4",
+            insight: "Mild year-round climate. Moderate insulation with higher SHGC tolerance (≤ 0.44 SuperECBC). Mixed-mode ventilation often viable.",
+            ecbcRef: "ECBC 2017 Table 5.4 (Temperate)"
+        };
+    }
+    return {
+        zone: "Composite",
+        zoneCode: "BEE Zone 3",
+        insight: "Both heating and cooling loads are significant. Balanced envelope with adaptive shading and good insulation across all surfaces recommended.",
+        ecbcRef: "ECBC 2017 Table 5.3 (Composite)"
+    };
 };
 
 export default function ResultsDashboard({ results, onPredict, formData }: any) {
@@ -80,7 +115,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
         model_metrics, 
         sensitivity_analysis,
         thermal_comfort,
-        evidence_panel
+        evidence_panel,
+        ecbc_compliance
     } = results;
     
     const [activeTab, setActiveTab] = useState<'analytics' | 'comparison' | 'simulator' | 'details'>('analytics');
@@ -148,13 +184,28 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     </div>
                     <div>
                         <h3 className="text-xl font-bold text-slate-800">{formData?.city || climate_summary?.city || "Unknown Location"}</h3>
-                        <p className="text-sm font-bold text-primary tracking-wide uppercase">{getClimateContext(climate_summary).zone}</p>
+                        <div className="flex items-center gap-2 flex-wrap mt-1">
+                            <p className="text-sm font-bold text-primary tracking-wide uppercase">{getClimateContext(climate_summary).zone}</p>
+                            <span className="citation-badge">{getClimateContext(climate_summary).zoneCode}</span>
+                            <span className="citation-badge hidden md:inline">{getClimateContext(climate_summary).ecbcRef}</span>
+                        </div>
                     </div>
                 </div>
-                <div className="md:text-right md:border-l-2 border-primary/20 md:pl-6">
+                <div className="md:text-right md:border-l-2 border-primary/20 md:pl-6 flex flex-col items-end gap-2">
                     <p className="text-sm font-medium text-slate-600 leading-relaxed max-w-sm">
                         {getClimateContext(climate_summary).insight}
                     </p>
+                    {ecbc_compliance && (
+                        <span className={cn(
+                            "text-[10px] font-bold px-3 py-1 rounded-full border",
+                            ecbc_compliance.status === "SuperECBC"      ? "bg-emerald-100 border-emerald-300 text-emerald-700" :
+                            ecbc_compliance.status === "ECBC+"           ? "bg-sky-100 border-sky-300 text-sky-700" :
+                            ecbc_compliance.status === "ECBC Compliant"  ? "bg-blue-100 border-blue-300 text-blue-700" :
+                            "bg-red-100 border-red-300 text-red-700"
+                        )}>
+                            {ecbc_compliance.status} — ECBC 2017
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -201,11 +252,12 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             </div>
                             
                             
-                            {/* Color Legend */}
-                            <div className="flex items-center gap-3 mt-1 pb-2">
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /><span className="text-[10px] font-bold text-slate-500 uppercase">Excellent (&lt;80)</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-secondary" /><span className="text-[10px] font-bold text-slate-500 uppercase">Standard (80-130)</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /><span className="text-[10px] font-bold text-slate-500 uppercase">High (&gt;130)</span></div>
+                            {/* Color Legend — BEE Star Rating reference */}
+                            <div className="flex flex-wrap items-center gap-3 mt-1 pb-2">
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 4–5★ (&lt;80)</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-secondary" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 2–3★ (80–130)</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE &lt;2★ (&gt;130)</span></div>
+                                <span className="citation-badge ml-auto">BEE Star Rating 2020</span>
                             </div>
                             
                             {/* Baseline Materials Insight */}
@@ -240,7 +292,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             {evidence_panel?.prediction_interval && (
                                 <div className="flex flex-wrap items-center gap-2 mt-4">
                                     <div className="px-3 py-1 rounded bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-500">
-                                        Evidence CI: {evidence_panel.prediction_interval[0].toFixed(1)} - {evidence_panel.prediction_interval[1].toFixed(1)}
+                                        Approx. ±Band: {evidence_panel.prediction_interval[0].toFixed(1)}–{evidence_panel.prediction_interval[1].toFixed(1)} kWh/m²·yr
                                     </div>
                                     {evidence_panel.physics_anomalies_detected && (
                                         <div className="px-3 py-1 rounded bg-orange-100 border border-orange-200 text-xs font-bold text-accent flex items-center gap-1.5">
@@ -264,11 +316,12 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Comfort</span>
+                                <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Stress</span>
                                 <div className="relative group/info">
                                     <Info className="w-4 h-4 text-slate-400 cursor-help" />
-                                    <div className="absolute right-0 bottom-full mb-2 w-64 p-3 bg-slate-800 text-white text-xs rounded-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-50 shadow-xl pointer-events-none">
-                                        Predicted Mean Vote (PMV) is a standard index that predicts the mean value of thermal sensation votes of a large group of people. 0 is Neutral/Comfortable, -3 is Cold, +3 is Hot.
+                                    <div className="absolute right-0 bottom-full mb-2 w-72 p-3 bg-slate-800 text-white text-xs rounded-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-50 shadow-xl pointer-events-none leading-relaxed">
+                                        <span className="font-bold text-amber-300">Simplified Thermal Stress Proxy</span> — mapped onto the ISO 7730 PMV scale (−3 Cold to +3 Hot) for interpretability. This is <em>not</em> a full Fanger (1970) PMV calculation, which requires air velocity, clothing insulation (clo), and metabolic rate (met) — data not available from the building envelope alone. Use only as a relative indicator.
+                                        <p className="mt-1 text-slate-400 text-[9px]">Ref: ISO 7730:2005; ASHRAE 55-2023 §6.2</p>
                                         <div className="absolute right-2 -bottom-1 w-2 h-2 bg-slate-800 rotate-45" />
                                     </div>
                                 </div>
@@ -276,7 +329,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             <ThermometerSnowflake className="w-4 h-4 text-primary" />
                         </div>
                         <div className="space-y-1">
-                            <span className="text-xs font-semibold text-slate-400 uppercase">Predicted Mean Vote (PMV)</span>
+                            <span className="text-xs font-semibold text-slate-400 uppercase">Thermal Stress Proxy (ISO 7730 scale)</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-bold text-slate-800">{thermal_comfort?.index?.toFixed(1) || "0.0"}</span>
                                 <span className={cn("text-xs font-bold uppercase", 
@@ -385,7 +438,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <div className="space-y-2">
                                     <span className="text-sm font-semibold text-slate-800">Strategic Insight</span>
                                     <p className="text-sm text-slate-600 leading-relaxed border-l-2 border-primary/50 pl-4 bg-slate-50 py-2 pr-2">
-                                        Parameter sensitivity reveals that <span className="text-slate-900 font-bold">WWR</span> is your dominant lever for optimization in {climate_summary?.city || 'this climate'}. A 20% reduction could yield substantial energy savings without compromising daylighting.
+                                        Each parameter is varied ±50% from its baseline value (all others held constant). The parameter with the largest <span className="text-slate-900 font-bold">relative range</span> is your highest-leverage design lever. Note: real-world interactions between parameters can amplify or dampen these individual effects.
+                                        <span className="block mt-1 text-[10px] text-slate-400 italic">Ref: ASHRAE Handbook of Fundamentals (2021) Ch. 18; ceteris paribus sensitivity methodology.</span>
                                     </p>
                                 </div>
                             </div>

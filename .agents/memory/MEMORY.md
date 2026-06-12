@@ -1,0 +1,3 @@
+- [ClimaBuild AI architecture](climabuild-arch.md) — Real app is in `frontend/src/` + `backend/`, NOT in `artifacts/eui-predictor/src/`.
+- [Backend physics & logic audit](backend-logic-audit.md) — PMV is proxy (is_proxy=True); ECBC uses 5-zone BEE thresholds; sensitivity is ±50% not ±20%; CI band is heuristic.
+- [Material DB schema](material-db-schema.md) — 33 materials with embodied_carbon, cost_index, source_citation, official_ref; density 2500 kg/m³ for all glass types.

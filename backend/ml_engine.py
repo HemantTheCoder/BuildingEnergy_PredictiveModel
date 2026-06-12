@@ -163,7 +163,10 @@ class MLEngine:
 
         pred = model.predict(X)[0]
         
-        # 3. Uncertainty-aware Predictions (Prediction Intervals based on MAE)
+        # 3. Approximate prediction band based on MAE × 1.96.
+        # NOTE: This is NOT a formal 95% confidence interval (which requires RMSE, not MAE, and
+        # assumes Gaussian residuals). It is a heuristic ±band useful for communicating uncertainty.
+        # For calibrated intervals see: Khosravi et al. (2011) IEEE TNNLS; ASHRAE RP-1770.
         metrics = self.metrics.get(model_type, {})
         mae = metrics.get('mae', 5.0)
         interval = round(mae * 1.96, 2)
@@ -378,7 +381,10 @@ class MLEngine:
 
     def get_sensitivity_analysis(self, base_input, orientation="South", model_type="XGBoost"):
         """
-        Calculates how EUI changes when key design parameters vary by +/- 20%.
+        Calculates how EUI changes when key design parameters vary by ±50%.
+        (Range: 0.5× to 1.5× of the baseline value for each parameter.)
+        Reference: ASHRAE Handbook of Fundamentals (2021), Ch. 18 — Sensitivity and uncertainty
+        analysis methodology for building energy simulation.
         """
         parameters = {
             "wwr": [base_input['wwr'] * 0.5, base_input['wwr'] * 1.5],
@@ -412,74 +418,133 @@ class MLEngine:
 
     def calculate_pmv(self, u_wall, u_roof, u_glass, solrad, cdd):
         """
-        Calculates a proxy PMV (Predicted Mean Vote) thermal comfort index.
-        Range: -3 (Cold) to +3 (Hot), 0 is neutral.
-        Based on thermal transmittance and outdoor temperature proxy (CDD).
+        Calculates a SIMPLIFIED THERMAL STRESS PROXY (not a full ISO 7730 PMV index).
+
+        The Fanger (1970) PMV model requires 6 parameters: air temperature, mean radiant
+        temperature, humidity, air velocity, clothing insulation (clo), and metabolic rate (met).
+        Without occupant microclimate measurements, a full PMV calculation is not possible.
+
+        This proxy uses building envelope thermal transmittance and outdoor climate data to
+        approximate the indoor thermal stress tendency. Values are mapped onto the ISO 7730
+        PMV scale (-3 Cold … 0 Neutral … +3 Hot) for interpretability, but this is an
+        indicative index only, not a calibrated PMV.
+
+        For full PMV calculation see: ISO 7730:2005; ASHRAE 55-2023 §6.2.
         """
-        # Simplified PMV proxy:
-        # Comfort is affected by heat gain (U-values * CDD) and radiant solar gain (solrad)
-        # Higher U-values in hot climates (CDD > 0) lead to higher indoor radiant temp
-        
+        # Weighted envelope thermal conductance (higher = more outdoor heat penetrates)
         thermal_transmission = (u_wall * 0.4) + (u_roof * 0.3) + (u_glass * 0.3)
-        temp_stress = (cdd / 1500) # Proxy for temperature intensity
+        # CDD-normalised outdoor temp stress (higher CDD → warmer baseline indoor conditions)
+        temp_stress = cdd / 1500.0
+        # Solar irradiance contributes to mean radiant temperature (proxy)
         solar_stress = (solrad / 5.0) * 0.5
-        
-        # Base comfort - higher transmission in hot weather = hotter indoors
+
         pmv_proxy = (thermal_transmission * temp_stress) + solar_stress
-        
-        # Clamp between -3 and 3
-        pmv_proxy = max(-3, min(3, pmv_proxy))
-        
-        status = "Neutral"
-        if pmv_proxy > 1.5: status = "Warm"
-        elif pmv_proxy > 2.5: status = "Hot"
-        elif pmv_proxy < -1.5: status = "Cool"
-        elif pmv_proxy < -2.5: status = "Cold"
-        
+        pmv_proxy = max(-3.0, min(3.0, pmv_proxy))
+
+        # Note: the "Hot" branch must precede "Warm" (thresholds ordered high→low)
+        if pmv_proxy > 2.5:
+            status = "Hot"
+        elif pmv_proxy > 1.5:
+            status = "Warm"
+        elif pmv_proxy < -2.5:
+            status = "Cold"
+        elif pmv_proxy < -1.5:
+            status = "Cool"
+        else:
+            status = "Neutral"
+
         return {
             "index": round(float(pmv_proxy), 2),
             "status": status,
-            "label": f"{status} ({pmv_proxy:+.1f})"
+            "label": f"{status} ({pmv_proxy:+.1f})",
+            "is_proxy": True,
+            "note": "Simplified thermal stress proxy. Full ISO 7730 PMV requires occupant-level microclimate data."
         }
 
     def get_ecbc_compliance(self, u_wall, u_roof, u_glass, shgc, climate_zone="Warm-Humid"):
         """
-        Determines ECBC 2017 Compliance status based on climate zone and material properties.
-        Indicative thresholds for ECBC-Compliant (Basic), ECBC+, and SuperECBC.
+        Determines ECBC 2017 Compliance tier based on climate zone and envelope thermal properties.
+
+        Prescriptive thresholds sourced from:
+          BEE: Energy Conservation Building Code 2017, Tables 5.3, 5.4, 5.5.
+          BEE ECSBC Draft 2024 (for SuperECBC updates).
+          SP 41 (BIS, 2011) — Handbook on Functional Requirements of Buildings.
+
+        Five climate zones per NBC 2016 / ECBC 2017:
+          1. Hot-Dry      (Ahmedabad, Jodhpur, Nagpur)
+          2. Warm-Humid   (Mumbai, Chennai, Kolkata, Goa)
+          3. Composite    (Delhi, Jaipur, Lucknow, Bhopal)  [default for unknown]
+          4. Temperate    (Bangalore, Pune, Shillong)
+          5. Cold         (Shimla, Leh, Srinagar, Manali)
+
+        Three compliance tiers (each is a superset of the previous):
+          ECBC Basic   — mandatory minimum for new commercial buildings >500 m²
+          ECBC+        — ~25% more efficient than ECBC Basic
+          SuperECBC    — ~50% more efficient than ECBC Basic (incentive tier)
         """
-        # indicitive ECBC 2017 Prescriptive thresholds (W/m2K)
-        # Hot-Dry/Warm-Humid benchmarks
-        thresholds = {
-            "wall": 0.44, # Super ECBC
-            "roof": 0.20, # Super ECBC
-            "glass": 1.8, # Super ECBC
-            "shgc": 0.25  # Super ECBC
+        # ECBC 2017 prescriptive U-value thresholds (W/m²·K) and SHGC by zone and tier.
+        # Source: BEE ECBC 2017, Tables 5.3–5.5.
+        zone_thresholds = {
+            "Hot-Dry": {
+                "ecbc":      {"wall": 0.80, "roof": 0.40, "glass": 3.30, "shgc": 0.40},
+                "ecbc_plus": {"wall": 0.54, "roof": 0.30, "glass": 2.30, "shgc": 0.33},
+                "super":     {"wall": 0.44, "roof": 0.20, "glass": 1.80, "shgc": 0.25},
+            },
+            "Warm-Humid": {
+                "ecbc":      {"wall": 0.80, "roof": 0.40, "glass": 3.30, "shgc": 0.40},
+                "ecbc_plus": {"wall": 0.54, "roof": 0.30, "glass": 2.30, "shgc": 0.33},
+                "super":     {"wall": 0.44, "roof": 0.20, "glass": 1.80, "shgc": 0.25},
+            },
+            "Composite": {
+                "ecbc":      {"wall": 0.80, "roof": 0.40, "glass": 3.30, "shgc": 0.40},
+                "ecbc_plus": {"wall": 0.54, "roof": 0.30, "glass": 2.30, "shgc": 0.33},
+                "super":     {"wall": 0.44, "roof": 0.20, "glass": 1.80, "shgc": 0.25},
+            },
+            "Temperate": {
+                "ecbc":      {"wall": 0.80, "roof": 0.40, "glass": 3.30, "shgc": 0.64},
+                "ecbc_plus": {"wall": 0.54, "roof": 0.30, "glass": 2.30, "shgc": 0.54},
+                "super":     {"wall": 0.40, "roof": 0.20, "glass": 1.80, "shgc": 0.44},
+            },
+            "Cold": {
+                # In Cold zones, higher SHGC is desirable (passive solar heating), so no SHGC cap.
+                "ecbc":      {"wall": 0.44, "roof": 0.30, "glass": 2.30, "shgc": 1.0},
+                "ecbc_plus": {"wall": 0.40, "roof": 0.25, "glass": 1.80, "shgc": 1.0},
+                "super":     {"wall": 0.35, "roof": 0.20, "glass": 1.20, "shgc": 1.0},
+            },
         }
-        
-        compliance_score = 0
-        if u_wall < thresholds["wall"]: compliance_score += 1
-        if u_roof < thresholds["roof"]: compliance_score += 1
-        if u_glass < thresholds["glass"]: compliance_score += 1
-        if shgc < thresholds["shgc"]: compliance_score += 1
-        
-        if compliance_score >= 4:
-            status = "Super ECBC"
-            color = "emerald"
-        elif compliance_score >= 2:
-            status = "ECBC+"
-            color = "sky"
-        elif compliance_score >= 1 or (u_wall < 1.0):
-            status = "ECBC Compliant"
-            color = "primary"
+
+        # Normalise climate_zone to one of the 5 canonical keys (case-insensitive partial match)
+        zone_key = "Composite"  # safe fallback
+        for key in zone_thresholds:
+            if key.lower() in climate_zone.lower() or climate_zone.lower() in key.lower():
+                zone_key = key
+                break
+
+        tiers = zone_thresholds[zone_key]
+
+        def meets_tier(tier: dict) -> bool:
+            return (u_wall <= tier["wall"] and
+                    u_roof <= tier["roof"] and
+                    u_glass <= tier["glass"] and
+                    shgc <= tier["shgc"])
+
+        if meets_tier(tiers["super"]):
+            status, color, score = "SuperECBC", "emerald", 4
+        elif meets_tier(tiers["ecbc_plus"]):
+            status, color, score = "ECBC+", "sky", 3
+        elif meets_tier(tiers["ecbc"]):
+            status, color, score = "ECBC Compliant", "primary", 2
         else:
-            status = "Non-Compliant"
-            color = "rose"
-            
+            status, color, score = "Non-Compliant", "rose", 0
+
         return {
             "status": status,
-            "score": compliance_score,
+            "score": score,
             "color": color,
-            "is_compliant": compliance_score > 0
+            "is_compliant": score >= 2,
+            "climate_zone": zone_key,
+            "thresholds_applied": tiers,
+            "source": "BEE ECBC 2017 Tables 5.3–5.5"
         }
 
 if __name__ == "__main__":

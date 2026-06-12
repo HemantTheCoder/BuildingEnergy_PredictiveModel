@@ -14,6 +14,7 @@ import ResultsDashboard from './components/ResultsDashboard';
 import MaterialLibrary from './components/MaterialLibrary';
 import ModelIntelligence from './components/ModelIntelligence';
 import SplashScreen from './components/SplashScreen';
+import ResearchContext from './components/ResearchContext';
 
 
 export default function App() {
@@ -147,13 +148,7 @@ export default function App() {
                 {results ? (
                   <ResultsDashboard results={results} onPredict={handlePredict} formData={formData} />
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-center group text-slate-400 border border-slate-200 rounded-2xl bg-white/50">
-                    <Activity className="w-10 h-10 mb-4 opacity-50" />
-                    <h3 className="text-lg font-semibold mb-2 text-slate-600">Awaiting Parameters</h3>
-                    <p className="text-sm max-w-sm">
-                      Configure your building archetype and climate data on the left to initialize the predictive model.
-                    </p>
-                  </div>
+                  <ResearchContext />
                 )}
                 </div>
               </section>
