@@ -112,3 +112,54 @@
 ::-webkit-scrollbar-thumb {
   @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
 }
+
+/* ══════════════════════════════════════════════
+   PRINT / PDF EXPORT STYLESHEET
+   ClimaBuild AI — Technical Report Format
+   ══════════════════════════════════════════════ */
+@media print {
+  /* Hide everything not needed in the report */
+  .no-print,
+  nav, header, footer,
+  button, input, select, textarea,
+  .premium-card > button,
+  [class*="hover"],
+  [data-radix-popper-content-wrapper] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: #0f172a !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+  }
+
+  /* Show the hidden print report and hide the main dashboard UI */
+  .print-hide {
+    display: none !important;
+  }
+  .print-show {
+    display: block !important;
+  }
+
+  #print-report {
+    display: block !important;
+    padding: 12mm;
+    max-width: 100%;
+  }
+
+  #print-report h1 { font-size: 16pt; font-weight: 800; color: #042642; margin-bottom: 2mm; }
+  #print-report h2 { font-size: 12pt; font-weight: 700; color: #042642; margin: 4mm 0 2mm; border-bottom: 0.5pt solid #e2e8f0; padding-bottom: 1mm; }
+  #print-report .pr-kpi { font-size: 24pt; font-weight: 800; color: #042642; }
+  #print-report .pr-label { font-size: 8pt; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+  #print-report .pr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; margin: 3mm 0; }
+  #print-report .pr-cell { border: 0.5pt solid #e2e8f0; border-radius: 3mm; padding: 3mm; }
+  #print-report .pr-badge { display: inline-block; border: 0.5pt solid #94a3b8; border-radius: 2mm; padding: 0.5mm 2mm; font-size: 7pt; font-weight: 700; color: #64748b; text-transform: uppercase; }
+  #print-report table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 2mm 0; }
+  #print-report th { background: #f8fafc; font-weight: 700; text-align: left; padding: 2mm 3mm; border: 0.5pt solid #e2e8f0; color: #475569; text-transform: uppercase; font-size: 8pt; }
+  #print-report td { padding: 2mm 3mm; border: 0.5pt solid #e2e8f0; color: #0f172a; }
+  #print-report .pr-footer { margin-top: 8mm; font-size: 7pt; color: #94a3b8; border-top: 0.5pt solid #e2e8f0; padding-top: 2mm; }
+
+  @page { margin: 10mm; size: A4; }
+}

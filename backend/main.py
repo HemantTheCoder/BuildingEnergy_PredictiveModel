@@ -827,6 +827,15 @@ async def predict(request: PredictRequest):
     for rec in recommendations:
         rec_thermal_eui = rec['predicted_eui']
         rec['predicted_eui'] = round((rec_thermal_eui * schedule_multiplier) + plug_eui + occ_metabolic_eui, 2)
+        # Add average cost score from the three materials
+        w_cost = materials_df.loc[materials_df['name'] == rec.get('wall', ''), 'cost_index']
+        r_cost = materials_df.loc[materials_df['name'] == rec.get('roof', ''), 'cost_index']
+        g_cost = materials_df.loc[materials_df['name'] == rec.get('glazing', ''), 'cost_index']
+        rec['cost_score'] = round((
+            (float(w_cost.iloc[0]) if not w_cost.empty else 5.0) +
+            (float(r_cost.iloc[0]) if not r_cost.empty else 5.0) +
+            (float(g_cost.iloc[0]) if not g_cost.empty else 5.0)
+        ) / 3.0, 1)
     
     # 6. Sensitivity
     raw_sensitivity = engine.get_sensitivity_analysis(input_data, orientation=request.orientation, model_type=request.model_type)
@@ -928,10 +937,25 @@ async def predict(request: PredictRequest):
     baseline_eui = float(arch_baselines.get(ecbc_zone, 180.0))
     annual_savings_inr = max(0, (baseline_eui - final_eui)) * request.floor_area_m2 * 9.0
 
+    # Operational CO₂ — CEA (2022). "CO2 Baseline Database for Indian Power Sector." Version 18.0.
+    # National grid emission factor (FY2021-22): 0.82 kgCO2/kWh  (CEA 2022)
+    CO2_GRID_FACTOR = 0.82
+    co2_intensity_kg_m2_yr = round(final_eui * CO2_GRID_FACTOR, 1)
+    co2_total_tonnes_yr   = round(co2_intensity_kg_m2_yr * request.floor_area_m2 / 1000.0, 2)
+
+    current_cost_score = round((
+        float(wall_data.get('cost_index', 5)) +
+        float(roof_data.get('cost_index', 5)) +
+        float(glazing_data.get('cost_index', 5))
+    ) / 3.0, 1)
+
     response = {
         "predicted_eui": float(final_eui),
         "baseline_eui": float(baseline_eui),
         "annual_savings_inr": float(annual_savings_inr),
+        "co2_intensity_kg_m2_yr": co2_intensity_kg_m2_yr,
+        "co2_total_tonnes_yr": co2_total_tonnes_yr,
+        "current_cost_score": current_cost_score,
         "evidence_panel": evidence_panel,
         "adjusted_solrad": prediction.get('adjusted_solrad'),
         "model_metrics": prediction.get('model_metrics', {}),

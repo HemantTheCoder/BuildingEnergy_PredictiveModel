@@ -18,6 +18,7 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
     const [uploadingEPW, setUploadingEPW] = useState(false);
     const [climateSource, setClimateSource] = useState<'nasa'|'epw'>('nasa');
     const [detectedEPWCity, setDetectedEPWCity] = useState<string | null>(null);
+    const [epwStatus, setEpwStatus] = useState<{type: 'success'|'error'; msg: string} | null>(null);
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -127,9 +128,9 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
             }));
             setManualClimate(true);
             setDetectedEPWCity(res.data.city);
-            alert(`EPW Parsed Successfully! Source: ${res.data.metadata.source}`);
+            setEpwStatus({ type: 'success', msg: `Parsed: ${res.data.metadata?.source || file.name}` });
         } catch (err) {
-            alert("Failed to parse EPW file.");
+            setEpwStatus({ type: 'error', msg: 'Failed to parse EPW file. Check the file format.' });
             console.error(err);
         } finally {
             setUploadingEPW(false);
@@ -262,6 +263,16 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                             <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Standard .epw weather format</span>
                             <input type="file" accept=".epw" className="hidden" onChange={handleFileUpload} disabled={uploadingEPW} />
                         </label>
+                        {epwStatus && (
+                            <div className={cn(
+                                "flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border",
+                                epwStatus.type === 'success'
+                                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                    : "bg-red-50 border-red-200 text-red-700"
+                            )}>
+                                {epwStatus.type === 'success' ? '✓' : '✗'} {epwStatus.msg}
+                            </div>
+                        )}
                         <div className="flex items-start justify-between gap-4 mt-1">
                             <div className="flex flex-col gap-1.5">
                                 <a href="https://climate.onebuilding.org/" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary hover:underline flex items-start gap-1.5 pt-1 max-w-[200px]">
@@ -461,21 +472,21 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
                         <MaterialSelect 
                             label="Wall Assembly" 
                             value={formData.material_overrides['wall']}
-                            options={dbMaterials.filter(m => m.category === 'wall').map(m => m.name)}
+                            options={dbMaterials.filter(m => m.component_type === 'wall').map(m => m.name)}
                             customOptions={libraryMaterials.filter(m => m.type === 'wall').map(m => m.name)}
                             onChange={(val: string) => setFormData({ ...formData, material_overrides: { ...formData.material_overrides, wall: val } })}
                         />
                         <MaterialSelect 
                             label="Roof Strategy" 
                             value={formData.material_overrides['roof']}
-                            options={dbMaterials.filter(m => m.category === 'roof').map(m => m.name)}
+                            options={dbMaterials.filter(m => m.component_type === 'roof').map(m => m.name)}
                             customOptions={libraryMaterials.filter(m => m.type === 'roof').map(m => m.name)}
                             onChange={(val: string) => setFormData({ ...formData, material_overrides: { ...formData.material_overrides, roof: val } })}
                         />
                         <MaterialSelect 
                             label="Glazing Config" 
                             value={formData.material_overrides['glazing']}
-                            options={dbMaterials.filter(m => m.category === 'glazing').map(m => m.name)}
+                            options={dbMaterials.filter(m => m.component_type === 'glazing').map(m => m.name)}
                             customOptions={libraryMaterials.filter(m => m.type === 'glazing').map(m => m.name)}
                             onChange={(val: string) => setFormData({ ...formData, material_overrides: { ...formData.material_overrides, glazing: val } })}
                         />

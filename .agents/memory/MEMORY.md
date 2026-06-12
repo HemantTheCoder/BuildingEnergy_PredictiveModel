@@ -1,3 +1,4 @@
 - [ML training data design](ml-training-design.md) — single-archetype synthetic data is required for good R²; multi-archetype causes unexplained ML variance.
 - [Physics sensitivity overrides](sensitivity-overrides.md) — solrad, u_wall, u_roof must use physics formula; tree models cannot learn multi-factor interactions reliably.
 - [EUI model calibration](eui-calibration.md) — base_internal=90, solar_fraction=0.22, utilization=0.55 reproduces BEE (2014) 179-182 kWh/m²·yr Mumbai office benchmark.
+- [ClimaBuild frontend patterns](climabuild-frontend.md) — material selectors use `component_type` not `category`; multiple sibling JSX elements inside `&&` tab conditionals need a wrapping div/fragment.

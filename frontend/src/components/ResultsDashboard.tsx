@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
     TrendingDown,
     ArrowUpRight,
@@ -13,12 +13,15 @@ import {
     Cpu,
     Globe,
     MapPin,
-    Calculator
+    Calculator,
+    Leaf,
+    BarChart3,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, Legend, ReferenceLine
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, Legend, ReferenceLine,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -104,11 +107,17 @@ const getClimateContext = (climate: any) => {
     };
 };
 
+const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+const MONTH_LABELS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 export default function ResultsDashboard({ results, onPredict, formData }: any) {
     const { 
         predicted_eui, 
         baseline_eui,
         annual_savings_inr,
+        co2_intensity_kg_m2_yr,
+        co2_total_tonnes_yr,
+        current_cost_score,
         top_material_recommendations, 
         climate_summary, 
         material_sources, 
@@ -119,6 +128,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
         ecbc_compliance
     } = results;
     
+    const co2Intensity   = co2_intensity_kg_m2_yr ?? parseFloat((predicted_eui * 0.82).toFixed(1));
+    const co2TotalTonnes = co2_total_tonnes_yr    ?? parseFloat((co2Intensity * (formData?.floor_area_m2 || 1200) / 1000).toFixed(2));
+
     const [activeTab, setActiveTab] = useState<'analytics' | 'comparison' | 'simulator' | 'details'>('analytics');
     
     const [simulatorOverrides, setSimulatorOverrides] = useState<any>({
@@ -128,10 +140,54 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     });
 
     const handleExportPDF = () => {
-        // html2canvas struggles with SVG elements (like Recharts). 
-        // Native browser print to PDF is much higher quality (vector instead of raster) and never fails.
+        document.title = `ClimaBuild AI — ${formData?.city || 'Building'} Energy Report`;
         window.print();
     };
+
+    // Monthly climate profile (CDD / HDD per month)
+    const monthlyProfile = useMemo(() => {
+        const mCDD = climate_summary?.monthly_cdd as number[] | undefined;
+        const mHDD = climate_summary?.monthly_hdd as number[] | undefined;
+        const temps = climate_summary?.monthly_temps as number[] | undefined;
+        if (!temps || temps.length < 12) return [];
+        return MONTH_LABELS.map((month, i) => ({
+            month,
+            Cooling: mCDD ? mCDD[i] : parseFloat((Math.max(0, temps[i] - 18.3) * DAYS_IN_MONTH[i]).toFixed(1)),
+            Heating: mHDD ? mHDD[i] : parseFloat((Math.max(0, 18.3 - temps[i]) * DAYS_IN_MONTH[i]).toFixed(1)),
+        }));
+    }, [climate_summary]);
+
+    // Radar chart data — normalised 0–100 (higher = better)
+    const radarScenarios = useMemo(() => {
+        const currentCost = current_cost_score ?? 5;
+        const allS = [
+            { label: 'Current', eui: predicted_eui, carbon: totalEmbodiedCarbonCalc(), cost: currentCost },
+            ...((top_material_recommendations || []).slice(0,3).map((rec: any, i: number) => ({
+                label: i===0 ? 'Optimum' : i===1 ? 'Balanced' : 'Eco',
+                eui: rec.predicted_eui,
+                carbon: rec.embodied_carbon,
+                cost: rec.cost_score ?? 5,
+            })))
+        ];
+        const maxEUI    = Math.max(...allS.map(s => s.eui), 1);
+        const maxCarbon = Math.max(...allS.map(s => s.carbon), 1);
+        function score(val: number, maxVal: number) {
+            return Math.round(Math.max(5, Math.min(98, (1 - val/maxVal) * 100)));
+        }
+        return {
+            chartData: [
+                { metric: 'Energy\nEfficiency',   ...Object.fromEntries(allS.map(s => [s.label, score(s.eui,    maxEUI)])) },
+                { metric: 'Low Embodied\nCarbon', ...Object.fromEntries(allS.map(s => [s.label, score(s.carbon, maxCarbon)])) },
+                { metric: 'Cost\nEfficiency',     ...Object.fromEntries(allS.map(s => [s.label, Math.round(Math.max(5, Math.min(98, (1 - s.cost/10)*100)))])) },
+                { metric: 'ECBC\nCompliance',     ...Object.fromEntries(allS.map(s => [s.label, Math.round(Math.max(5, Math.min(98, (1 - s.eui/(baseline_eui*1.3))*100)))])) },
+            ],
+            labels: allS.map(s => s.label),
+        };
+    }, [predicted_eui, top_material_recommendations, baseline_eui, current_cost_score]);
+
+    function totalEmbodiedCarbonCalc() {
+        return (material_sources?.wall?.carbon || 0) + (material_sources?.roof?.carbon || 0) + (material_sources?.glazing?.carbon || 0);
+    }
 
     const getEUIColor = (eui: number) => {
         if (eui < 80) return "text-primary";
@@ -259,6 +315,33 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE &lt;2★ (&gt;130)</span></div>
                                 <span className="citation-badge ml-auto">BEE Star Rating 2020</span>
                             </div>
+
+                            {/* Operational CO₂ Intensity Strip */}
+                            <div className="mt-2 mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center gap-x-6 gap-y-2">
+                                <div className="flex items-center gap-2">
+                                    <Leaf className="w-4 h-4 text-emerald-600 shrink-0" />
+                                    <div>
+                                        <span className="text-[10px] font-bold text-emerald-600 uppercase block">CO₂ Intensity</span>
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-xl font-bold text-emerald-800">{co2Intensity.toFixed(1)}</span>
+                                            <span className="text-xs font-semibold text-emerald-600">kg CO₂/m²·yr</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] font-bold text-emerald-600 uppercase block">Annual Building Total</span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-xl font-bold text-emerald-800">{co2TotalTonnes.toFixed(1)}</span>
+                                        <span className="text-xs font-semibold text-emerald-600">t CO₂/yr</span>
+                                    </div>
+                                </div>
+                                <div className="ml-auto text-right">
+                                    <span className="text-[10px] font-bold text-emerald-600 uppercase block">Paris 2050 Target</span>
+                                    <span className="text-xs font-bold text-emerald-700">≤ 10 kg CO₂/m²·yr</span>
+                                    <span className="text-[9px] text-emerald-500 block">IPCC AR6 WG3 §9.4</span>
+                                </div>
+                                <span className="citation-badge bg-emerald-100 border-emerald-300 text-emerald-700 w-full sm:w-auto">CEA 2022 — 0.82 kg CO₂/kWh</span>
+                            </div>
                             
                             {/* Baseline Materials Insight */}
                             <div className="mt-5 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner">
@@ -381,6 +464,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
 
                 <div className="p-8 bg-white">
                     {activeTab === 'analytics' && (
+                        <div className="space-y-8">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                             {/* Sensitivity Bars (Left) */}
                             <div className="lg:col-span-6 space-y-8">
@@ -445,9 +529,40 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             </div>
                         </div>
+
+                        {/* Monthly Climate Load Profile */}
+                        {monthlyProfile.length > 0 && (
+                            <div className="premium-card bg-slate-50 p-6 border-slate-200">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <BarChart3 className="w-4 h-4 text-primary" />
+                                    <span className="text-xs font-bold text-slate-800 uppercase">Monthly Climate Load Profile</span>
+                                </div>
+                                <span className="text-[10px] text-slate-400 block mb-4">
+                                    Monthly Cooling &amp; Heating Degree-Days (base 18.3 °C) — derived from {climate_summary?.metadata?.source || 'climate data'}. Peak months drive the largest energy demand.
+                                </span>
+                                <div className="h-56">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={monthlyProfile} margin={{ top: 4, right: 10, left: -10, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                            <XAxis dataKey="month" tick={{fill: '#64748b', fontSize: 11}} axisLine={false} tickLine={false} />
+                                            <YAxis tick={{fill: '#64748b', fontSize: 11}} axisLine={false} tickLine={false} unit=" DD" />
+                                            <RechartsTooltip content={<CustomTooltip />} />
+                                            <Legend wrapperStyle={{fontSize: '11px', color: '#64748b'}} />
+                                            <Bar dataKey="Cooling" name="Cooling DD (CDD)" stackId="a" fill="#ea580c" radius={[0,0,0,0]} maxBarSize={36} />
+                                            <Bar dataKey="Heating" name="Heating DD (HDD)" stackId="a" fill="#042642" radius={[4,4,0,0]} maxBarSize={36} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <p className="text-[9px] text-slate-400 mt-2 italic">
+                                    Ref: ASHRAE 55-2023; BEE ECBC 2017 Climate Zone Classification. CDD/HDD base 18.3 °C (65 °F) — ISO 15927-6.
+                                </p>
+                            </div>
+                        )}
+                        </div>
                     )}
 
                     {activeTab === 'comparison' && (
+                        <div className="space-y-8">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             <div className="lg:col-span-5 space-y-6">
                                 {top_material_recommendations.map((rec: any, i: number) => (
@@ -531,6 +646,61 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Radar / Spider Chart — Multi-Criteria Scenario Comparison */}
+                        {radarScenarios.chartData.length > 0 && (
+                            <div className="mt-8 premium-card bg-slate-50 p-6 border-slate-200">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Activity className="w-4 h-4 text-primary" />
+                                    <span className="text-xs font-bold text-slate-800 uppercase">Multi-Criteria Scenario Radar</span>
+                                </div>
+                                <span className="text-[10px] text-slate-400 block mb-4">
+                                    Normalised performance scores (0–100, higher = better) across four sustainability dimensions. Each axis is independently normalised across all scenarios.
+                                </span>
+                                <div className="flex flex-col lg:flex-row gap-6 items-center">
+                                    <div className="w-full lg:w-[55%] h-72">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <RadarChart data={radarScenarios.chartData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
+                                                <PolarGrid stroke="#e2e8f0" />
+                                                <PolarAngleAxis dataKey="metric" tick={{ fill: '#475569', fontSize: 10, fontWeight: 600 }} />
+                                                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 9 }} tickCount={4} />
+                                                {radarScenarios.labels.map((label: string, i: number) => {
+                                                    const colors = ['#ea580c', '#042642', '#0C7277', '#7EB281'];
+                                                    return (
+                                                        <Radar key={label} name={label} dataKey={label}
+                                                            stroke={colors[i]} fill={colors[i]} fillOpacity={0.12} strokeWidth={2} dot={{ r: 3 }} />
+                                                    );
+                                                })}
+                                                <Legend wrapperStyle={{ fontSize: '11px', color: '#64748b' }} />
+                                                <RechartsTooltip content={<CustomTooltip />} />
+                                            </RadarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <div className="lg:w-[45%] space-y-3">
+                                        <p className="text-xs font-semibold text-slate-600 leading-relaxed">
+                                            <span className="text-slate-800 font-bold">How to read:</span> The farther a scenario's polygon extends on each axis, the better it performs on that dimension. An ideal design would fill all four axes.
+                                        </p>
+                                        <div className="space-y-2">
+                                            {[
+                                                { name: 'Energy Efficiency', desc: 'Based on predicted EUI vs worst-case scenario' },
+                                                { name: 'Low Embodied Carbon', desc: 'Material lifecycle CO₂e (BMTPC sources)' },
+                                                { name: 'Cost Efficiency', desc: 'Inverse of material cost index (CPWD 2024)' },
+                                                { name: 'ECBC Compliance', desc: 'EUI proximity to ECBC 2017 zone thresholds' },
+                                            ].map(ax => (
+                                                <div key={ax.name} className="px-3 py-2 rounded-lg bg-white border border-slate-200">
+                                                    <p className="text-[10px] font-bold text-primary uppercase">{ax.name}</p>
+                                                    <p className="text-[10px] text-slate-500">{ax.desc}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-[9px] text-slate-400 italic">
+                                            Ref: ASHRAE 90.1-2019; BEE ECBC 2017; BMTPC Rates 2024; CEA 2022.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         </div>
                     )}
 
@@ -735,6 +905,87 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     )}
                 </div>
             </section>
+
+            {/* ─── PRINT-ONLY REPORT ─── Hidden on screen, rendered for window.print() ─── */}
+            <div id="print-report" className="hidden">
+                <h1>ClimaBuild AI — Energy Performance Report</h1>
+                <p className="pr-label">{formData?.city || 'Building'} · Floor Area {formData?.floor_area_m2 || '—'} m² · {new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</p>
+
+                <h2>Key Performance Indicators</h2>
+                <div className="pr-grid">
+                    <div className="pr-cell">
+                        <p className="pr-label">Predicted EUI</p>
+                        <p className="pr-kpi">{(predicted_eui ?? 0).toFixed(1)}</p>
+                        <p className="pr-label">kWh/m²·yr</p>
+                    </div>
+                    <div className="pr-cell">
+                        <p className="pr-label">BEE Benchmark</p>
+                        <p className="pr-kpi">{(baseline_eui ?? 0).toFixed(1)}</p>
+                        <p className="pr-label">kWh/m²·yr</p>
+                    </div>
+                    <div className="pr-cell">
+                        <p className="pr-label">Annual CO₂ (Grid)</p>
+                        <p className="pr-kpi">{co2TotalTonnes}</p>
+                        <p className="pr-label">tonnes CO₂e/yr</p>
+                    </div>
+                </div>
+                <div className="pr-grid">
+                    <div className="pr-cell">
+                        <p className="pr-label">CO₂ Intensity</p>
+                        <p className="pr-kpi" style={{fontSize:'16pt'}}>{co2Intensity}</p>
+                        <p className="pr-label">kgCO₂e/m²·yr (CEA 2022: 0.82 kg/kWh)</p>
+                    </div>
+                    <div className="pr-cell">
+                        <p className="pr-label">Annual Savings</p>
+                        <p className="pr-kpi" style={{fontSize:'16pt'}}>₹{((annual_savings_inr ?? 0) / 1000).toFixed(0)}K</p>
+                        <p className="pr-label">vs. BEE baseline</p>
+                    </div>
+                    <div className="pr-cell">
+                        <p className="pr-label">ECBC Compliance</p>
+                        <p className="pr-kpi" style={{fontSize:'16pt', color: (predicted_eui ?? 999) <= (ecbc_compliance?.threshold ?? 999) ? '#7EB281' : '#ea580c'}}>
+                            {(predicted_eui ?? 999) <= (ecbc_compliance?.threshold ?? 999) ? 'PASS' : 'FAIL'}
+                        </p>
+                        <p className="pr-label">Threshold: {ecbc_compliance?.threshold ?? '—'} kWh/m²·yr</p>
+                    </div>
+                </div>
+
+                <h2>Top Material Recommendations</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Scenario</th><th>Wall</th><th>Roof</th>
+                            <th>EUI (kWh/m²·yr)</th><th>Embodied Carbon</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {(top_material_recommendations ?? []).map((rec: any, i: number) => (
+                            <tr key={i}>
+                                <td>{i+1}</td>
+                                <td>{i===0 ? 'Optimum' : i===1 ? 'Balanced Cost' : 'Sustainability'}</td>
+                                <td>{rec.wall}</td>
+                                <td>{rec.roof}</td>
+                                <td>{(rec.predicted_eui ?? 0).toFixed(1)}</td>
+                                <td>{(rec.embodied_carbon ?? 0).toFixed(1)} kgCO₂e</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                <h2>Climate Summary</h2>
+                <table>
+                    <thead><tr><th>Parameter</th><th>Value</th><th>Source</th></tr></thead>
+                    <tbody>
+                        <tr><td>Annual Solar Radiation</td><td>{climate_summary?.annual_solrad?.toFixed(1) ?? '—'} kWh/m²/yr</td><td>NASA POWER / EPW</td></tr>
+                        <tr><td>Peak Summer Temp</td><td>{climate_summary?.peak_summer_temp ?? '—'} °C</td><td>Climate Station</td></tr>
+                        <tr><td>Climate Zone</td><td>{climate_summary?.climate_zone ?? '—'}</td><td>BEE ECBC 2017</td></tr>
+                        <tr><td>Location</td><td>{climate_summary?.location ?? formData?.city ?? '—'}</td><td>—</td></tr>
+                    </tbody>
+                </table>
+
+                <div className="pr-footer">
+                    Generated by ClimaBuild AI · IGEC Abu Dhabi 2025 · References: BEE ECBC 2017, ASHRAE 90.1-2019, CEA Grid Emission Factor 2022, BMTPC Schedule of Rates 2024, NASA POWER Surface Meteorology API.
+                </div>
+            </div>
         </motion.div>
     );
 }

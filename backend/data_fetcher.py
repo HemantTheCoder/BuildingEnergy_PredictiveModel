@@ -143,9 +143,14 @@ class ClimateFetcher:
                         monthly_temps = list(parameters['T2M'].values())[:12]
                         annual_mean_temp = parameters['T2M']['ANN']
                         annual_solrad = parameters['ALLSKY_SFC_SW_DWN']['ANN']
+                        monthly_solrad_raw = list(parameters['ALLSKY_SFC_SW_DWN'].values())[:12]
+                        monthly_solrad = [round(float(v), 2) for v in monthly_solrad_raw]
                         
-                        cdd = sum([max(0, t - 18.3) * 30.4 for t in monthly_temps])
-                        hdd = sum([max(0, 18.3 - t) * 30.4 for t in monthly_temps])
+                        DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+                        monthly_cdd = [round(max(0.0, float(t) - 18.3) * d, 1) for t, d in zip(monthly_temps, DAYS_IN_MONTH)]
+                        monthly_hdd = [round(max(0.0, 18.3 - float(t)) * d, 1) for t, d in zip(monthly_temps, DAYS_IN_MONTH)]
+                        cdd = sum(monthly_cdd)
+                        hdd = sum(monthly_hdd)
             
                         climate_data = {
                             "annual_mean_temp": annual_mean_temp,
@@ -153,6 +158,9 @@ class ClimateFetcher:
                             "cdd": round(cdd, 2),
                             "hdd": round(hdd, 2),
                             "monthly_temps": monthly_temps,
+                            "monthly_cdd": monthly_cdd,
+                            "monthly_hdd": monthly_hdd,
+                            "monthly_solrad": monthly_solrad,
                             "metadata": {
                                 "source": "NASA POWER API Climatology - Global Fallback",
                                 "retrieval_date": datetime.now().isoformat(),

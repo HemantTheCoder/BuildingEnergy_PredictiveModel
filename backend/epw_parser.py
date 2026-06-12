@@ -62,13 +62,27 @@ class EPWParser:
         month_hours = [744, 672, 744, 720, 744, 720, 744, 744, 720, 744, 720, 744]
         monthly_temps = []
         
+        DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        monthly_cdd = []
+        monthly_hdd = []
+        monthly_solrad = []
+
         idx = 0
-        for hours in month_hours:
+        for i, hours in enumerate(month_hours):
             month_slice = temperatures[idx:idx+hours]
+            rad_slice = global_radiation_whm2[idx:idx+hours] if len(global_radiation_whm2) >= idx+hours else []
             if month_slice:
                 monthly_temps.append(round(sum(month_slice)/len(month_slice), 2))
+                monthly_cdd.append(round(sum(max(0, t - 18.3) for t in month_slice) / 24.0, 1))
+                monthly_hdd.append(round(sum(max(0, 18.3 - t) for t in month_slice) / 24.0, 1))
             else:
                 monthly_temps.append(0)
+                monthly_cdd.append(0)
+                monthly_hdd.append(0)
+            if rad_slice:
+                monthly_solrad.append(round(sum(rad_slice) / (DAYS_IN_MONTH[i] * 1000.0), 2))
+            else:
+                monthly_solrad.append(0)
             idx += hours
             
         climate_data = {
@@ -78,6 +92,9 @@ class EPWParser:
             "cdd": round(cdd, 2),
             "hdd": round(hdd, 2),
             "monthly_temps": monthly_temps,
+            "monthly_cdd": monthly_cdd,
+            "monthly_hdd": monthly_hdd,
+            "monthly_solrad": monthly_solrad,
             "metadata": {
                 "source": source_name,
                 "retrieval_date": datetime.now().isoformat(),
