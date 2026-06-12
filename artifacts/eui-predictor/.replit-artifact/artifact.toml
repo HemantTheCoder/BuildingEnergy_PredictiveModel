@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "EUI Predictor & Material Recommender"
+title = "ClimaBuild AI"
 version = "1.0.0"
 id = "artifacts/eui-predictor"
 router = "path"
@@ -10,16 +10,15 @@ name = "react-vite"
 version = "1.0.0"
 
 [[services]]
-localPort = 25606
+localPort = 5173
 name = "web"
 paths = ["/"]
 
 [services.development]
-run = "pnpm --filter @workspace/eui-predictor run dev"
+run = "cd /home/runner/workspace/frontend && npm run dev"
 
 [services.env]
-PORT = "25606"
-BASE_PATH = "/"
+PORT = "5173"
 
 [services.production]
 build = ["pnpm", "--filter", "@workspace/eui-predictor", "run", "build"]
