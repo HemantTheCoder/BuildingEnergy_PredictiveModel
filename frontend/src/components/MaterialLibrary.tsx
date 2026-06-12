@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Database, Layers, ArrowUpRight, Leaf, Info, Shield, Flame } from 'lucide-react';
+import { Database, Layers, ArrowUpRight, Leaf, Shield, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 

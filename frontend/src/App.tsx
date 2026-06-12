@@ -3,7 +3,6 @@ import api from './lib/api';
 import {
   Zap,
   Globe,
-  Activity,
   Database,
   Cpu,
   BookOpen
