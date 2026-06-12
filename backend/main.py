@@ -949,6 +949,30 @@ async def predict(request: PredictRequest):
         float(glazing_data.get('cost_index', 5))
     ) / 3.0, 1)
 
+    # Enrich climate_summary with display fields (zone, location, peak temp)
+    if climate is not None:
+        climate["climate_zone"]     = ecbc_zone
+        climate["location"]         = request.city
+        climate["peak_summer_temp"] = round(max(climate.get("monthly_temps") or [30.0]), 1)
+    
+    # Add EUI threshold and pass/fail to compliance dict
+    ecbc_eui_thresholds = {
+        "office_small":  {"Hot-Dry": 120, "Warm-Humid": 110, "Composite": 105, "Temperate": 85,  "Cold": 75},
+        "office_medium": {"Hot-Dry": 130, "Warm-Humid": 120, "Composite": 115, "Temperate": 95,  "Cold": 85},
+        "healthcare":    {"Hot-Dry": 200, "Warm-Humid": 190, "Composite": 185, "Temperate": 140, "Cold": 130},
+        "hotel":         {"Hot-Dry": 160, "Warm-Humid": 150, "Composite": 145, "Temperate": 110, "Cold": 100},
+        "retail":        {"Hot-Dry": 165, "Warm-Humid": 155, "Composite": 150, "Temperate": 110, "Cold": 100},
+    }
+    eui_threshold = ecbc_eui_thresholds.get(request.archetype, {}).get(ecbc_zone, 130)
+    if compliance:
+        compliance["threshold"] = eui_threshold
+        compliance["eui_pass"]  = bool(final_eui <= eui_threshold)
+
+    # Best-case annual savings: savings from adopting the top recommendation vs current design
+    best_rec_eui = recommendations[0].get("predicted_eui", final_eui) if recommendations else final_eui
+    best_case_savings = max(0, (baseline_eui - best_rec_eui)) * request.floor_area_m2 * 9.0
+    annual_savings_inr = max(annual_savings_inr, best_case_savings)
+
     response = {
         "predicted_eui": float(final_eui),
         "baseline_eui": float(baseline_eui),

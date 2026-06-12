@@ -289,11 +289,10 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <div className="space-y-1 mt-2">
                             <div className="flex items-center gap-2">
                                 <div className="text-sm font-semibold text-slate-500 uppercase">Energy Intensity (EUI)</div>
-                                <div className="relative group/info">
-                                    <Info className="w-4 h-4 text-slate-400 cursor-help" />
-                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-800 text-white text-xs rounded-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-50 shadow-xl pointer-events-none">
-                                        Energy Use Intensity (kWh/m²·yr) represents the total energy consumed by the building in a year divided by its floor area. Lower is better.
-                                        <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45" />
+                                <div className="tooltip-wrap">
+                                    <Info className="w-4 h-4 text-slate-400 hover:text-primary transition-colors" />
+                                    <div className="info-tooltip">
+                                        Energy Use Intensity (kWh/m²·yr) is the total energy consumed by the building per year, divided by its gross floor area. Lower is better — BEE 5-Star targets &lt;75 kWh/m²·yr for offices.
                                     </div>
                                 </div>
                             </div>
@@ -347,12 +346,11 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             <div className="mt-5 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner">
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
                                     <span>Baseline Envelope Properties</span>
-                                    <div className="relative group/db flex items-center gap-1 cursor-help">
+                                    <div className="tooltip-wrap flex items-center gap-1">
                                         <span className="text-[9px] text-secondary">Verified DB</span>
                                         <Database className="w-3 h-3 text-secondary" />
-                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-800 text-white text-[10px] rounded-xl opacity-0 invisible group-hover/db:opacity-100 group-hover/db:visible transition-all z-50 shadow-xl pointer-events-none normal-case leading-relaxed">
-                                            Data rigorously sourced from CPWD (Central Public Works Dept) & BMTPC Schedule of Rates. U-Values & Embodied Carbon are deterministic physics constants, not AI-generated.
-                                            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-slate-800 rotate-45" />
+                                        <div className="info-tooltip info-tooltip-right" style={{width:'260px',fontSize:'10px'}}>
+                                            Data sourced from CPWD (Central Public Works Dept) &amp; BMTPC Schedule of Rates. U-Values &amp; Embodied Carbon are deterministic physics constants, not AI-generated.
                                         </div>
                                     </div>
                                 </div>
@@ -400,12 +398,11 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Stress</span>
-                                <div className="relative group/info">
-                                    <Info className="w-4 h-4 text-slate-400 cursor-help" />
-                                    <div className="absolute right-0 bottom-full mb-2 w-72 p-3 bg-slate-800 text-white text-xs rounded-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-50 shadow-xl pointer-events-none leading-relaxed">
-                                        <span className="font-bold text-amber-300">Simplified Thermal Stress Proxy</span> — mapped onto the ISO 7730 PMV scale (−3 Cold to +3 Hot) for interpretability. This is <em>not</em> a full Fanger (1970) PMV calculation, which requires air velocity, clothing insulation (clo), and metabolic rate (met) — data not available from the building envelope alone. Use only as a relative indicator.
-                                        <p className="mt-1 text-slate-400 text-[9px]">Ref: ISO 7730:2005; ASHRAE 55-2023 §6.2</p>
-                                        <div className="absolute right-2 -bottom-1 w-2 h-2 bg-slate-800 rotate-45" />
+                                <div className="tooltip-wrap">
+                                    <Info className="w-4 h-4 text-slate-400 hover:text-primary transition-colors" />
+                                    <div className="info-tooltip info-tooltip-right">
+                                        <span className="font-bold text-amber-300">Simplified Thermal Stress Proxy</span> — mapped onto the ISO 7730 PMV scale (−3 Cold to +3 Hot). This is not a full Fanger PMV calculation, which requires air velocity, clothing (clo), and metabolic rate (met). Use as a relative indicator only.
+                                        <p className="mt-1.5 text-slate-400 text-[9px]">Ref: ISO 7730:2005; ASHRAE 55-2023 §6.2</p>
                                     </div>
                                 </div>
                             </div>
@@ -942,10 +939,10 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     </div>
                     <div className="pr-cell">
                         <p className="pr-label">ECBC Compliance</p>
-                        <p className="pr-kpi" style={{fontSize:'16pt', color: (predicted_eui ?? 999) <= (ecbc_compliance?.threshold ?? 999) ? '#7EB281' : '#ea580c'}}>
-                            {(predicted_eui ?? 999) <= (ecbc_compliance?.threshold ?? 999) ? 'PASS' : 'FAIL'}
+                        <p className="pr-kpi" style={{fontSize:'16pt', color: ecbc_compliance?.eui_pass ? '#7EB281' : '#ea580c'}}>
+                            {ecbc_compliance?.eui_pass ? 'PASS' : ecbc_compliance?.status ?? 'N/A'}
                         </p>
-                        <p className="pr-label">Threshold: {ecbc_compliance?.threshold ?? '—'} kWh/m²·yr</p>
+                        <p className="pr-label">Threshold: {ecbc_compliance?.threshold ?? baseline_eui} kWh/m²·yr · {ecbc_compliance?.climate_zone ?? '—'}</p>
                     </div>
                 </div>
 

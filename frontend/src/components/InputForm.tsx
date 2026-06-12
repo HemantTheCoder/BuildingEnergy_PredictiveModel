@@ -684,9 +684,9 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
 function Definition({ text }: { text: string }) {
     return (
-        <div className="group/def relative inline-block cursor-help align-middle">
-            <Info className="w-3.5 h-3.5 text-slate-400 group-hover/def:text-slate-600 transition-colors" />
-            <div className="absolute bottom-[120%] left-1/2 -translate-x-1/2 mb-2 w-56 p-3 rounded-xl bg-white border border-slate-200 opacity-0 group-hover/def:opacity-100 pointer-events-none transition-all z-50 text-xs font-medium leading-relaxed text-slate-700 shadow-xl">
+        <div className="tooltip-wrap align-middle">
+            <Info className="w-3.5 h-3.5 text-slate-400 hover:text-primary transition-colors" />
+            <div className="info-tooltip" style={{width: '220px'}}>
                 {text}
             </div>
         </div>
