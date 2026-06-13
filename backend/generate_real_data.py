@@ -30,7 +30,7 @@ def load_verified_data():
       - Internal loads basis: BEE (2014) Table 3.1; ECBC 2017 §6 (LPD)
     """
     np.random.seed(42)
-    N_SYNTHETIC = 2200
+    N_SYNTHETIC = 25000
 
     # Five BEE ECBC 2017 climate zones (NBC 2016 Part 8 §3.1)
     climate_zones = {
