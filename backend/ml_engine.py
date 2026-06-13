@@ -485,7 +485,7 @@ class MLEngine:
                 logs = f.readlines()
             
             # Simulated MLOps Trigger
-            if len(logs) >= 10:  # Kept small for demonstration 
+            if len(logs) >= 5000:  # Increased from 10 to 5000 to prevent synchronous API hangs
                 print("MLOps Pipeline: Sample size threshold reached for potential drift. Triggering retrain...")
                 # In real scenario, we merge actual outcomes from BMS/IoT here to create ground truth.
                 self.train_all()
