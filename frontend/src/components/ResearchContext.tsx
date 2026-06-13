@@ -107,7 +107,7 @@ export default function ResearchContext() {
             </div>
 
             {/* Two-column: Climate Zones + Methodology */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 
                 {/* BEE Climate Zones */}
                 <div className="premium-card p-6 space-y-4 border-slate-200">
