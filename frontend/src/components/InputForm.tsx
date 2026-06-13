@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity, Info, UploadCloud, Globe } from 'lucide-react';
+import { MapPin, ChevronRight, Calculator, Cpu, Wind, Thermometer, Sun, Settings2, RefreshCcw, Layers, Activity, Info, UploadCloud, Globe, WifiOff } from 'lucide-react';
 import api from '../lib/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,7 +11,7 @@ const ARCHETYPE_DEFAULTS: Record<string, { hours: number, occ: number, eq: numbe
     healthcare: { hours: 168, occ: 0.20, eq: 30.0 }
 };
 
-export default function InputForm({ onPredict, onChange, loading }: any) {
+export default function InputForm({ onPredict, onChange, loading, backendStatus }: any) {
     const [cities, setCities] = useState<string[]>([]);
     const [manualClimate, setManualClimate] = useState(false);
     const [fetchingClimate, setFetchingClimate] = useState(false);
@@ -662,13 +662,23 @@ export default function InputForm({ onPredict, onChange, loading }: any) {
 
             <button
                 type="submit"
-                disabled={loading || fetchingClimate}
+                disabled={loading || fetchingClimate || backendStatus === 'waking' || backendStatus === 'offline' || backendStatus === 'checking'}
                 className="w-full btn-premium h-14 group disabled:opacity-50 text-sm"
             >
                 {loading ? (
                     <div className="flex items-center gap-3">
                         <RefreshCcw className="w-5 h-5 animate-spin" />
                         <span className="font-semibold text-sm">Processing Simulation...</span>
+                    </div>
+                ) : backendStatus === 'waking' || backendStatus === 'checking' ? (
+                    <div className="flex items-center gap-3">
+                        <RefreshCcw className="w-5 h-5 animate-spin" />
+                        <span className="font-semibold text-sm">Waiting for server…</span>
+                    </div>
+                ) : backendStatus === 'offline' ? (
+                    <div className="flex items-center gap-3">
+                        <WifiOff className="w-5 h-5" />
+                        <span className="font-semibold text-sm">Backend Offline</span>
                     </div>
                 ) : (
                     <>

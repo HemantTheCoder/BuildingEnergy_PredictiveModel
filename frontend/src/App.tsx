@@ -43,13 +43,13 @@ export default function App() {
 
     const ping = async () => {
       try {
-        await api.get('/health', { timeout: 10000 });
+        await api.get('/health', { timeout: 12000 });
         if (!cancelled) setBackendStatus('ready');
       } catch {
         if (!cancelled) {
           attempt += 1;
           if (attempt === 1) setBackendStatus('waking');
-          if (attempt < 10) {
+          if (attempt < 15) {
             wakeTimerRef.current = setTimeout(ping, 4000);
           } else {
             setBackendStatus('offline');
@@ -73,6 +73,14 @@ export default function App() {
 
   const handlePredict = async (data: any = formData) => {
     if (!data) return;
+    if (backendStatus === 'waking') {
+      setError('The server is still waking up — this takes ~15s on first load. Please wait for the amber banner to disappear, then try again.');
+      return;
+    }
+    if (backendStatus === 'offline') {
+      setError('Cannot reach the backend server. Check that your Render deployment is running and VITE_API_URL is set correctly in Vercel.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -81,7 +89,7 @@ export default function App() {
     } catch (error: any) {
       console.error("Prediction failed", error);
       const isNetworkError = !error.response;
-      let errMsg = error.response?.data?.detail || `Connection failed.`;
+      let errMsg = error.response?.data?.detail || `Simulation failed.`;
       
       if (Array.isArray(errMsg)) {
         errMsg = errMsg.map((e: any) => `${e.loc?.join('.') || 'Field'}: ${e.msg}`).join(" | ");
@@ -90,7 +98,7 @@ export default function App() {
       }
       
       if (isNetworkError) {
-        errMsg = `Connection failed to ${import.meta.env.VITE_API_URL || 'backend'}. Please ensure your VERCEL environment variable VITE_API_URL is set correctly and the backend at ${import.meta.env.VITE_API_URL} is running and accessible.`;
+        errMsg = `Network error — could not reach the backend. The Render server may still be waking up. Wait ~15s and try again.`;
       }
       
       setError(errMsg);
@@ -187,7 +195,8 @@ export default function App() {
                   <InputForm 
                     onPredict={handlePredict} 
                     onChange={setFormData}
-                    loading={loading} 
+                    loading={loading}
+                    backendStatus={backendStatus}
                   />
                   
                   {error && (
