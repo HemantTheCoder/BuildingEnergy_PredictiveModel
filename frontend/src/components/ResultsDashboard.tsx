@@ -194,9 +194,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     }
 
     const getEUIColor = (eui: number) => {
-        if (eui < 80) return "text-primary";
-        if (eui < 130) return "text-secondary";
-        return "text-accent";
+        if (eui < 80) return "text-emerald-600";
+        if (eui < 130) return "text-amber-500";
+        return "text-orange-600";
     };
 
     const totalEmbodiedCarbon = (material_sources.wall.carbon || 0) + (material_sources.roof.carbon || 0) + (material_sources.glazing.carbon || 0);
@@ -298,9 +298,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             
                             {/* Color Legend — BEE Star Rating reference */}
                             <div className="flex flex-wrap items-center gap-3 mt-1 pb-2">
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 4–5★ (&lt;80)</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-secondary" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 2–3★ (80–130)</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE &lt;2★ (&gt;130)</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 4–5★ (&lt;80)</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 2–3★ (80–130)</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-600" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE &lt;2★ (&gt;130)</span></div>
                                 <span className="citation-badge ml-auto">BEE Star Rating 2020</span>
                             </div>
 
