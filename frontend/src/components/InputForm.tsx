@@ -70,6 +70,29 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
     };
 
     useEffect(() => {
+        const handleApplyDesign = (e: any) => {
+            const opt = e.detail;
+            if (!opt) return;
+            setFormData(prev => ({
+                ...prev,
+                wwr: opt.wwr,
+                property_overrides: {
+                    ...prev.property_overrides,
+                    u_wall: opt.u_wall,
+                    u_roof: opt.u_roof,
+                    u_glass: opt.u_glass,
+                    shgc: opt.shgc
+                }
+            }));
+            // After setting state, we need to trigger predict. 
+            // We use setTimeout to ensure state is updated first.
+            setTimeout(() => {
+                const submitBtn = document.getElementById('run-sim-btn');
+                if (submitBtn) submitBtn.click();
+            }, 100);
+        };
+        window.addEventListener('applyOptimizedDesign', handleApplyDesign);
+        
         api.get(`/cities`)
             .then(res => {
                 setCities(res.data);
@@ -80,6 +103,8 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
             .catch(console.error);
 
         api.get(`/materials`).then(res => setDbMaterials(res.data)).catch(console.error);
+        
+        return () => window.removeEventListener('applyOptimizedDesign', handleApplyDesign);
     }, []);
 
     const fetchClimate = async (cityName: string) => {

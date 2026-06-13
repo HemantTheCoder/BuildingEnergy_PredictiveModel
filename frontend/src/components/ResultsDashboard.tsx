@@ -16,6 +16,7 @@ import {
     Calculator,
     Leaf,
     BarChart3,
+    Sparkles,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -23,6 +24,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, Legend, ReferenceLine,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
+import LCCAModule from './LCCAModule';
+import OptimizerModal from './OptimizerModal';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -132,6 +135,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     const co2TotalTonnes = co2_total_tonnes_yr    ?? parseFloat((co2Intensity * (formData?.floor_area_m2 || 1200) / 1000).toFixed(2));
 
     const [activeTab, setActiveTab] = useState<'analytics' | 'comparison' | 'simulator' | 'details'>('analytics');
+    const [isOptimizerOpen, setIsOptimizerOpen] = useState(false);
     
     const [simulatorOverrides, setSimulatorOverrides] = useState<any>({
         wall:    material_sources?.wall?.name    || "AAC Block Wall (200 mm)",
@@ -436,6 +440,13 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <FileDown className="w-4 h-4" />
                         <span className="text-xs font-semibold uppercase">Generate Report</span>
                     </button>
+                    <button 
+                        onClick={() => setIsOptimizerOpen(true)}
+                        className="mt-3 w-full h-10 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 group/btn text-emerald-700"
+                    >
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-xs font-semibold uppercase">✨ AI Optimize Design</span>
+                    </button>
                 </div>
             </div>
 
@@ -555,6 +566,13 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </p>
                             </div>
                         )}
+
+                        {/* LCCA Module */}
+                        <LCCAModule 
+                            formData={formData} 
+                            predicted_eui={predicted_eui} 
+                            baseline_eui={baseline_eui} 
+                        />
                         </div>
                     )}
 

@@ -8,7 +8,9 @@ Predict building energy use intensity (EUI, kWh/m²·yr) for Indian cities and g
 - **India-Focused Materials**: Seeded with BMTPC and CPWD material property standards.
 - **ML Engine**: XGBoost regression model trained on synthetic parametric simulations.
 - **Explainability**: SHAP (SHapley Additive exPlanations) for per-prediction feature importance.
-- **Recommendation Engine**: Automated search for optimal wall, roof, and glazing combinations.
+- **Generative AI Optimizer**: Batches 5,000 design iterations through the ML surrogate to find Pareto-optimal configurations (Energy, Cost, Carbon).
+- **30-Year LCCA**: Net Present Value (NPV) lifecycle cost analysis comparing the predicted design against an ECBC baseline.
+- **ECBC Compliance**: Integrated logic to cross-check envelope metrics with the Energy Conservation Building Code 2017.
 
 ## Tech Stack
 

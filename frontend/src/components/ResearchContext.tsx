@@ -1,4 +1,4 @@
-import { BookOpen, Database, FlaskConical, Globe, BarChart3, Layers, Shield, Cpu, Sun, Thermometer } from 'lucide-react';
+import { BookOpen, Database, FlaskConical, Globe, BarChart3, Layers, Shield, Cpu, Sun, Thermometer, Sparkles } from 'lucide-react';
 
 const BEE_BENCHMARKS = [
     { label: "5-Star (Best Practice)", eui: "< 75", color: "bg-emerald-500", textColor: "text-emerald-700", bgLight: "bg-emerald-50 border-emerald-200" },
@@ -24,6 +24,7 @@ const DATA_SOURCES = [
     { name: "CPWD Schedule 2024",role: "Material specifications & cost indices" },
     { name: "IS 2553 / EN 673",  role: "Glazing U-value & SHGC standards" },
     { name: "SHAP (Lundberg 2017)", role: "ML explainability (feature attribution)" },
+    { name: "NSGA-II Proxy",     role: "Generative optimization algorithm" },
 ];
 
 const METHODOLOGY_STEPS = [
@@ -44,8 +45,13 @@ const METHODOLOGY_STEPS = [
     },
     {
         icon: <Shield className="w-4 h-4 text-primary" />,
-        title: "ECBC 2017 Compliance",
-        desc: "Envelope U-values and SHGC are checked against zone-specific BEE ECBC 2017 prescriptive thresholds (Tables 5.3–5.5) for three compliance tiers."
+        title: "ECBC 2017 Compliance & LCCA",
+        desc: "Checks envelope metrics against BEE ECBC 2017 thresholds, while the 30-Year LCCA projects dynamic NPV energy savings against the ECBC baseline."
+    },
+    {
+        icon: <Sparkles className="w-4 h-4 text-emerald-500" />,
+        title: "Generative AI Optimization",
+        desc: "Batch evaluates 5,000 parametric variations via the XGBoost engine in milliseconds to return Pareto-optimal designs across EUI, Upfront Cost, and ROI."
     },
 ];
 

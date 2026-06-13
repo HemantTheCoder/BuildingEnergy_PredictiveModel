@@ -1156,6 +1156,35 @@ def predict(request: PredictRequest):
     }
     return sanitize_for_json(response)
 
+@app.post("/optimize")
+def optimize_endpoint(request: PredictRequest):
+    # 1. Resolve Climate
+    if request.climate_overrides and all(k in request.climate_overrides for k in ['cdd', 'hdd', 'annual_solrad']):
+        climate = request.climate_overrides
+    else:
+        lat, lon = fetcher.get_lat_lon(request.city)
+        if not lat:
+            raise HTTPException(status_code=404, detail="City not found")
+        climate = fetcher.fetch_climate_data(lat, lon)
+        if not climate:
+            climate = { "cdd": 2500, "hdd": 100, "annual_solrad": 5.5, "source": "Fallback" }
+
+    input_data = {
+        "floor_area": request.floor_area_m2,
+        "operating_hours": request.operating_hours,
+        "occupancy_density": request.occupancy_density,
+        "equipment_load": request.equipment_load,
+        "cdd": climate['cdd'],
+        "hdd": climate['hdd'],
+        "solrad": climate['annual_solrad'],
+        "orientation": request.orientation,
+    }
+
+    try:
+        results = engine.optimize_design(input_data, n_samples=5000)
+        return sanitize_for_json(results)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
