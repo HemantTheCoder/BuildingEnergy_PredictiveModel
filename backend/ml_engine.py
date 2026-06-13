@@ -233,10 +233,10 @@ class MLEngine:
     def get_metrics(self, model_type="XGBoost"):
         return self.metrics.get(model_type, {})
 
-    def optimize_design(self, base_input_data, n_samples=5000):
+    def optimize_design(self, base_input_data, n_samples=2500):
         """
         Generates `n_samples` random building configurations and runs a batch predict
-        to find the optimal designs (Lowest EUI, Lowest Cost, Balanced).
+        to find pareto-optimal designs minimizing EUI and embodied carbon.
         """
         import numpy as np
         import pandas as pd

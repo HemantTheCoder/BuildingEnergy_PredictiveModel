@@ -4,6 +4,7 @@ from geopy.geocoders import Nominatim
 import json
 from datetime import datetime, timedelta
 import time
+from functools import lru_cache
 
 class CircuitBreaker:
     def __init__(self, failure_threshold=3, reset_timeout=60):
@@ -63,6 +64,7 @@ class ClimateFetcher:
             except Exception as e:
                 print(f"Failed to load offline city coords: {e}")
 
+    @lru_cache(maxsize=64)
     def get_lat_lon(self, city_name):
         city_lower = city_name.lower().strip()
         if city_lower in self.common_cities:
@@ -94,6 +96,7 @@ class ClimateFetcher:
         print("IMD Data fetch simulated...")
         return None
 
+    @lru_cache(maxsize=64)
     def fetch_climate_data(self, lat, lon):
         cache_key = f"climate_{round(lat,2)}_{round(lon,2)}"
         
