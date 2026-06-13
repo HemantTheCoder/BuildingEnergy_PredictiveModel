@@ -270,25 +270,10 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
             </div>
 
             {/* Top KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 premium-card p-6 border-slate-200 relative overflow-hidden group">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 premium-card p-6 border-slate-200 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-60 h-60 bg-primary/5 rounded-full blur-[80px] -z-10" />
                     
-                    {/* Top Right Confidence Box — hidden on mobile (visible in Methodology tab) */}
-                    <div className="hidden md:flex absolute top-4 right-4 bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex-col gap-1 text-right max-w-[240px]">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Data Provenance</span>
-                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1 w-full overflow-hidden" title={evidence_panel?.climate_source_metadata?.source || "NASA POWER"}>
-                            <Globe className="w-3 h-3 text-primary shrink-0" /> 
-                            <span className="truncate">{evidence_panel?.climate_source_metadata?.source || "NASA POWER"}</span>
-                        </div>
-                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1">
-                            <Database className="w-3 h-3 text-secondary" /> CPWD & BMTPC
-                        </div>
-                        <div className="text-xs font-semibold text-slate-600 flex justify-end items-center gap-1">
-                            <Cpu className="w-3 h-3 text-accent" /> System Confidence: {evidence_panel ? (evidence_panel.overall_confidence * 100).toFixed(0) : "80"}%
-                        </div>
-                    </div>
-
                     <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                         <div className="space-y-1 mt-2 flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -320,30 +305,37 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             </div>
 
                             {/* Operational CO₂ Intensity Strip */}
-                            <div className="mt-2 mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center gap-x-6 gap-y-2">
-                                <div className="flex items-center gap-2">
-                                    <Leaf className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <div className="mt-2 mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex items-start gap-3">
+                                        <Leaf className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                                        <div>
+                                            <span className="text-[10px] font-bold text-emerald-600 uppercase block mb-1">CO₂ Intensity</span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-2xl font-bold text-emerald-800">{co2Intensity.toFixed(1)}</span>
+                                                <span className="text-xs font-semibold text-emerald-600">kg CO₂/m²·yr</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div>
-                                        <span className="text-[10px] font-bold text-emerald-600 uppercase block">CO₂ Intensity</span>
+                                        <span className="text-[10px] font-bold text-emerald-600 uppercase block mb-1">Annual Building Total</span>
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-xl font-bold text-emerald-800">{co2Intensity.toFixed(1)}</span>
-                                            <span className="text-xs font-semibold text-emerald-600">kg CO₂/m²·yr</span>
+                                            <span className="text-2xl font-bold text-emerald-800">{co2TotalTonnes.toFixed(1)}</span>
+                                            <span className="text-xs font-semibold text-emerald-600">t CO₂/yr</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <span className="text-[10px] font-bold text-emerald-600 uppercase block">Annual Building Total</span>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-xl font-bold text-emerald-800">{co2TotalTonnes.toFixed(1)}</span>
-                                        <span className="text-xs font-semibold text-emerald-600">t CO₂/yr</span>
+                                
+                                <div className="mt-4 pt-3 border-t border-emerald-200/60 flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-emerald-600 uppercase block">Paris 2050 Target</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-emerald-700">≤ 10 kg CO₂/m²·yr</span>
+                                            <span className="text-[9px] text-emerald-500">IPCC AR6 WG3 § 9.4</span>
+                                        </div>
                                     </div>
+                                    <span className="citation-badge bg-emerald-100 border-emerald-300 text-emerald-700">CEA 2022 — 0.82 kg CO₂/kWh</span>
                                 </div>
-                                <div className="ml-auto text-right">
-                                    <span className="text-[10px] font-bold text-emerald-600 uppercase block">Paris 2050 Target</span>
-                                    <span className="text-xs font-bold text-emerald-700">≤ 10 kg CO₂/m²·yr</span>
-                                    <span className="text-[9px] text-emerald-500 block">IPCC AR6 WG3 §9.4</span>
-                                </div>
-                                <span className="citation-badge bg-emerald-100 border-emerald-300 text-emerald-700 w-full sm:w-auto">CEA 2022 — 0.82 kg CO₂/kWh</span>
                             </div>
                             
                             {/* Baseline Materials Insight */}
@@ -397,56 +389,87 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     </div>
                 </div>
 
-                <div className="premium-card p-6 flex flex-col justify-between border-slate-200">
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
+                <div className="lg:col-span-1 flex flex-col gap-6">
+                    {/* Provenance Card */}
+                    <div className="premium-card p-6 border-slate-200">
+                        <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Stress</span>
-                                <div className="tooltip-wrap">
-                                    <Info className="w-4 h-4 text-slate-400 hover:text-primary transition-colors" />
-                                    <div className="info-tooltip info-tooltip-right">
-                                        <span className="font-bold text-amber-300">Simplified Thermal Stress Proxy</span> — mapped onto the ISO 7730 PMV scale (−3 Cold to +3 Hot). This is not a full Fanger PMV calculation, which requires air velocity, clothing (clo), and metabolic rate (met). Use as a relative indicator only.
-                                        <p className="mt-1.5 text-slate-400 text-[9px]">Ref: ISO 7730:2005; ASHRAE 55-2023 §6.2</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <ThermometerSnowflake className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="space-y-1">
-                            <span className="text-xs font-semibold text-slate-400 uppercase">Thermal Stress Proxy (ISO 7730 scale)</span>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-3xl font-bold text-slate-800">{thermal_comfort?.index?.toFixed(1) || "0.0"}</span>
-                                <span className={cn("text-xs font-bold uppercase", 
-                                    thermal_comfort?.status === 'Warm' || thermal_comfort?.status === 'Hot' ? "text-accent" : 
-                                    thermal_comfort?.status === 'Cool' || thermal_comfort?.status === 'Cold' ? "text-primary" : "text-secondary"
-                                )}>
-                                    {thermal_comfort?.status || "Neutral"}
-                                </span>
+                                <Database className="w-4 h-4 text-secondary" />
+                                <span className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Data Provenance</span>
                             </div>
                         </div>
-                        <div className="relative h-6 flex items-center">
-                            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent rounded-full h-1 opacity-20" />
-                            <motion.div 
-                                initial={{ left: "50%" }}
-                                animate={{ left: `${50 + (thermal_comfort?.index || 0) * 16.66}%` }}
-                                className="absolute w-3 h-3 bg-white rounded-full border-2 border-primary z-10 shadow-sm"
-                            />
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <Globe className="w-4 h-4 text-slate-400" />
+                                <span className="text-xs font-bold text-slate-700 truncate">{evidence_panel?.climate_source_metadata?.source || "NASA POWER"}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Database className="w-4 h-4 text-slate-400" />
+                                <span className="text-xs font-bold text-slate-700 truncate">CPWD & BMTPC</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Cpu className="w-4 h-4 text-emerald-500" />
+                                <span className="text-xs font-bold text-emerald-700">System Confidence: {evidence_panel ? (evidence_panel.overall_confidence * 100).toFixed(0) : "80"}%</span>
+                            </div>
                         </div>
                     </div>
-                    <button 
-                        onClick={handleExportPDF}
-                        className="mt-6 w-full h-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 group/btn text-slate-700"
-                    >
-                        <FileDown className="w-4 h-4" />
-                        <span className="text-xs font-semibold uppercase">Generate Report</span>
-                    </button>
-                    <button 
-                        onClick={() => setIsOptimizerOpen(true)}
-                        className="mt-3 w-full h-10 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 group/btn text-emerald-700"
-                    >
-                        <Sparkles className="w-4 h-4" />
-                        <span className="text-xs font-semibold uppercase">✨ AI Optimize Design</span>
-                    </button>
+
+                    {/* Thermal Stress */}
+                    <div className="premium-card p-6 flex flex-col justify-between border-slate-200">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-semibold text-slate-500 uppercase">Thermal Stress</span>
+                                    <div className="tooltip-wrap">
+                                        <Info className="w-4 h-4 text-slate-400 hover:text-primary transition-colors" />
+                                        <div className="info-tooltip info-tooltip-right">
+                                            <span className="font-bold text-amber-300">Simplified Thermal Stress Proxy</span> — mapped onto the ISO 7730 PMV scale (−3 Cold to +3 Hot). This is not a full Fanger PMV calculation, which requires air velocity, clothing (clo), and metabolic rate (met). Use as a relative indicator only.
+                                            <p className="mt-1.5 text-slate-400 text-[9px]">Ref: ISO 7730:2005; ASHRAE 55-2023 §6.2</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ThermometerSnowflake className="w-4 h-4 text-primary" />
+                            </div>
+                            <div className="space-y-1">
+                                <span className="text-xs font-semibold text-slate-400 uppercase">Thermal Stress Proxy</span>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-3xl font-bold text-slate-800">{thermal_comfort?.index?.toFixed(1) || "0.0"}</span>
+                                    <span className={cn("text-xs font-bold uppercase", 
+                                        thermal_comfort?.status === 'Warm' || thermal_comfort?.status === 'Hot' ? "text-accent" : 
+                                        thermal_comfort?.status === 'Cool' || thermal_comfort?.status === 'Cold' ? "text-primary" : "text-secondary"
+                                    )}>
+                                        {thermal_comfort?.status || "Neutral"}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="relative h-6 flex items-center">
+                                <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent rounded-full h-1 opacity-20" />
+                                <motion.div 
+                                    initial={{ left: "50%" }}
+                                    animate={{ left: `${50 + (thermal_comfort?.index || 0) * 16.66}%` }}
+                                    className="absolute w-3 h-3 bg-white rounded-full border-2 border-primary z-10 shadow-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Buttons Box */}
+                        <div className="flex flex-col gap-3 mt-6">
+                            <button 
+                                onClick={handleExportPDF}
+                                className="w-full h-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 group/btn text-slate-700"
+                            >
+                                <FileDown className="w-4 h-4" />
+                                <span className="text-xs font-semibold uppercase">Generate Report</span>
+                            </button>
+                            <button 
+                                onClick={() => setIsOptimizerOpen(true)}
+                                className="w-full h-10 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 group/btn text-emerald-700"
+                            >
+                                <Sparkles className="w-4 h-4" />
+                                <span className="text-xs font-semibold uppercase">✨ AI Optimize Design</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
