@@ -462,10 +462,16 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         const API_BASE = "";
         let activeView = "status";
 
+        function safeCreateIcons() {
+            try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch(e) {}
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
             fetchMetrics();
             checkUrlPath();
+            safeCreateIcons();
+            // Re-run after a short delay in case the CDN script was still loading
+            setTimeout(safeCreateIcons, 800);
         });
 
         function checkUrlPath() {
@@ -612,7 +618,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 badge.innerText = `${res.status} OK · ${ms} ms`;
                 jsonEl.innerText = JSON.stringify(data, null, 2);
                 resultEl.classList.remove("hidden");
-                lucide.createIcons();
+                safeCreateIcons();
             } catch (err) {
                 badge.innerText = "Network Error";
                 jsonEl.innerText = String(err);
@@ -673,11 +679,11 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                             <td colspan="6" class="py-8 text-center text-slate-400 italic">No telemetry logs found. Run simulator to populate.</td>
                         </tr>
                     `;
-                    document.getElementById("dataset-count-lbl").innerText = "1504 samples";
+                    document.getElementById("dataset-count-lbl").innerText = "2215 samples";
                     return;
                 }
 
-                document.getElementById("dataset-count-lbl").innerText = (1504 + data.length) + " samples";
+                document.getElementById("dataset-count-lbl").innerText = (2215 + data.length) + " samples";
 
                 data.forEach((log) => {
                     const row = document.createElement("tr");
@@ -721,8 +727,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                     const timeEl = document.getElementById("last-retrain-time");
                     timeEl.innerText = now;
                     infoEl.classList.remove("hidden");
-                    lucide.createIcons();
-                    alert("MLOps CT Process Succeeded! Models retrained with 15-feature physics engineering.");
+                    safeCreateIcons();
+                    alert("MLOps CT Process Succeeded! Models retrained with 19-feature physics engineering.");
                     fetchMetrics();
                 } else {
                     alert("MLOps Retrain error: " + (data.detail || "Retrain pipeline aborted."));
