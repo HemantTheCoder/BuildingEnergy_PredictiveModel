@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const BASE_URL = (import.meta.env.VITE_API_URL as string) || '';
+
 const api = axios.create({
-  baseURL: '',
+  baseURL: BASE_URL,
+  timeout: 35000,
 });
 
 api.interceptors.request.use((config) => {
@@ -9,5 +12,5 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const API_BASE = '';
+export const API_BASE = BASE_URL;
 export default api;

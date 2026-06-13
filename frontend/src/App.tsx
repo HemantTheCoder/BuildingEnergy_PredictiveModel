@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from './lib/api';
 import {
   Zap,
   Globe,
   Database,
   Cpu,
-  BookOpen
+  BookOpen,
+  RefreshCw,
+  WifiOff,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from './lib/utils';
@@ -27,6 +29,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   const [formData, setFormData] = useState<any>(null);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'waking' | 'ready' | 'offline'>('checking');
+  const wakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3500);
@@ -34,8 +38,38 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    api.get(`/materials`).then(res => setMaterials(res.data)).catch(console.error);
+    let cancelled = false;
+    let attempt = 0;
+
+    const ping = async () => {
+      try {
+        await api.get('/health', { timeout: 10000 });
+        if (!cancelled) setBackendStatus('ready');
+      } catch {
+        if (!cancelled) {
+          attempt += 1;
+          if (attempt === 1) setBackendStatus('waking');
+          if (attempt < 10) {
+            wakeTimerRef.current = setTimeout(ping, 4000);
+          } else {
+            setBackendStatus('offline');
+          }
+        }
+      }
+    };
+
+    ping();
+    return () => {
+      cancelled = true;
+      if (wakeTimerRef.current) clearTimeout(wakeTimerRef.current);
+    };
   }, []);
+
+  useEffect(() => {
+    if (backendStatus === 'ready') {
+      api.get(`/materials`).then(res => setMaterials(res.data)).catch(console.error);
+    }
+  }, [backendStatus]);
 
   const handlePredict = async (data: any = formData) => {
     if (!data) return;
@@ -110,8 +144,27 @@ export default function App() {
         </div>
       </nav>
 
+      {/* ── Backend status banners ── */}
+      {backendStatus === 'waking' && (
+        <div className="fixed top-14 md:top-20 left-0 right-0 z-[90] bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-center gap-2 text-sm text-amber-800 font-medium">
+          <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />
+          Server is waking up on Render — first load takes ~15s. Please wait…
+        </div>
+      )}
+      {backendStatus === 'offline' && (
+        <div className="fixed top-14 md:top-20 left-0 right-0 z-[90] bg-red-50 border-b border-red-200 px-4 py-2 flex items-center justify-center gap-2 text-sm text-red-700 font-medium">
+          <WifiOff className="w-3.5 h-3.5 shrink-0" />
+          Cannot reach the backend server. Check your Render deployment or set VITE_API_URL correctly.
+        </div>
+      )}
+
       {/* ── Main content ── */}
-      <main className="pt-14 md:pt-20 pb-20 md:pb-6 px-4 sm:px-6 md:px-8 max-w-[1700px] mx-auto w-full flex-grow relative z-10 lg:flex lg:min-h-0">
+      <main className={cn(
+        "pb-20 md:pb-6 px-4 sm:px-6 md:px-8 max-w-[1700px] mx-auto w-full flex-grow relative z-10 lg:flex lg:min-h-0",
+        backendStatus === 'waking' || backendStatus === 'offline'
+          ? "pt-24 md:pt-30"
+          : "pt-14 md:pt-20"
+      )}>
         <AnimatePresence mode="wait">
           {activeTab === 'simulator' && (
             <motion.div

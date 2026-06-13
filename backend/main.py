@@ -50,6 +50,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "ok",
+        "models_loaded": any(engine.models.values()),
+    }
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     trace = traceback.format_exc()
