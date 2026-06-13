@@ -280,20 +280,65 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                         </div>
                         <div>
                             <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Active Endpoints</span>
-                            <span class="text-xs font-semibold text-slate-600">/predict, /fetch_climate, /materials</span>
+                            <span class="text-xs font-semibold text-slate-600">/predict, /fetch_climate, /materials, /health, /upload_epw</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="glass-panel p-8 rounded-2xl space-y-6">
-                <div>
-                    <h3 class="text-xl font-bold tracking-tight text-slate-800">Active Model Validation Metrics</h3>
-                    <p class="text-xs text-slate-500 mt-1">Metrics compiled automatically using our 80/20 train/test evaluation split.</p>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-xl font-bold tracking-tight text-slate-800">Active Model Validation Metrics</h3>
+                        <p class="text-xs text-slate-500 mt-1">80/20 train/test split — 19-feature physics-informed engineering (v4). Target: R² ≥ 0.80.</p>
+                    </div>
+                    <button onclick="fetchMetrics()" class="w-8 h-8 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center transition-all shadow-sm" title="Refresh metrics">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    </button>
                 </div>
-                
                 <div id="metrics-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
                     <div class="flex justify-center py-6 text-slate-400 italic">Loading performance stats...</div>
+                </div>
+            </div>
+
+            <!-- Live Predict API Tester -->
+            <div class="glass-panel p-8 rounded-2xl space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold tracking-tight text-slate-800">Live Predict API Tester</h3>
+                    <p class="text-xs text-slate-500 mt-1">Send a real prediction request to <code class="bg-slate-100 px-1 rounded">/predict</code> and inspect the raw JSON response.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">City</label>
+                        <input id="test-city" value="Mumbai, India" class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-primary text-slate-800">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Archetype</label>
+                        <select id="test-arch" class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-primary text-slate-800">
+                            <option value="office_small">Small Office</option>
+                            <option value="office_medium">Medium Office</option>
+                            <option value="retail">Retail</option>
+                            <option value="healthcare">Healthcare</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Model</label>
+                        <select id="test-model" class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-primary text-slate-800">
+                            <option value="XGBoost">XGBoost</option>
+                            <option value="RandomForest">RandomForest</option>
+                            <option value="RidgeRegression">RidgeRegression</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="runTestPredict()" id="test-predict-btn" class="h-10 bg-primary text-white font-bold text-sm rounded-xl px-6 hover:bg-primary/90 transition-all flex items-center gap-2 shadow-sm">
+                    <i data-lucide="zap" class="w-4 h-4"></i> <span id="test-predict-text">Run Test Prediction</span>
+                </button>
+                <div id="test-predict-result" class="hidden">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Response JSON</span>
+                        <span id="test-predict-badge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-secondary/10 text-secondary"></span>
+                    </div>
+                    <pre id="test-predict-json" class="bg-slate-900 text-green-400 text-xs p-4 rounded-xl overflow-x-auto max-h-64 font-mono leading-relaxed"></pre>
                 </div>
             </div>
         </div>
@@ -341,9 +386,16 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                             <i data-lucide="refresh-cw" id="retrain-icon" class="w-4 h-4"></i> 
                             <span id="retrain-text">Force Retrain Pipeline</span>
                         </button>
-                        <button onclick="clearTelemetryLogs()" class="h-12 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-6 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Logs
+                        <button onclick="downloadLogsCSV()" class="h-12 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-6 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export CSV
                         </button>
+                        <button onclick="clearTelemetryLogs()" class="h-12 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Clear
+                        </button>
+                    </div>
+                    <div id="last-retrain-info" class="text-xs text-slate-400 font-medium hidden">
+                        <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>
+                        Last retrain: <span id="last-retrain-time">—</span>
                     </div>
                 </div>
 
@@ -465,6 +517,13 @@ DASHBOARD_HTML = """<!DOCTYPE html>
             }
         }
 
+        function r2Color(r2) {
+            if (r2 >= 0.90) return { bar: 'bg-emerald-500', text: 'text-emerald-600', label: 'Excellent' };
+            if (r2 >= 0.80) return { bar: 'bg-primary', text: 'text-primary', label: 'Good' };
+            if (r2 >= 0.70) return { bar: 'bg-amber-500', text: 'text-amber-600', label: 'Fair' };
+            return { bar: 'bg-accent', text: 'text-accent', label: 'Poor' };
+        }
+
         async function fetchMetrics() {
             try {
                 const res = await fetch(API_BASE + "/models");
@@ -474,24 +533,35 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 grid.innerHTML = "";
 
                 if (data.metrics) {
+                    const accentMap = { XGBoost: 'border-t-primary', RandomForest: 'border-t-secondary', RidgeRegression: 'border-t-accent' };
                     Object.entries(data.metrics).forEach(([modelName, metrics]) => {
+                        const r2 = metrics.r2 ?? 0;
+                        const c = r2Color(r2);
+                        const pct = Math.max(0, Math.min(100, r2 * 100)).toFixed(1);
                         const card = document.createElement("div");
-                        card.className = "bg-white p-6 rounded-xl flex flex-col justify-between border border-slate-200 border-t-2 shadow-sm " + 
-                            (modelName === "XGBoost" ? "border-t-primary" : modelName === "RandomForest" ? "border-t-secondary" : "border-t-accent");
-                        
+                        card.className = "bg-white p-6 rounded-xl flex flex-col gap-4 border border-slate-200 border-t-2 shadow-sm " + (accentMap[modelName] || 'border-t-slate-400');
                         card.innerHTML = `
-                            <div class="flex justify-between items-baseline mb-4">
+                            <div class="flex justify-between items-center">
                                 <span class="font-bold text-sm text-slate-800">${modelName}</span>
-                                <span class="text-[9px] uppercase font-black text-slate-400 tracking-wider">Predictor</span>
+                                <span class="text-[9px] uppercase font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">${c.label}</span>
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex justify-between items-baseline mb-1">
+                                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black">R² Accuracy</span>
+                                    <span class="text-lg font-extrabold ${c.text}">${r2.toFixed(4)}</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-slate-100">
+                                    <div class="h-2 rounded-full ${c.bar} transition-all duration-700" style="width:${pct}%"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100">
                                 <div>
-                                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Accuracy R²</span>
-                                    <span class="text-2xl font-extrabold italic text-slate-900">${metrics.r2.toFixed(4)}</span>
+                                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">MAE (kWh/m²)</span>
+                                    <span class="text-base font-extrabold text-slate-800">${metrics.mae.toFixed(2)}</span>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Variance MAE</span>
-                                    <span class="text-2xl font-extrabold italic text-slate-900">${metrics.mae.toFixed(2)}</span>
+                                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Coverage</span>
+                                    <span class="text-base font-extrabold text-slate-800">${pct}%</span>
                                 </div>
                             </div>
                         `;
@@ -499,7 +569,57 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                     });
                 }
             } catch (err) {
+                document.getElementById("metrics-grid").innerHTML = '<div class="col-span-3 text-center py-6 text-slate-400 text-sm italic">Failed to load metrics — backend may be retraining.</div>';
                 console.error("Error loading metrics:", err);
+            }
+        }
+
+        async function runTestPredict() {
+            const btn = document.getElementById("test-predict-btn");
+            const textEl = document.getElementById("test-predict-text");
+            const resultEl = document.getElementById("test-predict-result");
+            const jsonEl = document.getElementById("test-predict-json");
+            const badge = document.getElementById("test-predict-badge");
+
+            btn.disabled = true;
+            textEl.innerText = "Running…";
+
+            const city = document.getElementById("test-city").value || "Mumbai, India";
+            const archetype = document.getElementById("test-arch").value || "office_small";
+            const modelType = document.getElementById("test-model").value || "XGBoost";
+
+            const t0 = performance.now();
+            try {
+                const res = await fetch(API_BASE + "/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        city,
+                        archetype,
+                        floor_area_m2: 1200,
+                        wwr: 0.40,
+                        hvac_type: "split_ac",
+                        operating_hours: 50.0,
+                        occupancy_density: 0.1,
+                        equipment_load: 10.0,
+                        orientation: "South",
+                        model_type: modelType
+                    })
+                });
+                const data = await res.json();
+                const ms = (performance.now() - t0).toFixed(0);
+
+                badge.innerText = `${res.status} OK · ${ms} ms`;
+                jsonEl.innerText = JSON.stringify(data, null, 2);
+                resultEl.classList.remove("hidden");
+                lucide.createIcons();
+            } catch (err) {
+                badge.innerText = "Network Error";
+                jsonEl.innerText = String(err);
+                resultEl.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                textEl.innerText = "Run Test Prediction";
             }
         }
 
@@ -596,7 +716,13 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 const data = await res.json();
                 
                 if (res.ok) {
-                    alert("MLOps CT Process Succeeded! Models retrained and hot-deployed.");
+                    const now = new Date().toLocaleString("en-IN", { hour12: false });
+                    const infoEl = document.getElementById("last-retrain-info");
+                    const timeEl = document.getElementById("last-retrain-time");
+                    timeEl.innerText = now;
+                    infoEl.classList.remove("hidden");
+                    lucide.createIcons();
+                    alert("MLOps CT Process Succeeded! Models retrained with 15-feature physics engineering.");
                     fetchMetrics();
                 } else {
                     alert("MLOps Retrain error: " + (data.detail || "Retrain pipeline aborted."));
@@ -623,6 +749,23 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 }
             } catch (err) {
                 alert("Network error: Clear logs failed.");
+            }
+        }
+
+        async function downloadLogsCSV() {
+            try {
+                const res = await fetch(API_BASE + "/admin/logs");
+                const data = await res.json();
+                if (!data || data.length === 0) { alert("No telemetry logs to export."); return; }
+                const keys = Object.keys(data[0]);
+                const csv = [keys.join(","), ...data.map(row => keys.map(k => JSON.stringify(row[k] ?? "")).join(","))].join("\n");
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url; a.download = "climabuild_telemetry_logs.csv"; a.click();
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                alert("Failed to export logs: " + err);
             }
         }
     </script>

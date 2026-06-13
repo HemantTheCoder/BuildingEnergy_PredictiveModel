@@ -2,3 +2,5 @@
 - [Physics sensitivity overrides](sensitivity-overrides.md) — solrad, u_wall, u_roof must use physics formula; tree models cannot learn multi-factor interactions reliably.
 - [EUI model calibration](eui-calibration.md) — base_internal=90, solar_fraction=0.22, utilization=0.55 reproduces BEE (2014) 179-182 kWh/m²·yr Mumbai office benchmark.
 - [ClimaBuild frontend patterns](climabuild-frontend.md) — material selectors use `component_type` not `category`; multiple sibling JSX elements inside `&&` tab conditionals need a wrapping div/fragment.
+- [ML R² ceiling for this dataset](ml-r2-ceiling.md) — achievable R² is ~0.78-0.80, not 0.90+; limited by latent variables in the physics surrogate (schedules, internal gains) not in the CSV features.
+- [ML feature engineering v5](ml-feature-engineering.md) — 19-feature set, model version file, SHAP early-return bug fix; load_models must not early-return before SHAP init.
