@@ -110,13 +110,13 @@ class LoginRequest(BaseModel):
     password: str
 
 @app.post("/admin/login")
-async def admin_login(payload: LoginRequest):
+def admin_login(payload: LoginRequest):
     if payload.password == "banhae":
         return {"status": "success", "token": "admin_session_active"}
     raise HTTPException(status_code=401, detail="Unauthorized - Invalid Password")
 
 @app.get("/admin/logs")
-async def get_admin_logs():
+def get_admin_logs():
     backend_dir = os.path.dirname(os.path.abspath(__file__))
     log_path = os.path.join(backend_dir, "data", "models", "prediction_logs.jsonl")
     if not os.path.exists(log_path):
@@ -134,7 +134,7 @@ async def get_admin_logs():
     return list(reversed(logs))[:50]
 
 @app.post("/admin/logs/clear")
-async def clear_admin_logs():
+def clear_admin_logs():
     backend_dir = os.path.dirname(os.path.abspath(__file__))
     log_path = os.path.join(backend_dir, "data", "models", "prediction_logs.jsonl")
     try:
@@ -146,7 +146,7 @@ async def clear_admin_logs():
         raise HTTPException(status_code=500, detail=f"Failed to clear logs: {e}")
 
 @app.post("/admin/retrain")
-async def force_retrain():
+def force_retrain():
     try:
         engine.train_all()
         return {"status": "success", "metrics": engine.metrics}
@@ -225,7 +225,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
     <main class="max-w-[1200px] mx-auto px-6 py-10 w-full flex-grow flex flex-col gap-8">
         
-        <div id="status-view" class="space-y-8 block">
+        <div id="status-view" class="space-y-8">
             <div class="space-y-2">
                 <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">API Inference Dashboard</h1>
                 <p class="text-slate-500 text-sm">Real-time diagnostics and model telemetry endpoints for ClimaBuild AI.</p>
@@ -787,7 +787,7 @@ async def admin_portal():
     return HTMLResponse(content=DASHBOARD_HTML)
 
 @app.get("/materials")
-async def get_materials():
+def get_materials():
     backend_dir = os.path.dirname(os.path.abspath(__file__))
     materials_path = os.path.join(backend_dir, "data", "materials.csv")
     if not os.path.exists(materials_path):
@@ -800,7 +800,7 @@ async def get_materials():
     return [{k: (None if pd.isna(v) else v) for k, v in r.items()} for r in records]
 
 @app.get("/cities")
-async def get_cities():
+def get_cities():
     # expanded list of 100+ major and tier-2 Indian cities
     cities = [
         "Mumbai, India", "Delhi, India", "Bangalore, India", "Hyderabad, India", "Ahmedabad, India", 
@@ -826,14 +826,14 @@ async def get_cities():
     return sanitize_for_json(sorted(cities))
 
 @app.get("/models")
-async def get_models():
+def get_models():
     return {
         "available_models": list(engine.models.keys()),
         "metrics": engine.metrics
     }
 
 @app.get("/fetch_climate")
-async def get_climate(city: str):
+def get_climate(city: str):
     lat, lon = fetcher.get_lat_lon(city)
     if not lat:
         raise HTTPException(status_code=404, detail="City not found")
@@ -854,7 +854,7 @@ async def upload_epw(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Failed to parse EPW file: {str(e)}")
 
 @app.post("/predict")
-async def predict(request: PredictRequest):
+def predict(request: PredictRequest):
     # 1. Resolve Climate
     if request.climate_overrides and all(k in request.climate_overrides for k in ['cdd', 'hdd', 'annual_solrad']):
         climate = request.climate_overrides
