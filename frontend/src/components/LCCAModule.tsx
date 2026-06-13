@@ -50,8 +50,8 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
         const base_energy_cost_yr0 = baseline_eui * area * elecRate;
         const curr_energy_cost_yr0 = predicted_eui * area * elecRate;
 
-        const data = [];
-        let paybackYear = null;
+        const data: any[] = [];
+        let paybackYear: number | null = null;
 
         for (let y = 0; y <= 30; y++) {
             if (y > 0) {
@@ -153,7 +153,7 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
                             <XAxis dataKey="year" tick={{fill: '#64748b', fontSize: 10}} tickLine={false} axisLine={false} />
                             <YAxis tickFormatter={formatRupee} tick={{fill: '#64748b', fontSize: 10}} tickLine={false} axisLine={false} width={60} />
                             <RechartsTooltip 
-                                formatter={(value: number) => [`₹${value.toFixed(1)} Lakhs`, '']}
+                                formatter={(value: any) => [`₹${Number(value).toFixed(1)} Lakhs`, '']}
                                 labelFormatter={(label) => `Year ${label}`}
                                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                             />
