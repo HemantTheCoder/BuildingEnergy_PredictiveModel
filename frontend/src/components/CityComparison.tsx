@@ -456,7 +456,7 @@ export default function CityComparison() {
                                     <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
                                     <RechartsTooltip
                                         contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px' }}
-                                        formatter={(val: any, name: string) => [`${Number(val).toFixed(1)}`, name === 'a' ? cityA.split(',')[0] : cityB.split(',')[0]]}
+                                        formatter={(val: any, name: any) => [`${Number(val).toFixed(1)}`, name === 'a' ? cityA.split(',')[0] : cityB.split(',')[0]]}
                                     />
                                     <Legend formatter={(v) => v === 'a' ? cityA.split(',')[0] : cityB.split(',')[0]} />
                                     <Bar dataKey="a" fill="#042642" name="a" radius={[4, 4, 0, 0]} />
