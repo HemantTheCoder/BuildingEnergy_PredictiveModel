@@ -373,6 +373,7 @@ export default function CityComparison() {
                             <option>XGBoost</option>
                             <option>RandomForest</option>
                             <option>RidgeRegression</option>
+                            <option>StackedEnsemble</option>
                         </select>
                     </div>
                 </div>

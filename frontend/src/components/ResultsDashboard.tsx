@@ -298,8 +298,13 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             </div>
                             <div className="flex items-baseline gap-4 mb-3">
-                                <span className={cn("text-5xl md:text-7xl font-bold tracking-tight leading-none", getEUIColor(predicted_eui))}>
+                                <span className={cn("text-5xl md:text-7xl font-bold tracking-tight leading-none flex items-baseline gap-2", getEUIColor(predicted_eui))}>
                                     {predicted_eui.toFixed(1)}
+                                    {model_metrics?.uncertainty_ci && (
+                                        <span className="text-2xl md:text-3xl font-medium text-slate-400/80">
+                                            ±{model_metrics.uncertainty_ci.toFixed(1)}
+                                        </span>
+                                    )}
                                 </span>
                                 <div className="flex flex-col">
                                     <span className="text-slate-400 font-bold text-xl leading-none">kWh/m²·yr</span>

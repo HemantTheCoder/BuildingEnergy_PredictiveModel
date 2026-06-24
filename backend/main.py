@@ -1079,6 +1079,7 @@ def predict(request: PredictRequest):
     evidence_panel = {
         "prediction_interval": adjusted_interval,
         "shap_drivers": prediction.get('shap_values'),
+        "shap_interactions": prediction.get('shap_interactions', []),
         "climate_source_metadata": climate.get('metadata', {}),
         "physics_anomalies_detected": prediction.get('low_confidence', False),
         "overall_confidence": 0.3 if prediction.get('low_confidence') else climate.get('metadata', {}).get('confidence_score', 0.8)

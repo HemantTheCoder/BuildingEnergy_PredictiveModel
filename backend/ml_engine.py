@@ -5,15 +5,15 @@ import shap
 import joblib
 import os
 import json
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.model_selection import train_test_split, KFold, cross_val_score, RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, StackingRegressor
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
 # Model version — bump this to force a retrain when feature engineering changes
-_MODEL_VERSION = "v5"
+_MODEL_VERSION = "v6"
 
 # Base features coming from the raw input / training CSV
 BASE_FEATURES = ["u_wall", "u_roof", "u_glass", "shgc", "cdd", "hvac_cop", "floor_area", "wwr", "hdd", "solrad"]
@@ -147,34 +147,53 @@ class MLEngine:
         ridge_pipeline.fit(X_train, y_train)
         self._save_model_and_metrics("RidgeRegression", ridge_pipeline, X_train, y_train, X_test, y_test)
 
-        # ── 2. Random Forest ──────────────────────────────────────────────────
-        # With 19 features, max_features='sqrt' = ~4 — too few for the interaction features.
-        # Use 0.7 (70%) so each tree sees ~13 features, maintaining decorrelation while
-        # preserving access to the new physics-informed interaction columns.
-        rf_model = RandomForestRegressor(
-            n_estimators=600, max_depth=None, min_samples_split=3,
-            min_samples_leaf=2, max_features=0.7, random_state=42, n_jobs=-1
-        )
-        rf_model.fit(X_train, y_train)
+        # ── 2. Random Forest (with HPO) ──────────────────────────────────────────────────
+        print("Running HPO for Random Forest...")
+        rf_base = RandomForestRegressor(random_state=42, n_jobs=-1)
+        rf_param_dist = {
+            'n_estimators': [200, 400, 600],
+            'max_depth': [10, 20, None],
+            'min_samples_split': [2, 5],
+            'max_features': [0.5, 0.7, 'sqrt']
+        }
+        rf_search = RandomizedSearchCV(rf_base, param_distributions=rf_param_dist, 
+                                       n_iter=5, cv=3, scoring='neg_mean_absolute_error', 
+                                       random_state=42, n_jobs=-1)
+        rf_search.fit(X_train, y_train)
+        rf_model = rf_search.best_estimator_
         self._save_model_and_metrics("RandomForest", rf_model, X_train, y_train, X_test, y_test)
 
-        # ── 3. XGBoost (primary model) ────────────────────────────────────────
-        # With 19 features, colsample_bytree=0.95 ensures each tree sees ~18 of the
-        # engineered features (vs 0.85 → 16), preserving the interaction feature coverage.
-        # Shallower depth=5 with strong L2 (lambda=2) prevents overfitting in the
-        # higher-dimensional feature space.
-        xgb_model = xgb.XGBRegressor(
-            n_estimators=1500, learning_rate=0.02, max_depth=5,
-            subsample=0.85, colsample_bytree=0.95,
-            reg_alpha=0.05, reg_lambda=2.0,
-            min_child_weight=3, gamma=0.03,
-            random_state=42, n_jobs=-1,
-            verbosity=0
-        )
-        xgb_model.fit(X_train, y_train,
-                      eval_set=[(X_test, y_test)],
-                      verbose=False)
+        # ── 3. XGBoost (with HPO) ────────────────────────────────────────
+        print("Running HPO for XGBoost...")
+        xgb_base = xgb.XGBRegressor(random_state=42, n_jobs=-1, verbosity=0)
+        xgb_param_dist = {
+            'n_estimators': [500, 1000, 1500],
+            'learning_rate': [0.01, 0.05, 0.1],
+            'max_depth': [3, 5, 7],
+            'colsample_bytree': [0.8, 0.95],
+            'reg_lambda': [1.0, 2.0]
+        }
+        xgb_search = RandomizedSearchCV(xgb_base, param_distributions=xgb_param_dist,
+                                        n_iter=5, cv=3, scoring='neg_mean_absolute_error',
+                                        random_state=42, n_jobs=-1)
+        xgb_search.fit(X_train, y_train)
+        xgb_model = xgb_search.best_estimator_
         self._save_model_and_metrics("XGBoost", xgb_model, X_train, y_train, X_test, y_test)
+        
+        # ── 4. Stacked Generalization ────────────────────────────────────────
+        print("Training Stacked Ensemble...")
+        stacking_regressor = StackingRegressor(
+            estimators=[
+                ('xgb', xgb_model),
+                ('rf', rf_model),
+                ('ridge', ridge_pipeline)
+            ],
+            final_estimator=Ridge(alpha=10.0),
+            cv=3,
+            n_jobs=-1
+        )
+        stacking_regressor.fit(X_train, y_train)
+        self._save_model_and_metrics("StackedEnsemble", stacking_regressor, X_train, y_train, X_test, y_test)
 
         # Persist model version so load_models() can detect stale files
         version_path = os.path.join(self.model_dir, "model_version.txt")
@@ -441,35 +460,69 @@ class MLEngine:
 
         pred = model.predict(X)[0]
 
+        # Uncertainty Quantification (90% Confidence Interval)
+        uncertainty_ci = 0.0
+        if model_type == "RandomForest":
+            preds_per_tree = [tree.predict(X.values)[0] for tree in model.estimators_]
+            uncertainty_ci = float(np.std(preds_per_tree) * 1.645)
+        elif model_type == "StackedEnsemble":
+            base_preds = [
+                model.named_estimators_['xgb'].predict(X)[0],
+                model.named_estimators_['rf'].predict(X)[0],
+                model.named_estimators_['ridge'].predict(X)[0]
+            ]
+            uncertainty_ci = float(np.std(base_preds) * 1.645)
+
         # 3. Approximate prediction band based on MAE × 1.96.
-        # NOTE: This is NOT a formal 95% confidence interval (which requires RMSE, not MAE, and
-        # assumes Gaussian residuals). It is a heuristic ±band useful for communicating uncertainty.
-        # For calibrated intervals see: Khosravi et al. (2011) IEEE TNNLS; ASHRAE RP-1770.
         metrics = self.metrics.get(model_type, {})
         mae = metrics.get('mae', 5.0)
         interval = round(mae * 1.96, 2)
         prediction_interval = [round(float(pred) - interval, 2), round(float(pred) + interval, 2)]
 
-        # Get SHAP values (uses the full engineered feature set)
+        # Get SHAP values and Interactions
         shap_dict = {}
-        if model_type in ["XGBoost", "RandomForest"]:
-            try:
-                if self.explainers.get(model_type) is None:
-                    self.explainers[model_type] = shap.TreeExplainer(model)
-                shap_values = self.explainers[model_type].shap_values(X)
+        shap_interactions = []
+        try:
+            exp_model_type = "XGBoost" if model_type == "StackedEnsemble" else model_type
+            if exp_model_type in ["XGBoost", "RandomForest"]:
+                exp_model = model.named_estimators_['xgb'] if model_type == "StackedEnsemble" else model
+                if self.explainers.get(exp_model_type) is None:
+                    self.explainers[exp_model_type] = shap.TreeExplainer(exp_model)
+                explainer = self.explainers[exp_model_type]
+                
+                # Marginal SHAP
+                shap_values = explainer.shap_values(X)
                 sv = shap_values[0] if isinstance(shap_values, list) else shap_values[0]
                 shap_dict = dict(zip(ENGINEERED_FEATURES, sv.tolist()))
-            except Exception:
-                pass
+                
+                # SHAP Interactions
+                if hasattr(explainer, "shap_interaction_values"):
+                    interaction_vals = explainer.shap_interaction_values(X)
+                    iv = interaction_vals[0] if isinstance(interaction_vals, list) else interaction_vals[0]
+                    
+                    interactions = []
+                    for i in range(len(ENGINEERED_FEATURES)):
+                        for j in range(i+1, len(ENGINEERED_FEATURES)):
+                            impact = float(iv[i][j] * 2)
+                            if abs(impact) > 0.05:
+                                interactions.append({
+                                    "pair": f"{ENGINEERED_FEATURES[i]} × {ENGINEERED_FEATURES[j]}",
+                                    "impact": impact
+                                })
+                    interactions.sort(key=lambda x: abs(x["impact"]), reverse=True)
+                    shap_interactions = interactions[:3]
+        except Exception as e:
+            print(f"SHAP explainer failed: {e}")
 
         # Build enriched model metrics with dynamic metadata
         metrics = self.metrics.get(model_type, {})
         enriched_metrics = metrics.copy()
         enriched_metrics["algorithm"] = model_type
-        enriched_metrics["depth"] = 5 if model_type == "XGBoost" else (None if model_type == "RandomForest" else None)
-        enriched_metrics["estimators"] = 1500 if model_type == "XGBoost" else (600 if model_type == "RandomForest" else None)
-        enriched_metrics["alpha"] = 5.0 if model_type == "RidgeRegression" else None
+        enriched_metrics["depth"] = None
+        enriched_metrics["estimators"] = None
+        enriched_metrics["alpha"] = None
         enriched_metrics["rmse"] = metrics.get("rmse")
+        enriched_metrics["uncertainty_ci"] = round(uncertainty_ci, 2) if uncertainty_ci > 0 else None
         enriched_metrics["feature_count"] = len(ENGINEERED_FEATURES)
         enriched_metrics["training_samples"] = self.get_training_samples_count()
 
@@ -477,6 +530,7 @@ class MLEngine:
             "predicted_eui": float(pred),
             "prediction_interval": prediction_interval,
             "shap_values": shap_dict,
+            "shap_interactions": shap_interactions,
             "adjusted_solrad": float(X['solrad'].iloc[0]),
             "model_metrics": enriched_metrics,
             "low_confidence": is_anomalous

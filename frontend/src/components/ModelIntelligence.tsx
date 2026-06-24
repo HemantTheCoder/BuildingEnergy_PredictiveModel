@@ -181,6 +181,26 @@ export default function ModelIntelligence({ results }: { results: any }) {
                             })}
                         </div>
                     )}
+                    
+                    {/* SHAP Interactions (Advanced) */}
+                    {results?.evidence_panel?.shap_interactions && results.evidence_panel.shap_interactions.length > 0 && (
+                        <div className="pt-6 border-t border-slate-100">
+                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] mb-4">Thermodynamic Interactions (Top Pairs)</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {results.evidence_panel.shap_interactions.map((interaction: any, idx: number) => (
+                                    <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
+                                        <span className="text-xs font-bold text-slate-700 leading-tight mb-2">{interaction.pair}</span>
+                                        <div className="flex items-end justify-between">
+                                            <span className="text-[9px] text-slate-500 font-medium">Interaction Impact</span>
+                                            <span className={cn("text-lg font-black tracking-tighter", interaction.impact > 0 ? "text-accent" : "text-secondary")}>
+                                                {interaction.impact > 0 ? '+' : ''}{interaction.impact.toFixed(2)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar */}

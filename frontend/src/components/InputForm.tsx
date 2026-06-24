@@ -415,13 +415,15 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Simulation Model</label>
                             <select
-                                className="w-full glass-input h-12"
+                                name="model_type"
                                 value={formData.model_type}
                                 onChange={(e) => setFormData({ ...formData, model_type: e.target.value })}
+                                className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl focus:ring-secondary focus:border-secondary transition-all px-4 py-3 appearance-none font-bold"
                             >
                                 <option value="XGBoost">XGBoost API</option>
-                                <option value="RandomForest">Random Forest API</option>
+                                <option value="RandomForest">Random Forest</option>
                                 <option value="RidgeRegression">Ridge Regression</option>
+                                <option value="StackedEnsemble">Stacked Ensemble (XGB+RF+Ridge)</option>
                             </select>
                         </div>
                     )}
