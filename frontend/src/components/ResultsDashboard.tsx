@@ -193,9 +193,21 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
         return (material_sources?.wall?.carbon || 0) + (material_sources?.roof?.carbon || 0) + (material_sources?.glazing?.carbon || 0);
     }
 
+    // Dynamic BEE Star Rating thresholds by archetype and climate zone
+    // Source: BEE (2020) Star Rating for Commercial Buildings; ECBC 2017 §6
+    const BEE_STAR_THRESHOLDS: Record<string, Record<string, {s5: number; s4: number; s3: number}>> = {
+        office_small:  { 'Hot-Dry': {s5:75, s4:100, s3:130}, 'Warm-Humid': {s5:70, s4:95, s3:120}, 'Composite': {s5:75, s4:100, s3:125}, 'Temperate': {s5:55, s4:75, s3:95}, 'Cold': {s5:50, s4:70, s3:90} },
+        office_medium: { 'Hot-Dry': {s5:85, s4:110, s3:140}, 'Warm-Humid': {s5:80, s4:105, s3:130}, 'Composite': {s5:85, s4:110, s3:135}, 'Temperate': {s5:65, s4:85, s3:105}, 'Cold': {s5:60, s4:80, s3:100} },
+        retail:        { 'Hot-Dry': {s5:90, s4:120, s3:155}, 'Warm-Humid': {s5:85, s4:115, s3:145}, 'Composite': {s5:90, s4:120, s3:150}, 'Temperate': {s5:70, s4:95, s3:120}, 'Cold': {s5:65, s4:90, s3:115} },
+        healthcare:    { 'Hot-Dry': {s5:150, s4:190, s3:230}, 'Warm-Humid': {s5:140, s4:180, s3:220}, 'Composite': {s5:145, s4:185, s3:225}, 'Temperate': {s5:110, s4:145, s3:180}, 'Cold': {s5:100, s4:135, s3:170} },
+    };
+    const ecbcZone = ecbc_compliance?.climate_zone || 'Composite';
+    const archKey = formData?.archetype || 'office_small';
+    const starBands = BEE_STAR_THRESHOLDS[archKey]?.[ecbcZone] || BEE_STAR_THRESHOLDS['office_small']['Composite'];
+
     const getEUIColor = (eui: number) => {
-        if (eui < 80) return "text-emerald-600";
-        if (eui < 130) return "text-amber-500";
+        if (eui < starBands.s4) return "text-emerald-600";
+        if (eui < starBands.s3) return "text-amber-500";
         return "text-orange-600";
     };
 
@@ -296,12 +308,12 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             </div>
                             
                             
-                            {/* Color Legend — BEE Star Rating reference */}
+                            {/* Color Legend — BEE Star Rating reference (dynamic per archetype + zone) */}
                             <div className="flex flex-wrap items-center gap-3 mt-1 pb-2">
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 4–5★ (&lt;80)</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 2–3★ (80–130)</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-600" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE &lt;2★ (&gt;130)</span></div>
-                                <span className="citation-badge ml-auto">BEE Star Rating 2020</span>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 4–5★ (&lt;{starBands.s4})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE 2–3★ ({starBands.s4}–{starBands.s3})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-600" /><span className="text-[10px] font-bold text-slate-500 uppercase">BEE &lt;2★ (&gt;{starBands.s3})</span></div>
+                                <span className="citation-badge ml-auto">BEE Star Rating 2020 · {ecbcZone}</span>
                             </div>
 
                             {/* Operational CO₂ Intensity Strip */}
@@ -441,7 +453,11 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         {thermal_comfort?.status || "Neutral"}
                                     </span>
                                 </div>
+                                <span className="text-[9px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 inline-block mt-1">
+                                    ★ Envelope proxy — not full ISO 7730 PMV
+                                </span>
                             </div>
+
                             <div className="relative h-6 flex items-center">
                                 <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent rounded-full h-1 opacity-20" />
                                 <motion.div 
@@ -926,14 +942,15 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </div>
 
                                     <div className="p-6 rounded-xl border border-slate-200 bg-slate-50">
-                                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">2. Deterministic Plug Loads</div>
+                                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">2. Deterministic Plug Loads + Occupant Metabolic</div>
                                         <div className="font-mono text-sm text-slate-800 bg-white p-4 border border-slate-200 rounded-lg shadow-sm">
-                                            PlugEUI = <span className="text-slate-500">(W/m² × Hours/wk × 52) / 1000</span><br/>
+                                            PlugEUI = <span className="text-slate-500">(W/m² × hrs/wk × 52) / 1000</span><br/>
+                                            OccEUI = <span className="text-slate-500">(75W × ρ_occ × hrs/wk × 52) / (1000 × COP)</span><br/>
                                             <br/>
-                                            <span className="text-primary font-bold">Final EUI = ScaledThermal + PlugEUI</span>
+                                            <span className="text-primary font-bold">EUI_final = EUI_thermal × (t/50) + PlugEUI + OccEUI</span>
                                         </div>
                                         <p className="text-xs text-slate-500 mt-4 leading-relaxed">
-                                            Unlike thermal dynamics, equipment electrical loads are purely deterministic. We calculate the exact kWh consumed by computers, lighting, and machinery over a year and add it directly to the scaled thermal prediction.
+                                            Plug loads are deterministic (W/m² × schedule). Occupant metabolic heat (75 W/person per ISO 7730:2005) adds to HVAC cooling demand, scaled by occupancy density and COP. This is the novel hybrid equation combining ML thermal prediction with physics-based internal loads.
                                         </p>
                                     </div>
                                 </div>

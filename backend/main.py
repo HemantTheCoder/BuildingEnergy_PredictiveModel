@@ -111,7 +111,8 @@ class LoginRequest(BaseModel):
 
 @app.post("/admin/login")
 def admin_login(payload: LoginRequest):
-    if payload.password == "banhae":
+    _admin_pass = os.environ.get("ADMIN_PASSWORD", "banhae")
+    if payload.password == _admin_pass:
         return {"status": "success", "token": "admin_session_active"}
     raise HTTPException(status_code=401, detail="Unauthorized - Invalid Password")
 
@@ -411,7 +412,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                         </div>
                         <div>
                             <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">Source Database</span>
-                            <span class="text-md font-bold text-slate-800" id="dataset-count-lbl">1504 samples</span>
+                            <span class="text-md font-bold text-slate-800" id="dataset-count-lbl">25015 samples</span>
                         </div>
                     </div>
                 </div>
@@ -681,11 +682,11 @@ DASHBOARD_JS = """
                             <td colspan="6" class="py-8 text-center text-slate-400 italic">No telemetry logs found. Run simulator to populate.</td>
                         </tr>
                     `;
-                    document.getElementById("dataset-count-lbl").innerText = "2215 samples";
+                    document.getElementById("dataset-count-lbl").innerText = "25015 samples";
                     return;
                 }
 
-                document.getElementById("dataset-count-lbl").innerText = (2215 + data.length) + " samples";
+                document.getElementById("dataset-count-lbl").innerText = (25015 + data.length) + " samples";
 
                 data.forEach((log) => {
                     const row = document.createElement("tr");
@@ -1116,6 +1117,11 @@ def predict(request: PredictRequest):
         climate["peak_summer_temp"] = round(max(climate.get("monthly_temps") or [30.0]), 1)
     
     # Add EUI threshold and pass/fail to compliance dict
+    # EUI performance-path equivalents — derived from BEE Star Rating Programme (2020)
+    # and ECBC 2017 §6 whole-building performance compliance path.
+    # These are NOT direct table values from ECBC 2017 prescriptive path; they represent
+    # the estimated whole-building EUI consistent with BEE 3-4★ performance for each zone.
+    # Sources: BEE (2020) Star Rating for Commercial Buildings; ECBC 2017 §6; BEE (2014) Table 3.1.
     ecbc_eui_thresholds = {
         "office_small":  {"Hot-Dry": 120, "Warm-Humid": 110, "Composite": 105, "Temperate": 85,  "Cold": 75},
         "office_medium": {"Hot-Dry": 130, "Warm-Humid": 120, "Composite": 115, "Temperate": 95,  "Cold": 85},
@@ -1185,6 +1191,75 @@ def optimize_endpoint(request: PredictRequest):
         return sanitize_for_json(results)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class CompareRequest(BaseModel):
+    city_a: str
+    city_b: str
+    archetype: str
+    floor_area_m2: float
+    wwr: float
+    hvac_type: str
+    operating_hours: Optional[float] = 50.0
+    occupancy_density: Optional[float] = 0.1
+    equipment_load: Optional[float] = 10.0
+    orientation: Optional[str] = "South"
+    model_type: Optional[str] = "XGBoost"
+
+@app.post("/compare")
+def compare_cities(request: CompareRequest):
+    """
+    Runs two identical building simulations for different cities and returns
+    a side-by-side comparison — designed for research paper city-comparison analysis.
+    """
+    results = {}
+    for label, city in [("city_a", request.city_a), ("city_b", request.city_b)]:
+        pred_req = PredictRequest(
+            city=city,
+            archetype=request.archetype,
+            floor_area_m2=request.floor_area_m2,
+            wwr=request.wwr,
+            hvac_type=request.hvac_type,
+            operating_hours=request.operating_hours,
+            occupancy_density=request.occupancy_density,
+            equipment_load=request.equipment_load,
+            orientation=request.orientation,
+            model_type=request.model_type,
+        )
+        results[label] = predict(pred_req)
+    
+    # Compute delta metrics
+    eui_a = results["city_a"]["predicted_eui"]
+    eui_b = results["city_b"]["predicted_eui"]
+    co2_a = results["city_a"]["co2_intensity_kg_m2_yr"]
+    co2_b = results["city_b"]["co2_intensity_kg_m2_yr"]
+    savings_a = results["city_a"]["annual_savings_inr"]
+    savings_b = results["city_b"]["annual_savings_inr"]
+    
+    delta = {
+        "eui_diff": round(eui_a - eui_b, 2),
+        "eui_pct_diff": round(((eui_a - eui_b) / max(eui_b, 1)) * 100, 1),
+        "co2_diff_kg_m2": round(co2_a - co2_b, 2),
+        "savings_diff_inr": round(savings_a - savings_b, 0),
+        "higher_eui_city": request.city_a if eui_a >= eui_b else request.city_b,
+        "lower_eui_city": request.city_b if eui_a >= eui_b else request.city_a,
+        "climate_zone_a": results["city_a"].get("ecbc_compliance", {}).get("climate_zone", "—"),
+        "climate_zone_b": results["city_b"].get("ecbc_compliance", {}).get("climate_zone", "—"),
+    }
+    
+    return sanitize_for_json({
+        "city_a": {"name": request.city_a, **results["city_a"]},
+        "city_b": {"name": request.city_b, **results["city_b"]},
+        "delta": delta,
+        "building_config": {
+            "archetype": request.archetype,
+            "floor_area_m2": request.floor_area_m2,
+            "wwr": request.wwr,
+            "hvac_type": request.hvac_type,
+            "operating_hours": request.operating_hours,
+            "model_type": request.model_type
+        }
+    })
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)

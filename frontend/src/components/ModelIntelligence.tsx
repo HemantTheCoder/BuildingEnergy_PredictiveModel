@@ -61,10 +61,16 @@ export default function ModelIntelligence({ results }: { results: any }) {
     const depth = metrics.depth !== undefined && metrics.depth !== null ? String(metrics.depth) : "N/A";
     const estimators = metrics.estimators !== undefined && metrics.estimators !== null ? String(metrics.estimators) : "N/A";
     const alpha = metrics.alpha !== undefined && metrics.alpha !== null ? String(metrics.alpha) : "N/A";
-    const trainingSamples = metrics.training_samples || 1504;
-    const r2 = results?.model_metrics?.r2 || 0;
-    const mae = results?.model_metrics?.mae || 0;
-    const rmse = results?.model_metrics?.rmse || 0;
+    const trainingSamples = metrics.training_samples || 25015;
+    const r2 = metrics.r2 || 0;
+    const mae = metrics.mae || 0;
+    const rmse = metrics.rmse || 0;
+    // 5-fold CV stats (available after model re-trains with new code)
+    const cvR2Mean  = metrics.cv_r2_mean;
+    const cvR2Std   = metrics.cv_r2_std;
+    const cvMaeMean = metrics.cv_mae_mean;
+    const cvMaeStd  = metrics.cv_mae_std;
+    const hasCv = cvR2Mean !== undefined && cvR2Mean !== null;
 
     return (
         <div className="space-y-12">
@@ -79,9 +85,11 @@ export default function ModelIntelligence({ results }: { results: any }) {
                     </p>
                 </div>
                 <div className="flex gap-4 flex-wrap">
-                    <MetricPill label="R² Score" value={r2 > 0 ? r2.toFixed(3) : "—"} note="Goodness of fit" good={r2 > 0.80} />
-                    <MetricPill label="MAE" value={mae > 0 ? mae.toFixed(1) : "—"} unit="kWh/m²·yr" note="Mean abs. error" good={mae < 8} />
-                    {rmse > 0 && <MetricPill label="RMSE" value={rmse.toFixed(1)} unit="kWh/m²·yr" note="Root mean sq. error" good={rmse < 12} />}
+                    <MetricPill label="R² Score" value={r2 > 0 ? r2.toFixed(3) : "—"} note="Test-set goodness of fit" good={r2 > 0.80} />
+                    <MetricPill label="MAE" value={mae > 0 ? mae.toFixed(1) : "—"} unit="kWh/m²·yr" note="Test-set mean abs. error" good={mae < 8} />
+                    {rmse > 0 && <MetricPill label="RMSE" value={rmse.toFixed(1)} unit="kWh/m²·yr" note="Test-set RMSE" good={rmse < 12} />}
+                    {hasCv && <MetricPill label="CV-5 R²" value={`${cvR2Mean!.toFixed(3)}±${cvR2Std!.toFixed(3)}`} note="5-fold cross-val (mean±std)" good={(cvR2Mean || 0) > 0.80} />}
+                    {hasCv && <MetricPill label="CV-5 MAE" value={`${cvMaeMean!.toFixed(1)}±${cvMaeStd!.toFixed(1)}`} unit="kWh/m²·yr" note="5-fold CV MAE (mean±std)" good={(cvMaeMean || 99) < 10} />}
                 </div>
             </div>
 

@@ -73,23 +73,29 @@ class MLEngine:
     def _derive_climate_code(cdd: float, hdd: float, solrad: float) -> int:
         """
         Ordinal encoding of ECBC 2017 climate zone derived from continuous climate variables.
-        Thresholds adapted from BEE ECBC 2017, Annexure 1 (city-wise climate classification).
-          0 = Cold         (high HDD, low CDD — Shimla, Leh, Manali)
-          1 = Temperate    (moderate — Bangalore, Pune)
-          2 = Composite    (mixed — Delhi, Jaipur, Lucknow)
-          3 = Warm-Humid   (coastal, humid — Mumbai, Chennai, Kolkata)
-          4 = Hot-Dry      (arid, extreme solar — Ahmedabad, Jodhpur, Nagpur)
+        Thresholds unified with main.py zone classifier — based on NBC 2016 Part 8 §3.1
+        and BEE ECBC 2017 §3.1 five-zone classification:
+          0 = Cold         (HDD > 1200 — Shimla, Leh, Manali)
+          1 = Temperate    (CDD ≤ 1200 AND HDD ≤ 1200 — Bangalore, Pune)
+          2 = Composite    (else — Delhi, Jaipur, Lucknow)
+          3 = Warm-Humid   (CDD ≥ 2500, GHI ≤ 5.5 — Mumbai, Chennai, Kolkata)
+          4 = Hot-Dry      (CDD ≥ 2500 AND GHI > 5.5 — Ahmedabad, Jodhpur, Nagpur)
+
+        Boundary rule: HDD check precedes CDD check (heating-dominated is more
+        distinctive). Thresholds match the ECBC zone map in main.py and frontend
+        ResultsDashboard.tsx — do NOT change without updating all three locations.
+
         Note: 56.7% agreement with labelled data; still adds measurable R² uplift as a soft
         prior — the model can down-weight this feature if CDD/HDD already explain the zone.
         """
-        if hdd > 1000 and cdd < 500:
+        if hdd > 1200:
             return 0  # Cold
-        if cdd < 800 and hdd > 200:
+        if cdd >= 2500 and solrad > 5.5:
+            return 4  # Hot-Dry
+        if cdd >= 2500:
+            return 3  # Warm-Humid
+        if cdd <= 1200 and hdd <= 1200:
             return 1  # Temperate
-        if cdd > 2500 and hdd < 300:
-            return 4  # Hot & Dry
-        if cdd > 800 and hdd < 200:
-            return 3  # Warm & Humid
         return 2      # Composite
 
     def _engineer_features(self, X: pd.DataFrame) -> pd.DataFrame:
@@ -178,17 +184,42 @@ class MLEngine:
     def _save_model_and_metrics(self, name, model, X_train, y_train, X_test, y_test):
         # Validation metrics computed on the test set for scientific rigor
         preds = model.predict(X_test)
-        r2 = r2_score(y_test, preds)
+        r2  = r2_score(y_test, preds)
         mae = mean_absolute_error(y_test, preds)
-        
+        rmse = float(np.sqrt(np.mean((preds - y_test.values) ** 2)))
+
+        # 5-fold cross-validation on TRAINING set for stability reporting
+        from sklearn.model_selection import cross_val_score
+        try:
+            cv_r2_scores  = cross_val_score(model, X_train, y_train, cv=5, scoring='r2', n_jobs=-1)
+            cv_mae_scores = -cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_absolute_error', n_jobs=-1)
+            cv_stats = {
+                "cv_r2_mean":  float(cv_r2_scores.mean()),
+                "cv_r2_std":   float(cv_r2_scores.std()),
+                "cv_mae_mean": float(cv_mae_scores.mean()),
+                "cv_mae_std":  float(cv_mae_scores.std()),
+                "cv_folds":    5
+            }
+        except Exception as e:
+            print(f"CV failed for {name}: {e}")
+            cv_stats = {}
+
         self.models[name] = model
-        self.metrics[name] = {"r2": float(r2), "mae": float(mae)}
-        
+        self.metrics[name] = {
+            "r2":   float(r2),
+            "mae":  float(mae),
+            "rmse": float(rmse),
+            **cv_stats
+        }
+
         joblib.dump(model, os.path.join(self.model_dir, f"{name}.joblib"))
         with open(os.path.join(self.model_dir, f"{name}_metrics.json"), 'w') as f:
             json.dump(self.metrics[name], f)
-        
-        print(f"Model '{name}' trained on physics-calibrated surrogate + published benchmarks. R²={r2:.4f}, MAE={mae:.2f} kWh/m²·yr")
+
+        cv_summary = ""
+        if cv_stats:
+            cv_summary = f" | CV-5 R²={cv_stats['cv_r2_mean']:.4f}±{cv_stats['cv_r2_std']:.4f}, MAE={cv_stats['cv_mae_mean']:.2f}±{cv_stats['cv_mae_std']:.2f}"
+        print(f"Model '{name}' trained. R²={r2:.4f}, MAE={mae:.2f}, RMSE={rmse:.2f} kWh/m²·yr{cv_summary}")
 
     def load_models(self):
         # Version gate — stale model files (trained without the new engineered features)
@@ -435,9 +466,10 @@ class MLEngine:
         metrics = self.metrics.get(model_type, {})
         enriched_metrics = metrics.copy()
         enriched_metrics["algorithm"] = model_type
-        enriched_metrics["depth"] = 6 if model_type == "XGBoost" else (None if model_type == "RandomForest" else None)
+        enriched_metrics["depth"] = 5 if model_type == "XGBoost" else (None if model_type == "RandomForest" else None)
         enriched_metrics["estimators"] = 1500 if model_type == "XGBoost" else (600 if model_type == "RandomForest" else None)
         enriched_metrics["alpha"] = 5.0 if model_type == "RidgeRegression" else None
+        enriched_metrics["rmse"] = metrics.get("rmse")
         enriched_metrics["feature_count"] = len(ENGINEERED_FEATURES)
         enriched_metrics["training_samples"] = self.get_training_samples_count()
 

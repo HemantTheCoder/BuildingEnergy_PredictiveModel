@@ -8,6 +8,7 @@ import {
   BookOpen,
   RefreshCw,
   WifiOff,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from './lib/utils';
@@ -18,13 +19,14 @@ import ModelIntelligence from './components/ModelIntelligence';
 import KnowledgeBase from './components/KnowledgeBase';
 import SplashScreen from './components/SplashScreen';
 import ResearchContext from './components/ResearchContext';
+import CityComparison from './components/CityComparison';
 
 
 export default function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [materials, setMaterials] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'simulator' | 'materials' | 'intelligence' | 'learn'>('simulator');
+  const [activeTab, setActiveTab] = useState<'simulator' | 'compare' | 'materials' | 'intelligence' | 'learn'>('simulator');
   const [error, setError] = useState<string | null>(null);
   const [showSplash, setShowSplash] = useState(true);
 
@@ -110,6 +112,7 @@ export default function App() {
 
   const tabs = [
     { id: 'simulator',   label: 'Simulator',          icon: Zap },
+    { id: 'compare',     label: 'City Compare',        icon: ArrowRightLeft },
     { id: 'materials',   label: 'Material Library',    icon: Database },
     { id: 'intelligence',label: 'Model Intelligence',  icon: Cpu },
     { id: 'learn',       label: 'Learn',               icon: BookOpen },
@@ -224,6 +227,18 @@ export default function App() {
             </motion.div>
           )}
 
+          {activeTab === 'compare' && (
+            <motion.div
+              key="compare"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="w-full lg:h-full lg:min-h-0 lg:overflow-y-auto overflow-x-hidden lg:pr-2 premium-scrollbar"
+            >
+              <CityComparison />
+            </motion.div>
+          )}
+
           {activeTab === 'materials' && (
             <motion.div
               key="materials"
@@ -265,7 +280,7 @@ export default function App() {
       {/* ── Mobile bottom navigation bar ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200"
            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="grid grid-cols-4 h-16">
+        <div className="grid grid-cols-5 h-16">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;

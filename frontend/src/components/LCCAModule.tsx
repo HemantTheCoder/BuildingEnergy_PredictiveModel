@@ -90,7 +90,12 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
                         30-Year Lifecycle Cost Analysis (LCCA)
                     </h3>
                     <p className="text-xs text-slate-500 mt-1">Cumulative Net Present Value (NPV) vs ECBC Baseline</p>
+                    <p className="text-[10px] text-amber-600 font-semibold mt-0.5 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+                        Cost values are relative comparison indices, not absolute construction estimates (CPWD 2024).
+                    </p>
                 </div>
+
                 {lccaData.paybackYear ? (
                     <div className="text-right">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Payback Period</div>
