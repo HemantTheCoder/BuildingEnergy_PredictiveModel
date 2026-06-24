@@ -1204,6 +1204,8 @@ class CompareRequest(BaseModel):
     equipment_load: Optional[float] = 10.0
     orientation: Optional[str] = "South"
     model_type: Optional[str] = "XGBoost"
+    climate_overrides_a: Optional[Dict[str, Any]] = None
+    climate_overrides_b: Optional[Dict[str, Any]] = None
 
 @app.post("/compare")
 def compare_cities(request: CompareRequest):
@@ -1224,6 +1226,7 @@ def compare_cities(request: CompareRequest):
             equipment_load=request.equipment_load,
             orientation=request.orientation,
             model_type=request.model_type,
+            climate_overrides=request.climate_overrides_a if label == "city_a" else request.climate_overrides_b,
         )
         results[label] = predict(pred_req)
     

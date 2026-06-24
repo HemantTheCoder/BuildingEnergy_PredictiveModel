@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
     MapPin, Zap, Leaf, TrendingDown, TrendingUp, BarChart3, Download,
     ArrowRightLeft, CheckCircle2, AlertTriangle, Info, Globe, Activity,
-    ShieldCheck, Calculator, RefreshCw, Scale,
+    ShieldCheck, Calculator, RefreshCw, Scale, Upload
 } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -120,6 +120,10 @@ export default function CityComparison() {
     const [eqLoad, setEqLoad] = useState(10.0);
     const [orientation, setOrientation] = useState('South');
     const [modelType, setModelType] = useState('XGBoost');
+    const [climateOverridesA, setClimateOverridesA] = useState<any>(null);
+    const [climateOverridesB, setClimateOverridesB] = useState<any>(null);
+    const [epwNameA, setEpwNameA] = useState<string | null>(null);
+    const [epwNameB, setEpwNameB] = useState<string | null>(null);
 
     /* Result + status state */
     const [loading, setLoading] = useState(false);
@@ -142,10 +146,42 @@ export default function CityComparison() {
                 equipment_load: eqLoad,
                 orientation,
                 model_type: modelType,
+                climate_overrides_a: climateOverridesA,
+                climate_overrides_b: climateOverridesB,
             });
             setResult(res.data);
         } catch (e: any) {
             const msg = e.response?.data?.detail || e.message || 'Comparison failed.';
+            setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFileUpload = async (file: File, isCityA: boolean) => {
+        if (!file.name.endsWith('.epw')) {
+            setError("Must be an .epw file.");
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await api.post('/upload_epw', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (isCityA) {
+                setClimateOverridesA(res.data);
+                setEpwNameA(file.name);
+                setCityA(file.name.replace('.epw', ' (EPW)'));
+            } else {
+                setClimateOverridesB(res.data);
+                setEpwNameB(file.name);
+                setCityB(file.name.replace('.epw', ' (EPW)'));
+            }
+        } catch (e: any) {
+            const msg = e.response?.data?.detail || e.message || 'Failed to parse EPW.';
             setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
         } finally {
             setLoading(false);
@@ -214,7 +250,8 @@ export default function CityComparison() {
             ['ML Model', modelType, '(same)', ''],
             ['', '', '', ''],
             ['Sources', '', '', ''],
-            ['Climate Data', 'NASA POWER API (Climatology)', '', ''],
+            ['Climate Data (City A)', epwNameA ? `Uploaded EPW: ${epwNameA}` : 'NASA POWER API (Climatology)', '', ''],
+            ['Climate Data (City B)', epwNameB ? `Uploaded EPW: ${epwNameB}` : 'NASA POWER API (Climatology)', '', ''],
             ['ECBC Compliance', 'BEE ECBC 2017 Tables 5.3-5.5', '', ''],
             ['CO₂ Factor', 'CEA 2022 — 0.82 kgCO₂/kWh', '', ''],
             ['BEE Star Rating', 'BEE (2020) Star Rating Programme', '', ''],
@@ -259,20 +296,38 @@ export default function CityComparison() {
                 {/* City selectors */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {[
-                        { label: 'City A', value: cityA, set: setCityA, color: 'border-primary/40 bg-primary/5' },
-                        { label: 'City B', value: cityB, set: setCityB, color: 'border-secondary/40 bg-secondary/5' },
-                    ].map(({ label, value, set, color }) => (
-                        <div key={label} className={cn("p-4 rounded-xl border-2", color)}>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">{label}</label>
-                            <div className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                                <input
-                                    type="text"
-                                    value={value}
-                                    onChange={e => set(e.target.value)}
-                                    className="flex-1 glass-input py-2 text-sm font-semibold"
-                                    placeholder="e.g. Mumbai, India"
-                                />
+                        { label: 'City A', value: cityA, set: setCityA, color: 'border-primary/40 bg-primary/5', epwName: epwNameA, isA: true },
+                        { label: 'City B', value: cityB, set: setCityB, color: 'border-secondary/40 bg-secondary/5', epwName: epwNameB, isA: false },
+                    ].map(({ label, value, set, color, epwName, isA }) => (
+                        <div key={label} className={cn("p-4 rounded-xl border-2 flex flex-col justify-between", color)}>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">{label}</label>
+                                    {epwName && <span className="text-[9px] font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">EPW LOADED</span>}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                                    <input
+                                        type="text"
+                                        value={value}
+                                        onChange={e => {
+                                            set(e.target.value);
+                                            if (isA) { setEpwNameA(null); setClimateOverridesA(null); }
+                                            else { setEpwNameB(null); setClimateOverridesB(null); }
+                                        }}
+                                        className="flex-1 glass-input py-2 text-sm font-semibold"
+                                        placeholder="e.g. Mumbai, India"
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-slate-200/50 flex justify-end">
+                                <label className="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors">
+                                    <Upload className="w-3.5 h-3.5" />
+                                    {epwName ? 'Replace EPW' : 'Upload .epw'}
+                                    <input type="file" accept=".epw" className="hidden" onChange={e => {
+                                        if (e.target.files && e.target.files[0]) handleFileUpload(e.target.files[0], isA);
+                                    }} />
+                                </label>
                             </div>
                         </div>
                     ))}
