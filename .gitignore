@@ -60,5 +60,4 @@ Thumbs.db
 
 # Model logs
 backend/data/models/prediction_logs*.jsonl
-backend/data/models/*.joblib
- 
+# backend/data/models/*.joblib
