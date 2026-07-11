@@ -29,18 +29,28 @@ class EPWParser:
         temperatures = []
         global_radiation_whm2 = []
         
+        last_valid_temp = 20.0 # Fallback
+        
         for line in data_lines:
             cols = line.split(',')
             try:
-                # Column 6 is Dry Bulb Temperature (C)
+                # Column 6 is Dry Bulb Temperature (C). EPW missing is 99.9
                 temp = float(cols[6])
+                if temp >= 99.9:
+                    temp = last_valid_temp
+                else:
+                    last_valid_temp = temp
                 temperatures.append(temp)
                 
-                # Column 13 is Global Horizontal Radiation (Wh/m2)
+                # Column 13 is Global Horizontal Radiation (Wh/m2). EPW missing is 9999
                 rad = float(cols[13])
+                if rad >= 9999.0:
+                    rad = 0.0 # Better to assume 0 than 9999 Wh/m2
                 global_radiation_whm2.append(rad)
             except (ValueError, IndexError):
-                continue
+                # Maintain array alignment for 8760 hour monthly slicing
+                temperatures.append(last_valid_temp)
+                global_radiation_whm2.append(0.0)
                 
         if not temperatures:
             raise ValueError("Failed to extract temperature data from EPW.")
