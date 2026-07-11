@@ -98,6 +98,7 @@ class EPWParser:
         climate_data = {
             "city": location_name,
             "annual_mean_temp": round(annual_mean_temp, 2),
+            "peak_summer_temp": round(max(temperatures), 1) if temperatures else 30.0,
             "annual_solrad": round(annual_solrad, 2),
             "cdd": round(cdd, 2),
             "hdd": round(hdd, 2),

@@ -1115,7 +1115,7 @@ def predict(request: PredictRequest):
     if climate is not None:
         climate["climate_zone"]     = ecbc_zone
         climate["location"]         = request.city
-        climate["peak_summer_temp"] = round(max(climate.get("monthly_temps") or [30.0]), 1)
+        climate["peak_summer_temp"] = climate.get("peak_summer_temp", round(max(climate.get("monthly_temps") or [30.0]), 1))
     
     # Add EUI threshold and pass/fail to compliance dict
     # EUI performance-path equivalents — derived from BEE Star Rating Programme (2020)
