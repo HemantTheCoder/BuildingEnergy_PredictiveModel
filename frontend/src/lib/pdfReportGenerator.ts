@@ -13,6 +13,7 @@
  */
 
 import jsPDF from 'jspdf';
+import { validateAgainstBenchmark, getBenchmarkSummaryTable } from './benchmarkData';
 
 // ─── Brand colours ───────────────────────────────────────────────────────────
 const C = {
@@ -896,28 +897,35 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
     tornadoChart(doc, ML, y, halfW, 55, sensData);
   }
 
-  // Sensitivity importance bars on right
+  // Sensitivity importance bars on right — 8 params, tight layout
   if (sensData.length > 0) {
-    const maxRI = Math.max(...sensitivity_analysis ? Object.values(sensitivity_analysis).map((d: any) => d.relative_importance ?? 0) : [1], 1);
+    const maxRI = Math.max(...(sensitivity_analysis
+      ? Object.values(sensitivity_analysis).map((d: any) => d.relative_importance ?? 0)
+      : [1]), 1);
     doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     rgb(doc, C.navy);
     doc.text('RELATIVE IMPORTANCE RANKING', ML + halfW + 6, y);
+    const barColX = ML + halfW + 6;
+    const barMaxW = halfW - 28;           // safe column width for bars
     let ry = y + 6;
-    Object.entries(sensitivity_analysis || {}).forEach(([param, d]: [string, any]) => {
+    const sortedSens = Object.entries(sensitivity_analysis || {})
+      .sort(([, a]: any, [, b]: any) => (b.relative_importance ?? 0) - (a.relative_importance ?? 0));
+    sortedSens.forEach(([param, d]: [string, any]) => {
+      if (ry > y + 70) return;            // hard stop — don't overflow into insight box
       const ri = d.relative_importance ?? 0;
-      const bw = (ri / maxRI) * (halfW - 20);
-      doc.setFontSize(6.2);
+      const bw = clamp((ri / maxRI) * barMaxW, 1, barMaxW);
+      doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
       rgb(doc, C.black);
-      doc.text(param.replace(/_/g, ' '), ML + halfW + 6, ry + 4);
+      doc.text(param.replace(/_/g, ' '), barColX, ry + 3.5);
       fill(doc, C.teal);
-      roundRect(doc, ML + halfW + 6, ry + 5, bw, 3.5, 1, 'F');
-      doc.setFontSize(6);
+      roundRect(doc, barColX, ry + 4.5, bw, 3, 1, 'F');
+      doc.setFontSize(5.5);
       doc.setFont('helvetica', 'normal');
       rgb(doc, C.slate);
-      doc.text(`RI: ${ri.toFixed(1)}`, ML + halfW + 6 + bw + 1, ry + 7.5);
-      ry += 11;
+      doc.text(`${ri.toFixed(1)}`, barColX + bw + 1.5, ry + 7);
+      ry += 9;
     });
   }
   y += 75;
@@ -1221,7 +1229,83 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   });
   y += metricsData.length * 7 + 6;
 
-  // Data sources
+  // ── Section 10.2 Benchmark Validation ────────────────────────────────────
+  if (y + 80 > PH - 25) { doc.addPage(); y = MT; }
+  y = sectionHeader(doc, y, '10.2 External Benchmark Validation — BEE Published EUI Ranges', C.emerald);
+
+  // Intro text
+  const archLabel = (formData?.archetype ?? 'office_small').replace(/_/g, ' ');
+  const bv = validateAgainstBenchmark(
+    results?.predicted_eui ?? 0,
+    formData?.archetype ?? 'office_small',
+    results?.ecbc_compliance?.climate_zone,
+    results?.climate_summary?.cdd,
+    results?.climate_summary?.hdd,
+    results?.climate_summary?.annual_solrad,
+  );
+  const introText = `Predicted EUI of ${(results?.predicted_eui ?? 0).toFixed(1)} kWh/m²·yr for a ${archLabel} building in a ${bv.zone} climate zone is ${ bv.deviation < 0 ? Math.abs(bv.deviationPct).toFixed(1) + '% BELOW' : bv.deviationPct.toFixed(1) + '% above'} the published typical value of ${bv.range.typical} kWh/m²·yr. ECBC 2017 prescriptive baseline for this zone: ${bv.range.ecbcBaseline} kWh/m²·yr. BEE Star Rating estimate: ${bv.beeStarRating.toFixed(1)}★. Status: ${bv.statusLabel}.`;
+  doc.setFontSize(7); doc.setFont('helvetica', 'normal'); rgb(doc, C.slate);
+  const introLines = wrapText(doc, introText, CW);
+  introLines.forEach(line => { if (y < PH - 30) { doc.text(line, ML, y); y += 3.8; } });
+  y += 4;
+
+  // All-zone comparison table
+  const summaryRows = getBenchmarkSummaryTable(formData?.archetype ?? 'office_small');
+  const benchHeader = ['Climate Zone', 'Stock Min', 'Typical', 'Stock Max', 'BEE 5★', 'ECBC Baseline', 'Predicted EUI', 'Agreement'];
+  const benchColW  = [34, 20, 20, 22, 18, 28, 26, 30];
+
+  // Header row
+  let bx = ML;
+  fill(doc, C.navy); doc.rect(ML, y, CW, 7, 'F');
+  benchHeader.forEach((h, ci) => {
+    doc.setFontSize(6); doc.setFont('helvetica', 'bold'); rgb(doc, C.white);
+    doc.text(h, bx + 2, y + 4.8);
+    bx += benchColW[ci];
+  });
+  y += 7;
+
+  summaryRows.forEach(({ zone, range }, ri) => {
+    const rowEUI   = zone === bv.zone ? (results?.predicted_eui ?? 0) : null;
+    const isTarget = zone === bv.zone;
+    const bg: [number,number,number] = isTarget ? [220, 252, 231] : ri % 2 === 0 ? C.white : C.bg;
+    fill(doc, bg);
+    stroke(doc, C.border);
+    doc.setLineWidth(0.15);
+    doc.rect(ML, y, CW, 7, 'FD');
+
+    const cells = [
+      zone,
+      `${range.min}`,
+      `${range.typical}`,
+      `${range.max}`,
+      `${range.bee5star}`,
+      `${range.ecbcBaseline}`,
+      rowEUI !== null ? `${rowEUI.toFixed(1)} ◄` : '—',
+      rowEUI !== null
+        ? (rowEUI < range.min ? '✓ Excellent' : rowEUI <= range.max ? '✓ Within Range' : '⚠ Above Range')
+        : 'Reference',
+    ];
+    let cx = ML;
+    cells.forEach((cell, ci) => {
+      doc.setFontSize(6.2);
+      const isBold = ci === 0 || (isTarget && ci >= 6);
+      doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+      const cellCol: [number,number,number] = isTarget && ci === 6
+        ? (bv.deviation < 0 ? C.emerald : C.orange)
+        : isTarget && ci === 7
+        ? (bv.status === 'above_range' ? C.orange : C.teal)
+        : ci === 0 ? C.black : C.slate;
+      rgb(doc, cellCol);
+      doc.text(cell, cx + 2, y + 4.8);
+      cx += benchColW[ci];
+    });
+    y += 7;
+  });
+
+  doc.setFontSize(6); doc.setFont('helvetica', 'italic'); rgb(doc, C.slateLight);
+  doc.text('All values in kWh/m²·yr. ◄ = this building\'s predicted EUI. Sources: BEE Star Rating Programme 2020; TERI Energy Benchmarking 2019; ECBC 2017 §6; GRIHA 2022.', ML, y + 3.5);
+  y += 10;
+
   y = sectionHeader(doc, y, '11. Data Sources & References', C.slate);
   const refs = [
     '[1] Bureau of Energy Efficiency (BEE). Energy Conservation Building Code (ECBC) 2017. Ministry of Power, Govt. of India.',

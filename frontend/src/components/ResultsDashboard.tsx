@@ -28,6 +28,7 @@ import {
 import LCCAModule from './LCCAModule';
 import OptimizerModal from './OptimizerModal';
 import { generatePDFReport } from '../lib/pdfReportGenerator';
+import { validateAgainstBenchmark } from '../lib/benchmarkData';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -158,6 +159,19 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
             setPdfGenerating(false);
         }
     };
+
+    // ── Benchmark Validation ────────────────────────────────────────────────
+    const benchmarkResult = useMemo(() => {
+        if (!predicted_eui) return null;
+        return validateAgainstBenchmark(
+            predicted_eui,
+            formData?.archetype ?? 'office_small',
+            ecbc_compliance?.climate_zone,
+            climate_summary?.cdd,
+            climate_summary?.hdd,
+            climate_summary?.annual_solrad,
+        );
+    }, [predicted_eui, formData?.archetype, ecbc_compliance, climate_summary]);
 
     // Monthly climate profile (CDD / HDD per month)
     const monthlyProfile = useMemo(() => {
@@ -512,7 +526,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 )}
                             </motion.button>
                             <p className="text-[9px] text-slate-400 text-center leading-tight px-1">
-                                5-page PDF · All charts · Sensitivity · LCCA · SHAP · References
+                                6-section PDF · Benchmark Validation · Sensitivity · LCCA · SHAP
                             </p>
                             <button 
                                 onClick={() => setIsOptimizerOpen(true)}
@@ -613,6 +627,95 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                             </div>
                         </div>
+
+                        {/* ── Benchmark Validation Panel ── */}
+                        {benchmarkResult && (
+                        <div className="premium-card p-6 border-slate-200 bg-white">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wide">Benchmark Validation</span>
+                                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest"
+                                        style={{ backgroundColor: benchmarkResult.statusColor + '18', color: benchmarkResult.statusColor }}>
+                                        {benchmarkResult.statusLabel}
+                                    </span>
+                                </div>
+                                <span className="text-[10px] text-slate-400 font-medium">
+                                    BEE Star Rating 2020 · TERI 2019 · ECBC 2017 §6
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                                {/* Left — range bar */}
+                                <div className="lg:col-span-7 space-y-4">
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
+                                            <span>BEE 5★ ({benchmarkResult.range.bee5star} kWh/m²·yr)</span>
+                                            <span className="text-slate-500 font-bold">{benchmarkResult.archetype.replace('_', ' ').toUpperCase()} · {benchmarkResult.zone}</span>
+                                            <span>Stock Max ({benchmarkResult.range.max} kWh/m²·yr)</span>
+                                        </div>
+
+                                        {/* Range bar */}
+                                        <div className="relative h-7 rounded-xl overflow-hidden bg-gradient-to-r from-emerald-100 via-teal-100 to-red-100 border border-slate-200">
+                                            {/* Typical marker */}
+                                            <div
+                                                className="absolute top-0 h-full w-px bg-slate-400/60"
+                                                style={{ left: `${((benchmarkResult.range.typical - benchmarkResult.range.min) / (benchmarkResult.range.max - benchmarkResult.range.min)) * 100}%` }}
+                                            />
+                                            {/* Prediction needle */}
+                                            <motion.div
+                                                initial={{ left: '0%' }}
+                                                animate={{ left: `${Math.min(100, Math.max(0, benchmarkResult.percentile))}%` }}
+                                                transition={{ duration: 0.9, ease: 'easeOut' }}
+                                                className="absolute top-1 h-5 w-1.5 rounded-full shadow-lg -translate-x-1/2"
+                                                style={{ backgroundColor: benchmarkResult.statusColor }}
+                                            />
+                                        </div>
+
+                                        <div className="flex justify-between text-[10px] text-slate-400">
+                                            <span>Stock Min</span>
+                                            <span className="text-slate-500">▲ Typical ({benchmarkResult.range.typical})</span>
+                                            <span>Stock Max</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Annotation */}
+                                    <p className="text-xs text-slate-600 leading-relaxed border-l-2 pl-3 py-1"
+                                        style={{ borderColor: benchmarkResult.statusColor }}>
+                                        Predicted EUI of <span className="font-bold text-slate-900">{predicted_eui.toFixed(1)} kWh/m²·yr</span> is{' '}
+                                        {benchmarkResult.deviation < 0
+                                            ? <span className="text-emerald-600 font-bold">{Math.abs(benchmarkResult.deviationPct).toFixed(1)}% below</span>
+                                            : <span className="text-orange-600 font-bold">{benchmarkResult.deviationPct.toFixed(1)}% above</span>}{' '}
+                                        the published typical for {benchmarkResult.archetype.replace('_', ' ')} buildings in a{' '}
+                                        <span className="font-semibold">{benchmarkResult.zone}</span> climate.
+                                        ECBC 2017 prescriptive baseline for this zone: <span className="font-bold">{benchmarkResult.range.ecbcBaseline} kWh/m²·yr</span>.
+                                        <span className="block mt-1 text-[10px] text-slate-400 italic">
+                                            Ref: BEE Star Rating Programme 2020; TERI Energy Benchmarking 2019; ECBC 2017 §6 Performance Compliance Path.
+                                        </span>
+                                    </p>
+                                </div>
+
+                                {/* Right — KPI chips */}
+                                <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'Predicted EUI', value: `${predicted_eui.toFixed(1)}`, unit: 'kWh/m²·yr', color: benchmarkResult.statusColor },
+                                        { label: 'BEE Typical', value: `${benchmarkResult.range.typical}`, unit: 'kWh/m²·yr', color: '#64748b' },
+                                        { label: 'BEE 5★ Target', value: `${benchmarkResult.range.bee5star}`, unit: 'kWh/m²·yr', color: '#f59e0b' },
+                                        { label: 'ECBC Baseline', value: `${benchmarkResult.range.ecbcBaseline}`, unit: 'kWh/m²·yr', color: '#0d9488' },
+                                        { label: 'Deviation vs Typical', value: `${benchmarkResult.deviation >= 0 ? '+' : ''}${benchmarkResult.deviationPct.toFixed(1)}%`, unit: '', color: benchmarkResult.deviation < 0 ? '#10b981' : '#ef4444' },
+                                        { label: 'Est. BEE Star', value: `${benchmarkResult.beeStarRating.toFixed(1)}★`, unit: '', color: '#f59e0b' },
+                                    ].map(kpi => (
+                                        <div key={kpi.label} className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-wider mb-1">{kpi.label}</p>
+                                            <p className="text-base font-extrabold leading-none" style={{ color: kpi.color }}>
+                                                {kpi.value} <span className="text-[10px] font-semibold text-slate-400">{kpi.unit}</span>
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        )}
 
                         {/* Monthly Climate Load Profile */}
                         {monthlyProfile.length > 0 && (
