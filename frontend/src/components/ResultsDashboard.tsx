@@ -17,6 +17,7 @@ import {
     Leaf,
     BarChart3,
     Sparkles,
+    Loader2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -26,6 +27,7 @@ import {
 } from 'recharts';
 import LCCAModule from './LCCAModule';
 import OptimizerModal from './OptimizerModal';
+import { generatePDFReport } from '../lib/pdfReportGenerator';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -136,6 +138,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
 
     const [activeTab, setActiveTab] = useState<'analytics' | 'comparison' | 'simulator' | 'details'>('analytics');
     const [isOptimizerOpen, setIsOptimizerOpen] = useState(false);
+    const [pdfGenerating, setPdfGenerating] = useState(false);
     
     const [simulatorOverrides, setSimulatorOverrides] = useState<any>({
         wall:    material_sources?.wall?.name    || "AAC Block Wall (200 mm)",
@@ -143,9 +146,17 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
         glazing: material_sources?.glazing?.name || "Single Clear Glass (6 mm)",
     });
 
-    const handleExportPDF = () => {
-        document.title = `ClimaBuild AI — ${formData?.city || 'Building'} Energy Report`;
-        window.print();
+    const handleExportPDF = async () => {
+        if (pdfGenerating) return;
+        setPdfGenerating(true);
+        try {
+            await generatePDFReport({ formData, results });
+        } catch (err) {
+            console.error('PDF generation failed:', err);
+            alert('PDF generation encountered an error. Please try again.');
+        } finally {
+            setPdfGenerating(false);
+        }
     };
 
     // Monthly climate profile (CDD / HDD per month)
@@ -475,13 +486,34 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
 
                         {/* Buttons Box */}
                         <div className="flex flex-col gap-3 mt-6">
-                            <button 
+                            <motion.button 
                                 onClick={handleExportPDF}
-                                className="w-full h-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 group/btn text-slate-700"
+                                disabled={pdfGenerating}
+                                whileHover={pdfGenerating ? {} : { scale: 1.02 }}
+                                whileTap={pdfGenerating ? {} : { scale: 0.97 }}
+                                className={cn(
+                                    "w-full h-12 rounded-xl border transition-all flex items-center justify-center gap-2.5 group/btn relative overflow-hidden",
+                                    pdfGenerating
+                                        ? "bg-primary/5 border-primary/20 cursor-wait text-primary/60"
+                                        : "bg-gradient-to-r from-primary to-primary-light border-primary/30 hover:shadow-lg hover:shadow-primary/20 text-white cursor-pointer"
+                                )}
                             >
-                                <FileDown className="w-4 h-4" />
-                                <span className="text-xs font-semibold uppercase">Generate Report</span>
-                            </button>
+                                {pdfGenerating ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <span className="text-xs font-bold uppercase tracking-wide">Generating PDF…</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                                        <FileDown className="w-4 h-4 relative z-10" />
+                                        <span className="text-xs font-bold uppercase tracking-wide relative z-10">Download Full Report</span>
+                                    </>
+                                )}
+                            </motion.button>
+                            <p className="text-[9px] text-slate-400 text-center leading-tight px-1">
+                                5-page PDF · All charts · Sensitivity · LCCA · SHAP · References
+                            </p>
                             <button 
                                 onClick={() => setIsOptimizerOpen(true)}
                                 className="w-full h-10 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 group/btn text-emerald-700"

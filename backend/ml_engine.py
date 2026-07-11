@@ -712,39 +712,54 @@ class MLEngine:
 
     def get_sensitivity_analysis(self, base_input, orientation="South", model_type="XGBoost"):
         """
-        Calculates how EUI changes when key design parameters vary by ±50%.
-        (Range: 0.5× to 1.5× of the baseline value for each parameter.)
-        Reference: ASHRAE Handbook of Fundamentals (2021), Ch. 18 — Sensitivity and uncertainty
-        analysis methodology for building energy simulation.
+        One-At-a-Time (OAT) ceteris paribus sensitivity analysis.
+        Each parameter is independently varied ±50% from its baseline value while
+        all others are held constant. Reports EUI impact range and relative importance.
+
+        Parameters analysed (8 total — covers all major building energy levers):
+          Envelope:   wwr, u_wall, u_roof, shgc
+          Climate:    solrad
+          Systems:    hvac_cop
+          Operations: occupancy_density, equipment_load
+
+        Reference: ASHRAE Handbook of Fundamentals (2021), Ch. 18 — Sensitivity and
+        uncertainty analysis methodology for building energy simulation.
+        ECBC 2017 §4: Prescriptive envelope and systems parameters.
         """
-        parameters = {
-            "wwr": [base_input['wwr'] * 0.5, base_input['wwr'] * 1.5],
-            "solrad": [base_input['solrad'] * 0.5, base_input['solrad'] * 1.5],
-            "u_wall": [base_input['u_wall'] * 0.5, base_input['u_wall'] * 1.5],
-            "u_roof": [base_input['u_roof'] * 0.5, base_input['u_roof'] * 1.5]
+        # Define parameter ranges (low = 50% of base, high = 150% of base)
+        # with physical clamping to prevent out-of-bounds model inputs
+        param_specs = {
+            "wwr":               {"low": base_input['wwr']  * 0.5,                   "high": base_input['wwr']  * 1.5,  "clamp": (0.10, 0.90)},
+            "shgc":              {"low": base_input['shgc'] * 0.5,                   "high": base_input['shgc'] * 1.5,  "clamp": (0.05, 0.95)},
+            "u_wall":            {"low": base_input['u_wall'] * 0.5,                 "high": base_input['u_wall'] * 1.5, "clamp": (0.10, 14.0)},
+            "u_roof":            {"low": base_input['u_roof'] * 0.5,                 "high": base_input['u_roof'] * 1.5, "clamp": (0.10, 14.0)},
+            "solrad":            {"low": base_input['solrad'] * 0.5,                 "high": base_input['solrad'] * 1.5, "clamp": (1.0,  9.0)},
+            "hvac_cop":          {"low": base_input.get('hvac_cop', 3.0) * 0.5,      "high": base_input.get('hvac_cop', 3.0) * 1.5, "clamp": (1.0, 8.5)},
+            "occupancy_density": {"low": base_input.get('occupancy_density', 0.1) * 0.5, "high": base_input.get('occupancy_density', 0.1) * 1.5, "clamp": (0.01, 1.0)},
+            "equipment_load":    {"low": base_input.get('equipment_load', 10.0) * 0.5,   "high": base_input.get('equipment_load', 10.0) * 1.5,   "clamp": (1.0, 80.0)},
         }
-        
-        base_pred = self.predict(base_input, orientation=orientation, model_type=model_type)['predicted_eui']
+
+        base_pred = self.predict(base_input, orientation=orientation, model_type=model_type, skip_logging=True)['predicted_eui']
         sensitivity = {}
-        
-        for param, values in parameters.items():
+
+        for param, spec in param_specs.items():
             impacts = []
-            for val in values:
-                # Clamp WWR
-                if param == "wwr":
-                    val = max(0.1, min(0.9, val))
-                
+            for val in [spec["low"], spec["high"]]:
+                # Apply physical clamping
+                lo, hi = spec["clamp"]
+                val = max(lo, min(hi, val))
+
                 test_input = base_input.copy()
                 test_input[param] = val
-                new_pred = self.predict(test_input, orientation=orientation, model_type=model_type)['predicted_eui']
+                new_pred = self.predict(test_input, orientation=orientation, model_type=model_type, skip_logging=True)['predicted_eui']
                 impacts.append(new_pred - base_pred)
-            
+
             sensitivity[param] = {
-                "low_impact": float(impacts[0]),
-                "high_impact": float(impacts[1]),
+                "low_impact":          float(impacts[0]),
+                "high_impact":         float(impacts[1]),
                 "relative_importance": float(abs(impacts[1] - impacts[0]))
             }
-            
+
         return sensitivity
 
     def calculate_pmv(self, u_wall, u_roof, u_glass, solrad, cdd):
