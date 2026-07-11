@@ -149,25 +149,25 @@ class MLEngine:
 
         # ── 2. Random Forest (with HPO) ──────────────────────────────────────────────────
         print("Running HPO for Random Forest...")
-        rf_base = RandomForestRegressor(random_state=42, n_jobs=-1)
+        rf_base = RandomForestRegressor(random_state=42, n_jobs=1)
         rf_param_dist = {
-            'n_estimators': [200, 400, 600],
-            'max_depth': [10, 20, None],
+            'n_estimators': [50, 100],
+            'max_depth': [5, 10],
             'min_samples_split': [2, 5],
             'max_features': [0.5, 0.7, 'sqrt']
         }
         rf_search = RandomizedSearchCV(rf_base, param_distributions=rf_param_dist, 
                                        n_iter=5, cv=3, scoring='neg_mean_absolute_error', 
-                                       random_state=42, n_jobs=-1)
+                                       random_state=42, n_jobs=1)
         rf_search.fit(X_train, y_train)
         rf_model = rf_search.best_estimator_
         self._save_model_and_metrics("RandomForest", rf_model, X_train, y_train, X_test, y_test)
 
         # ── 3. XGBoost (with HPO) ────────────────────────────────────────
         print("Running HPO for XGBoost...")
-        xgb_base = xgb.XGBRegressor(random_state=42, n_jobs=-1, verbosity=0)
+        xgb_base = xgb.XGBRegressor(random_state=42, n_jobs=1, verbosity=0)
         xgb_param_dist = {
-            'n_estimators': [500, 1000, 1500],
+            'n_estimators': [200, 500, 1000],
             'learning_rate': [0.01, 0.05, 0.1],
             'max_depth': [3, 5, 7],
             'colsample_bytree': [0.8, 0.95],
@@ -175,7 +175,7 @@ class MLEngine:
         }
         xgb_search = RandomizedSearchCV(xgb_base, param_distributions=xgb_param_dist,
                                         n_iter=5, cv=3, scoring='neg_mean_absolute_error',
-                                        random_state=42, n_jobs=-1)
+                                        random_state=42, n_jobs=1)
         xgb_search.fit(X_train, y_train)
         xgb_model = xgb_search.best_estimator_
         self._save_model_and_metrics("XGBoost", xgb_model, X_train, y_train, X_test, y_test)
@@ -190,7 +190,7 @@ class MLEngine:
             ],
             final_estimator=Ridge(alpha=10.0),
             cv=3,
-            n_jobs=-1
+            n_jobs=1
         )
         stacking_regressor.fit(X_train, y_train)
         self._save_model_and_metrics("StackedEnsemble", stacking_regressor, X_train, y_train, X_test, y_test)
