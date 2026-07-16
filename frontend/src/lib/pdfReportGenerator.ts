@@ -598,7 +598,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   const co2Total       = co2_total_tonnes_yr    ?? parseFloat((co2Intensity * (formData?.floor_area_m2 || 1200) / 1000).toFixed(2));
   const savings        = annual_savings_inr !== undefined ? annual_savings_inr : (180 - predicted_eui) * (formData?.floor_area_m2 || 1200) * 9;
   const totalEC        = (material_sources?.wall?.carbon || 0) + (material_sources?.roof?.carbon || 0) + (material_sources?.glazing?.carbon || 0);
-  const cityName       = formData?.city || climate_summary?.city || 'Unknown Location';
+  const cityName       = climate_summary?.city || climate_summary?.location || formData?.city || 'Custom Location';
   const reportDate     = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
   const efficiency     = baseline_eui > 0 ? ((baseline_eui - predicted_eui) / baseline_eui * 100) : 0;
 

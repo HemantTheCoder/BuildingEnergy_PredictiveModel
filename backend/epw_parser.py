@@ -57,8 +57,15 @@ class EPWParser:
 
         # Calculate CDD and HDD (base 18.3C)
         # EPW provides hourly data. We will calculate hourly degree hours and divide by 24.
-        cdd = sum([max(0, t - 18.3) for t in temperatures]) / 24.0
-        hdd = sum([max(0, 18.3 - t) for t in temperatures]) / 24.0
+        # Standard daily mean CDD/HDD
+        cdd = 0.0
+        hdd = 0.0
+        for i in range(0, len(temperatures), 24):
+            day_temps = temperatures[i:i+24]
+            if len(day_temps) == 0: break
+            t_mean = sum(day_temps) / len(day_temps)
+            cdd += max(0, t_mean - 18.3)
+            hdd += max(0, 18.3 - t_mean)
         
         annual_mean_temp = sum(temperatures) / len(temperatures)
         
@@ -83,12 +90,18 @@ class EPWParser:
             rad_slice = global_radiation_whm2[idx:idx+hours] if len(global_radiation_whm2) >= idx+hours else []
             if month_slice:
                 monthly_temps.append(round(sum(month_slice)/len(month_slice), 2))
-                monthly_cdd.append(round(sum(max(0, t - 18.3) for t in month_slice) / 24.0, 1))
-                monthly_hdd.append(round(sum(max(0, 18.3 - t) for t in month_slice) / 24.0, 1))
+                # Calculate monthly CDD/HDD using daily means
+                m_cdd = sum(max(0, sum(month_slice[d:d+24])/24.0 - 18.3) for d in range(0, len(month_slice), 24) if month_slice[d:d+24])
+                m_hdd = sum(max(0, 18.3 - sum(month_slice[d:d+24])/24.0) for d in range(0, len(month_slice), 24) if month_slice[d:d+24])
+                monthly_cdd.append(round(m_cdd, 1))
+                monthly_hdd.append(round(m_hdd, 1))
             else:
                 monthly_temps.append(0)
-                monthly_cdd.append(0)
-                monthly_hdd.append(0)
+                # Calculate monthly CDD/HDD using daily means
+                m_cdd = sum(max(0, sum(month_slice[d:d+24])/24.0 - 18.3) for d in range(0, len(month_slice), 24) if month_slice[d:d+24])
+                m_hdd = sum(max(0, 18.3 - sum(month_slice[d:d+24])/24.0) for d in range(0, len(month_slice), 24) if month_slice[d:d+24])
+                monthly_cdd.append(round(m_cdd, 1))
+                monthly_hdd.append(round(m_hdd, 1))
             if rad_slice:
                 monthly_solrad.append(round(sum(rad_slice) / (DAYS_IN_MONTH[i] * 1000.0), 2))
             else:

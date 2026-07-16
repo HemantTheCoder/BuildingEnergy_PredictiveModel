@@ -38,7 +38,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 text-xs">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                        <span className="text-slate-400">{entry.name}:</span>
+                        <span className="text-slate-200">{entry.name}:</span>
                         <span className="font-bold text-slate-100">{entry.value.toFixed(1)}</span>
                     </div>
                 ))}
@@ -314,9 +314,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                         <div className="space-y-1 mt-2 flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                                <div className="text-sm font-semibold text-slate-400 uppercase">Energy Intensity (EUI)</div>
+                                <div className="text-sm font-semibold text-slate-200 uppercase">Energy Intensity (EUI)</div>
                                 <div className="tooltip-wrap">
-                                    <Info className="w-4 h-4 text-slate-400 hover:text-primary transition-colors" />
+                                    <Info className="w-4 h-4 text-slate-200 hover:text-primary transition-colors" />
                                     <div className="info-tooltip">
                                         Energy Use Intensity (kWh/m²·yr) is the total energy consumed by the building per year, divided by its gross floor area. Lower is better — BEE 5-Star targets &lt;75 kWh/m²·yr for offices.
                                     </div>
@@ -326,13 +326,13 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <span className={cn("text-5xl md:text-7xl font-bold tracking-tight leading-none flex items-baseline gap-2", getEUIColor(predicted_eui))}>
                                     {predicted_eui.toFixed(1)}
                                     {model_metrics?.uncertainty_ci && (
-                                        <span className="text-2xl md:text-3xl font-medium text-slate-400/80">
+                                        <span className="text-2xl md:text-3xl font-medium text-slate-200/80">
                                             ±{model_metrics.uncertainty_ci.toFixed(1)}
                                         </span>
                                     )}
                                 </span>
                                 <div className="flex flex-col">
-                                    <span className="text-slate-400 font-bold text-xl leading-none">kWh/m²·yr</span>
+                                    <span className="text-slate-200 font-bold text-xl leading-none">kWh/m²·yr</span>
                                     <span className="text-xs font-semibold text-primary/80 mt-2 uppercase">Operational Forecast</span>
                                 </div>
                             </div>
@@ -340,9 +340,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             
                             {/* Color Legend — BEE Star Rating reference (dynamic per archetype + zone) */}
                             <div className="flex flex-wrap items-center gap-3 mt-1 pb-2">
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE 4–5★ (&lt;{starBands.s4})</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE 2–3★ ({starBands.s4}–{starBands.s3})</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-600" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE &lt;2★ (&gt;{starBands.s3})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[10px] font-bold text-slate-200 uppercase">BEE 4–5★ (&lt;{starBands.s4})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[10px] font-bold text-slate-200 uppercase">BEE 2–3★ ({starBands.s4}–{starBands.s3})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-600" /><span className="text-[10px] font-bold text-slate-200 uppercase">BEE &lt;2★ (&gt;{starBands.s3})</span></div>
                                 <span className="citation-badge ml-auto">BEE Star Rating 2020 · {ecbcZone}</span>
                             </div>
 
@@ -382,7 +382,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             
                             {/* Baseline Materials Insight */}
                             <div className="mt-5 bg-slate-800/50 border border-white/10 rounded-xl p-3 shadow-inner">
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                <div className="text-[10px] font-bold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
                                     <span>Baseline Envelope Properties</span>
                                     <div className="tooltip-wrap flex items-center gap-1">
                                         <span className="text-[9px] text-secondary">Verified DB</span>
@@ -394,15 +394,15 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="font-semibold text-slate-400">Wall:</span>
+                                        <span className="font-semibold text-slate-200">Wall:</span>
                                         <span className="font-bold text-slate-200 truncate max-w-[160px]" title={material_sources?.wall?.name}>{material_sources?.wall?.name || "Standard Wall"}</span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="font-semibold text-slate-400">Roof:</span>
+                                        <span className="font-semibold text-slate-200">Roof:</span>
                                         <span className="font-bold text-slate-200 truncate max-w-[160px]" title={material_sources?.roof?.name}>{material_sources?.roof?.name || "Standard Roof"}</span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="font-semibold text-slate-400">Glass:</span>
+                                        <span className="font-semibold text-slate-200">Glass:</span>
                                         <span className="font-bold text-slate-200 truncate max-w-[160px]" title={material_sources?.glazing?.name}>{material_sources?.glazing?.name || "Standard Glass"}</span>
                                     </div>
                                 </div>
@@ -410,7 +410,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             
                             {evidence_panel?.prediction_interval && (
                                 <div className="flex flex-wrap items-center gap-2 mt-4">
-                                    <div className="px-3 py-1 rounded bg-slate-800/60 border border-white/10 text-xs font-semibold text-slate-400">
+                                    <div className="px-3 py-1 rounded bg-slate-800/60 border border-white/10 text-xs font-semibold text-slate-200">
                                         Approx. ±Band: {evidence_panel.prediction_interval[0].toFixed(1)}–{evidence_panel.prediction_interval[1].toFixed(1)} kWh/m²·yr
                                     </div>
                                     {evidence_panel.physics_anomalies_detected && (
@@ -424,7 +424,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         </div>
                         <div className="flex flex-col md:items-end gap-3 md:text-right md:mt-32 shrink-0">
                             <div className="flex flex-col gap-1 items-end">
-                                <span className="text-xs font-semibold text-slate-400 uppercase">Est. Annual Savings</span>
+                                <span className="text-xs font-semibold text-slate-200 uppercase">Est. Annual Savings</span>
                                 <span className="text-2xl font-bold text-secondary">₹{savings > 0 ? (savings/1000).toFixed(1) : "0"}K</span>
                             </div>
                         </div>
@@ -437,16 +437,16 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
                                 <Database className="w-4 h-4 text-secondary" />
-                                <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Data Provenance</span>
+                                <span className="text-sm font-semibold text-slate-200 uppercase tracking-wider">Data Provenance</span>
                             </div>
                         </div>
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
-                                <Globe className="w-4 h-4 text-slate-400" />
+                                <Globe className="w-4 h-4 text-slate-200" />
                                 <span className="text-xs font-bold text-slate-200 truncate">{evidence_panel?.climate_source_metadata?.source || "NASA POWER"}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Database className="w-4 h-4 text-slate-400" />
+                                <Database className="w-4 h-4 text-slate-200" />
                                 <span className="text-xs font-bold text-slate-200 truncate">CPWD & BMTPC</span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -461,19 +461,19 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold text-slate-400 uppercase">Thermal Stress</span>
+                                    <span className="text-sm font-semibold text-slate-200 uppercase">Thermal Stress</span>
                                     <div className="tooltip-wrap">
-                                        <Info className="w-4 h-4 text-slate-400 hover:text-primary transition-colors" />
+                                        <Info className="w-4 h-4 text-slate-200 hover:text-primary transition-colors" />
                                         <div className="info-tooltip info-tooltip-right">
                                             <span className="font-bold text-amber-300">Simplified Thermal Stress Proxy</span> — mapped onto the ISO 7730 PMV scale (−3 Cold to +3 Hot). This is not a full Fanger PMV calculation, which requires air velocity, clothing (clo), and metabolic rate (met). Use as a relative indicator only.
-                                            <p className="mt-1.5 text-slate-400 text-[9px]">Ref: ISO 7730:2005; ASHRAE 55-2023 §6.2</p>
+                                            <p className="mt-1.5 text-slate-200 text-[9px]">Ref: ISO 7730:2005; ASHRAE 55-2023 §6.2</p>
                                         </div>
                                     </div>
                                 </div>
                                 <ThermometerSnowflake className="w-4 h-4 text-primary" />
                             </div>
                             <div className="space-y-1">
-                                <span className="text-xs font-semibold text-slate-400 uppercase">Thermal Stress Proxy</span>
+                                <span className="text-xs font-semibold text-slate-200 uppercase">Thermal Stress Proxy</span>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-3xl font-bold text-slate-100">{thermal_comfort?.index?.toFixed(1) || "0.0"}</span>
                                     <span className={cn("text-xs font-bold uppercase", 
@@ -525,7 +525,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </>
                                 )}
                             </motion.button>
-                            <p className="text-[9px] text-slate-400 text-center leading-tight px-1">
+                            <p className="text-[9px] text-slate-200 text-center leading-tight px-1">
                                 6-section PDF · Benchmark Validation · Sensitivity · LCCA · SHAP
                             </p>
                             <button 
@@ -552,7 +552,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <button 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={cn("px-6 py-4 text-xs font-semibold whitespace-nowrap transition-all relative", activeTab === tab.id ? "text-primary bg-slate-900" : "text-slate-400 hover:text-slate-200")}
+                            className={cn("px-6 py-4 text-xs font-semibold whitespace-nowrap transition-all relative", activeTab === tab.id ? "text-primary bg-slate-900" : "text-slate-200 hover:text-slate-200")}
                         >
                             {tab.label}
                             {activeTab === tab.id && <motion.div layoutId="tab-active" className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-t-full" />}
@@ -574,7 +574,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <div className="space-y-6 pt-4">
                                         {sensitivity_analysis && Object.entries(sensitivity_analysis).map(([param, data]: [string, any]) => (
                                             <div key={param} className="space-y-2">
-                                                <div className="flex justify-between text-xs font-semibold text-slate-400 uppercase">
+                                                <div className="flex justify-between text-xs font-semibold text-slate-200 uppercase">
                                                     <span>{param.replace('_', ' ')}</span>
                                                     <span className="flex gap-4">
                                                         <span className="text-secondary">-{Math.abs(data.low_impact).toFixed(1)}</span>
@@ -603,7 +603,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             <div className="lg:col-span-6 flex flex-col space-y-6 justify-between">
                                 <div className="premium-card bg-slate-800/50 p-6 h-72 border-white/10">
                                     <span className="text-xs font-bold text-slate-100 uppercase mb-2 block">Tornado Impact Analysis</span>
-                                    <span className="text-[10px] text-slate-400 block mb-4">Shows variable influence on EUI (negative = energy reduction)</span>
+                                    <span className="text-[10px] text-slate-200 block mb-4">Shows variable influence on EUI (negative = energy reduction)</span>
                                     <ResponsiveContainer width="100%" height="80%">
                                         <BarChart layout="vertical" data={sensitivityData} margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
@@ -622,7 +622,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <span className="text-sm font-semibold text-slate-100">Strategic Insight</span>
                                     <p className="text-sm text-slate-300 leading-relaxed border-l-2 border-primary/50 pl-4 bg-slate-800/50 py-2 pr-2">
                                         Each parameter is varied ±50% from its baseline value (all others held constant). The parameter with the largest <span className="text-slate-50 font-bold">relative range</span> is your highest-leverage design lever. Note: real-world interactions between parameters can amplify or dampen these individual effects.
-                                        <span className="block mt-1 text-[10px] text-slate-400 italic">Ref: ASHRAE Handbook of Fundamentals (2021) Ch. 18; ceteris paribus sensitivity methodology.</span>
+                                        <span className="block mt-1 text-[10px] text-slate-200 italic">Ref: ASHRAE Handbook of Fundamentals (2021) Ch. 18; ceteris paribus sensitivity methodology.</span>
                                     </p>
                                 </div>
                             </div>
@@ -640,7 +640,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         {benchmarkResult.statusLabel}
                                     </span>
                                 </div>
-                                <span className="text-[10px] text-slate-400 font-medium">
+                                <span className="text-[10px] text-slate-200 font-medium">
                                     BEE Star Rating 2020 · TERI 2019 · ECBC 2017 §6
                                 </span>
                             </div>
@@ -649,9 +649,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 {/* Left — range bar */}
                                 <div className="lg:col-span-7 space-y-4">
                                     <div className="space-y-1">
-                                        <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
+                                        <div className="flex justify-between text-[10px] text-slate-200 font-semibold">
                                             <span>BEE 5★ ({benchmarkResult.range.bee5star} kWh/m²·yr)</span>
-                                            <span className="text-slate-400 font-bold">{benchmarkResult.archetype.replace('_', ' ').toUpperCase()} · {benchmarkResult.zone}</span>
+                                            <span className="text-slate-200 font-bold">{benchmarkResult.archetype.replace('_', ' ').toUpperCase()} · {benchmarkResult.zone}</span>
                                             <span>Stock Max ({benchmarkResult.range.max} kWh/m²·yr)</span>
                                         </div>
 
@@ -672,9 +672,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                             />
                                         </div>
 
-                                        <div className="flex justify-between text-[10px] text-slate-400">
+                                        <div className="flex justify-between text-[10px] text-slate-200">
                                             <span>Stock Min</span>
-                                            <span className="text-slate-400">▲ Typical ({benchmarkResult.range.typical})</span>
+                                            <span className="text-slate-200">▲ Typical ({benchmarkResult.range.typical})</span>
                                             <span>Stock Max</span>
                                         </div>
                                     </div>
@@ -689,7 +689,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         the published typical for {benchmarkResult.archetype.replace('_', ' ')} buildings in a{' '}
                                         <span className="font-semibold">{benchmarkResult.zone}</span> climate.
                                         ECBC 2017 prescriptive baseline for this zone: <span className="font-bold">{benchmarkResult.range.ecbcBaseline} kWh/m²·yr</span>.
-                                        <span className="block mt-1 text-[10px] text-slate-400 italic">
+                                        <span className="block mt-1 text-[10px] text-slate-200 italic">
                                             Ref: BEE Star Rating Programme 2020; TERI Energy Benchmarking 2019; ECBC 2017 §6 Performance Compliance Path.
                                         </span>
                                     </p>
@@ -706,9 +706,9 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         { label: 'Est. BEE Star', value: `${benchmarkResult.beeStarRating.toFixed(1)}★`, unit: '', color: '#f59e0b' },
                                     ].map(kpi => (
                                         <div key={kpi.label} className="bg-slate-800/50 rounded-xl p-3 border border-white/10">
-                                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-wider mb-1">{kpi.label}</p>
+                                            <p className="text-[9px] text-slate-200 font-black uppercase tracking-wider mb-1">{kpi.label}</p>
                                             <p className="text-base font-extrabold leading-none" style={{ color: kpi.color }}>
-                                                {kpi.value} <span className="text-[10px] font-semibold text-slate-400">{kpi.unit}</span>
+                                                {kpi.value} <span className="text-[10px] font-semibold text-slate-200">{kpi.unit}</span>
                                             </p>
                                         </div>
                                     ))}
@@ -724,7 +724,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <BarChart3 className="w-4 h-4 text-primary" />
                                     <span className="text-xs font-bold text-slate-100 uppercase">Monthly Climate Load Profile</span>
                                 </div>
-                                <span className="text-[10px] text-slate-400 block mb-4">
+                                <span className="text-[10px] text-slate-200 block mb-4">
                                     Monthly Cooling &amp; Heating Degree-Days (base 18.3 °C) — derived from {climate_summary?.metadata?.source || 'climate data'}. Peak months drive the largest energy demand.
                                 </span>
                                 <div className="h-56">
@@ -740,7 +740,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
-                                <p className="text-[9px] text-slate-400 mt-2 italic">
+                                <p className="text-[9px] text-slate-200 mt-2 italic">
                                     Ref: ASHRAE 55-2023; BEE ECBC 2017 Climate Zone Classification. CDD/HDD base 18.3 °C (65 °F) — ISO 15927-6.
                                 </p>
                             </div>
@@ -776,15 +776,15 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <p className="text-sm font-semibold text-slate-100 truncate">{rec.wall}</p>
-                                            <p className="text-sm font-medium text-slate-400 truncate">{rec.roof}</p>
+                                            <p className="text-sm font-medium text-slate-200 truncate">{rec.roof}</p>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-100">
                                             <div>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase block">EUI</span>
+                                                <span className="text-[10px] font-bold text-slate-200 uppercase block">EUI</span>
                                                 <span className="text-lg font-bold text-slate-100">{rec.predicted_eui.toFixed(1)}</span>
                                             </div>
                                             <div>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase block">Carbon</span>
+                                                <span className="text-[10px] font-bold text-slate-200 uppercase block">Carbon</span>
                                                 <span className="text-lg font-bold text-secondary">{rec.embodied_carbon.toFixed(1)}</span>
                                             </div>
                                         </div>
@@ -797,7 +797,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <div className="premium-card p-6 bg-slate-800/50 border border-white/10 flex-1 flex flex-col">
                                     <div className="mb-4">
                                         <span className="text-xs font-bold text-slate-100 uppercase block">EUI Trajectory Comparison</span>
-                                        <span className="text-[10px] text-slate-400 block">Lower EUI indicates better operational efficiency (kWh/m²·yr)</span>
+                                        <span className="text-[10px] text-slate-200 block">Lower EUI indicates better operational efficiency (kWh/m²·yr)</span>
                                     </div>
                                     <div className="flex-1 min-h-[160px]">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -820,7 +820,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <div className="premium-card p-6 bg-slate-800/50 border border-white/10 flex-1 flex flex-col">
                                     <div className="mb-4">
                                         <span className="text-xs font-bold text-slate-100 uppercase block">Embodied Carbon Footprint</span>
-                                        <span className="text-[10px] text-slate-400 block">Lower is better for sustainability (kgCO2e)</span>
+                                        <span className="text-[10px] text-slate-200 block">Lower is better for sustainability (kgCO2e)</span>
                                     </div>
                                     <div className="flex-1 min-h-[160px]">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -849,7 +849,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <Activity className="w-4 h-4 text-primary" />
                                     <span className="text-xs font-bold text-slate-100 uppercase">Multi-Criteria Scenario Radar</span>
                                 </div>
-                                <span className="text-[10px] text-slate-400 block mb-4">
+                                <span className="text-[10px] text-slate-200 block mb-4">
                                     Normalised performance scores (0–100, higher = better) across four sustainability dimensions. Each axis is independently normalised across all scenarios.
                                 </span>
                                 <div className="flex flex-col lg:flex-row gap-6 items-center">
@@ -884,11 +884,11 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                             ].map(ax => (
                                                 <div key={ax.name} className="px-3 py-2 rounded-lg bg-slate-900 border border-white/10">
                                                     <p className="text-[10px] font-bold text-primary uppercase">{ax.name}</p>
-                                                    <p className="text-[10px] text-slate-400">{ax.desc}</p>
+                                                    <p className="text-[10px] text-slate-200">{ax.desc}</p>
                                                 </div>
                                             ))}
                                         </div>
-                                        <p className="text-[9px] text-slate-400 italic">
+                                        <p className="text-[9px] text-slate-200 italic">
                                             Ref: ASHRAE 90.1-2019; BEE ECBC 2017; BMTPC Rates 2024; CEA 2022.
                                         </p>
                                     </div>
@@ -946,16 +946,16 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             </div>
                             <div className="lg:col-span-4 rounded-3xl bg-secondary/10 border border-secondary/20 p-6 md:p-8 flex flex-col items-center justify-center text-center gap-6">
                                 <div className="space-y-1">
-                                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Operational Impact</span>
+                                    <span className="text-xs font-semibold text-slate-200 uppercase tracking-wide block">Operational Impact</span>
                                     <div className="flex items-baseline justify-center gap-2">
                                         <TrendingDown className="w-6 h-6 text-secondary" />
                                         <span className="text-4xl md:text-6xl font-bold text-slate-100 tracking-tight">{Math.abs(((currentBaseline - predicted_eui)/currentBaseline) * 100).toFixed(0)}%</span>
                                     </div>
-                                    <span className="text-xs font-medium text-slate-400 uppercase">Efficiency vs Baseline</span>
+                                    <span className="text-xs font-medium text-slate-200 uppercase">Efficiency vs Baseline</span>
                                 </div>
                                 
                                 <div className="w-full space-y-3 pt-6 border-t border-white/10">
-                                    <div className="flex justify-between text-xs font-semibold uppercase text-slate-400">
+                                    <div className="flex justify-between text-xs font-semibold uppercase text-slate-200">
                                         <span>Embodied Carbon</span>
                                         <span className="text-slate-100">{totalEmbodiedCarbon.toFixed(1)}</span>
                                     </div>
@@ -999,17 +999,17 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <div className="space-y-4">
                                     <div className="text-sm font-bold text-slate-100 uppercase">Data Provenance & MLOps</div>
                                     <div className="space-y-2">
-                                        <p className="text-sm text-slate-400 font-medium">
+                                        <p className="text-sm text-slate-200 font-medium">
                                             <span className="text-slate-200">Climate Source:</span> {evidence_panel?.climate_source_metadata?.source || "NASA POWER API (Auto)"}
                                         </p>
-                                        <p className="text-sm text-slate-400 font-medium">
+                                        <p className="text-sm text-slate-200 font-medium">
                                             <span className="text-slate-200">System Confidence:</span> {evidence_panel && evidence_panel.overall_confidence ? (evidence_panel.overall_confidence * 100).toFixed(0) : "88"}%
                                         </p>
-                                        <p className="text-sm text-slate-400 font-medium">
+                                        <p className="text-sm text-slate-200 font-medium">
                                             <span className="text-slate-200">Last Sync:</span> {evidence_panel?.climate_source_metadata?.retrieval_date ? new Date(evidence_panel.climate_source_metadata.retrieval_date).toLocaleDateString() : "Live Cached"}
                                         </p>
                                     </div>
-                                    <p className="text-sm text-slate-400 font-medium mt-2 border-t border-white/10 pt-4">
+                                    <p className="text-sm text-slate-200 font-medium mt-2 border-t border-white/10 pt-4">
                                         This prediction engine is actively running the <span className="text-slate-100 font-semibold">{formData?.model_type || "XGBoost"}</span> model. Anomaly triggers and thermodynamic guardrails are strictly enforced.
                                     </p>
                                     <div className="flex gap-4 pt-2">
@@ -1024,7 +1024,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     </div>
                                 </div>
                                 <div className="premium-card p-6 bg-slate-800/50 border border-white/10 flex flex-col justify-center">
-                                    <div className="text-xs font-bold text-slate-400 mb-3 uppercase">Citation Metadata</div>
+                                    <div className="text-xs font-bold text-slate-200 mb-3 uppercase">Citation Metadata</div>
                                     <p className="text-sm font-medium text-slate-200 leading-relaxed max-w-md">
                                         Recommended materials comply with BMTPC Schedule of Rates 2024 and CPWD Thermal Integrity standards for Indian Housing (Pradhan Mantri Awas Yojana).
                                     </p>
@@ -1038,18 +1038,18 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         <Cpu className="w-5 h-5 text-accent" />
                                         <h4 className="text-base font-bold text-slate-100 uppercase">AI Explainability (SHAP Values)</h4>
                                     </div>
-                                    <p className="text-sm text-slate-400 mb-6 max-w-3xl">
+                                    <p className="text-sm text-slate-200 mb-6 max-w-3xl">
                                         SHAP (SHapley Additive exPlanations) values reveal exactly how the Machine Learning model arrived at its prediction. It breaks down the EUI prediction by showing how much each parameter pushed the energy intensity up (red) or down (green) relative to the baseline.
                                     </p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {Object.entries(evidence_panel.shap_drivers).sort((a: any, b: any) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 6).map(([feature, impact]: [string, any], idx) => (
                                             <div key={idx} className="flex flex-col gap-2 p-4 rounded-xl border border-white/10 bg-slate-800/50">
-                                                <span className="text-xs font-bold text-slate-400 uppercase">{feature ? feature.replace('_', ' ') : 'Unknown'}</span>
+                                                <span className="text-xs font-bold text-slate-200 uppercase">{feature ? feature.replace('_', ' ') : 'Unknown'}</span>
                                                 <div className="flex items-center justify-between">
                                                     <span className={cn("text-xl font-bold", impact > 0 ? "text-accent" : "text-primary")}>
                                                         {impact > 0 ? "+" : ""}{Number(impact || 0).toFixed(2)}
                                                     </span>
-                                                    <span className="text-[10px] uppercase font-bold text-slate-400">Impact on EUI</span>
+                                                    <span className="text-[10px] uppercase font-bold text-slate-200">Impact on EUI</span>
                                                 </div>
                                             </div>
                                         ))}
@@ -1063,33 +1063,33 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <Calculator className="w-5 h-5 text-secondary" />
                                     <h4 className="text-base font-bold text-slate-100 uppercase">Physics-Informed Hybrid Engine Math</h4>
                                 </div>
-                                <p className="text-sm text-slate-400 mb-6 max-w-3xl">
+                                <p className="text-sm text-slate-200 mb-6 max-w-3xl">
                                     While the machine learning model calculates the baseline thermal envelope efficiency, we use deterministic thermodynamic equations to scale this baseline according to real-world operating schedules and plug loads.
                                 </p>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="p-6 rounded-xl border border-white/10 bg-slate-800/50">
-                                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">1. Schedule & Occupancy Scaling</div>
+                                        <div className="text-xs font-bold text-slate-200 uppercase tracking-wide mb-4">1. Schedule & Occupancy Scaling</div>
                                         <div className="font-mono text-sm text-slate-100 bg-slate-900 p-4 border border-white/10 rounded-lg shadow-sm">
                                             ThermalEUI = BaseML_EUI × (Hours / 50)<br/>
                                             OccPenalty = 1.0 + (Density × 0.5)<br/>
                                             <br/>
                                             <span className="text-secondary font-bold">ScaledThermal = ThermalEUI × OccPenalty</span>
                                         </div>
-                                        <p className="text-xs text-slate-400 mt-4 leading-relaxed">
+                                        <p className="text-xs text-slate-200 mt-4 leading-relaxed">
                                             The base AI model is trained on a standard 50-hour work week. We linearly scale the cooling/heating loads based on your selected operating hours, and apply a thermodynamic penalty for human heat signatures (occupancy density).
                                         </p>
                                     </div>
 
                                     <div className="p-6 rounded-xl border border-white/10 bg-slate-800/50">
-                                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">2. Deterministic Plug Loads + Occupant Metabolic</div>
+                                        <div className="text-xs font-bold text-slate-200 uppercase tracking-wide mb-4">2. Deterministic Plug Loads + Occupant Metabolic</div>
                                         <div className="font-mono text-sm text-slate-100 bg-slate-900 p-4 border border-white/10 rounded-lg shadow-sm">
-                                            PlugEUI = <span className="text-slate-400">(W/m² × hrs/wk × 52) / 1000</span><br/>
-                                            OccEUI = <span className="text-slate-400">(75W × ρ_occ × hrs/wk × 52) / (1000 × COP)</span><br/>
+                                            PlugEUI = <span className="text-slate-200">(W/m² × hrs/wk × 52) / 1000</span><br/>
+                                            OccEUI = <span className="text-slate-200">(75W × ρ_occ × hrs/wk × 52) / (1000 × COP)</span><br/>
                                             <br/>
                                             <span className="text-primary font-bold">EUI_final = EUI_thermal × (t/50) + PlugEUI + OccEUI</span>
                                         </div>
-                                        <p className="text-xs text-slate-400 mt-4 leading-relaxed">
+                                        <p className="text-xs text-slate-200 mt-4 leading-relaxed">
                                             Plug loads are deterministic (W/m² × schedule). Occupant metabolic heat (75 W/person per ISO 7730:2005) adds to HVAC cooling demand, scaled by occupancy density and COP. This is the novel hybrid equation combining ML thermal prediction with physics-based internal loads.
                                         </p>
                                     </div>
@@ -1188,7 +1188,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
 function SimulatorSelect({ label, options, defaultValue, onChange }: any) {
     return (
         <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide ml-1">{label}</label>
+            <label className="text-xs font-semibold text-slate-200 uppercase tracking-wide ml-1">{label}</label>
             <div className="relative group/sel">
                 <select 
                     value={defaultValue}
@@ -1199,7 +1199,7 @@ function SimulatorSelect({ label, options, defaultValue, onChange }: any) {
                         <option key={opt} value={opt}>{opt}</option>
                     ))}
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover/sel:text-primary transition-colors">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-200 group-hover/sel:text-primary transition-colors">
                     <TrendingDown className="w-4 h-4 rotate-180" />
                 </div>
             </div>
@@ -1211,7 +1211,7 @@ function SourceItem({ title, source, model_metrics }: any) {
     return (
         <div className="space-y-4 p-4 rounded-xl border border-white/10 bg-slate-800/50">
             <div className="flex flex-col gap-1">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{title}</span>
+                <span className="text-xs font-bold text-slate-200 uppercase tracking-wide">{title}</span>
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-100">{source?.name ? source.name.replace('Custom: ', '') : 'Unknown'}</span>
                     {source?.name && source.name.startsWith('Custom:') && (
@@ -1221,27 +1221,27 @@ function SourceItem({ title, source, model_metrics }: any) {
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                 <div className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-400 uppercase">Training Precision</span>
+                    <span className="text-xs font-semibold text-slate-200 uppercase">Training Precision</span>
                     <div className="flex items-baseline gap-1">
                         <span className="text-sm font-bold text-slate-100">{(model_metrics?.r2 || 0).toFixed(3)}</span>
-                        <span className="text-xs text-slate-400">R²</span>
+                        <span className="text-xs text-slate-200">R²</span>
                     </div>
                 </div>
                 <div className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-400 uppercase">Avg Variance</span>
+                    <span className="text-xs font-semibold text-slate-200 uppercase">Avg Variance</span>
                     <div className="flex items-baseline gap-1">
                         <span className="text-sm font-bold text-slate-100">{(model_metrics?.mae || 0).toFixed(1)}</span>
-                        <span className="text-xs text-slate-400">MAE</span>
+                        <span className="text-xs text-slate-200">MAE</span>
                     </div>
                 </div>
             </div>
             <div className="space-y-3 pt-4 border-t border-white/10">
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-slate-400 uppercase">Citation</span>
+                    <span className="text-xs font-semibold text-slate-200 uppercase">Citation</span>
                     <span className="text-sm text-slate-200">{source.citation}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-slate-400 uppercase">Regulatory Ref</span>
+                    <span className="text-xs font-semibold text-slate-200 uppercase">Regulatory Ref</span>
                     <span className="text-sm text-slate-200">{source.ref}</span>
                 </div>
             </div>
