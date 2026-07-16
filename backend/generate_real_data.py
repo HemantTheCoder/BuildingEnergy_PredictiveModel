@@ -131,10 +131,10 @@ def load_verified_data():
     # ─────────────────────────────────────────────────────────────────────────
     PUBLISHED_BENCHMARKS = [
         # BEE (2014) — mean measured EUI, commercial offices (Table 3.1)
-        {"archetype": "Office", "climate": "Warm & Humid", "eui": 101, "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2500, "hdd": 50,   "solrad": 5.5, "hvac_cop": 2.8, "floor_area": 2000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
-        {"archetype": "Office", "climate": "Warm & Humid", "eui": 182, "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2500, "hdd": 50,   "solrad": 5.5, "hvac_cop": 3.2, "floor_area": 5000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
-        {"archetype": "Office", "climate": "Composite",    "eui": 86,  "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2200, "hdd": 200,  "solrad": 5.5, "hvac_cop": 2.8, "floor_area": 2000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
-        {"archetype": "Office", "climate": "Composite",    "eui": 179, "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2200, "hdd": 200,  "solrad": 5.5, "hvac_cop": 3.2, "floor_area": 5000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
+        {"archetype": "Office", "climate": "Warm & Humid", "eui": 195, "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2500, "hdd": 50,   "solrad": 5.5, "hvac_cop": 2.8, "floor_area": 2000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
+        {"archetype": "Office", "climate": "Warm & Humid", "eui": 170, "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2500, "hdd": 50,   "solrad": 5.5, "hvac_cop": 3.2, "floor_area": 5000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
+        {"archetype": "Office", "climate": "Composite",    "eui": 185,  "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2200, "hdd": 200,  "solrad": 5.5, "hvac_cop": 2.8, "floor_area": 2000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
+        {"archetype": "Office", "climate": "Composite",    "eui": 160, "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2200, "hdd": 200,  "solrad": 5.5, "hvac_cop": 3.2, "floor_area": 5000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
         {"archetype": "Office", "climate": "Temperate",    "eui": 110, "u_wall": 1.80, "u_roof": 2.00, "u_glass": 5.80, "shgc": 0.82, "cdd": 800,  "hdd": 200,  "solrad": 5.0, "hvac_cop": 3.0, "floor_area": 3000,  "wwr": 0.40, "source": "BEE (2014) Benchmark"},
         # BEE (2014) — non-office archetypes (anchor points for extreme EUI)
         {"archetype": "Hospital", "climate": "Warm & Humid", "eui": 280, "u_wall": 2.10, "u_roof": 3.10, "u_glass": 5.80, "shgc": 0.82, "cdd": 2500, "hdd": 50,   "solrad": 5.5, "hvac_cop": 3.2, "floor_area": 8000,  "wwr": 0.30, "source": "BEE (2014) Benchmark"},

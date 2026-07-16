@@ -44,7 +44,8 @@ class MLEngine:
         self.models = {
             "XGBoost": None,
             "RandomForest": None,
-            "RidgeRegression": None
+            "RidgeRegression": None,
+            "StackedEnsemble": None
         }
         self.metrics = {}
         self.explainers = {}
@@ -342,11 +343,10 @@ class MLEngine:
         equipment_load = df['equipment_load'].values
 
         thermal_eui = preds * (operating_hours / 50.0)
-        occ_penalty = 1.0 + (occupancy_density * 0.5)
-        scaled_thermal = thermal_eui * occ_penalty
-        plug_eui = (equipment_load * (operating_hours / 50.0) * 45) / 1000.0
+        occ_metabolic_eui = (75.0 * occupancy_density * operating_hours * 52) / (1000.0 * df['hvac_cop'].values)
+        plug_eui = (equipment_load * operating_hours * 52) / 1000.0
 
-        final_eui = scaled_thermal + plug_eui
+        final_eui = thermal_eui + plug_eui + occ_metabolic_eui
 
         df['predicted_eui'] = final_eui
         df['cost'] = cost
@@ -363,9 +363,9 @@ class MLEngine:
         X_base = self._engineer_features(baseline_df[BASE_FEATURES])
         base_pred = model.predict(X_base)[0]
         base_thermal = base_pred * (operating_hours[0] / 50.0)
-        base_scaled = base_thermal * (1.0 + (occupancy_density[0] * 0.5))
-        base_plug = (equipment_load[0] * (operating_hours[0] / 50.0) * 45) / 1000.0
-        baseline_eui = base_scaled + base_plug
+        base_occ = (75.0 * occupancy_density[0] * operating_hours[0] * 52) / (1000.0 * baseline_df['hvac_cop'].values[0])
+        base_plug = (equipment_load[0] * operating_hours[0] * 52) / 1000.0
+        baseline_eui = base_thermal + base_occ + base_plug
 
         best_energy_idx = df['predicted_eui'].argmin()
         
@@ -473,10 +473,10 @@ class MLEngine:
             ]
             uncertainty_ci = float(np.std(base_preds) * 1.645)
 
-        # 3. Approximate prediction band based on MAE × 1.96.
+        # 3. Approximate prediction interval assuming normal residuals.
         metrics = self.metrics.get(model_type, {})
-        mae = metrics.get('mae', 5.0)
-        interval = round(mae * 1.96, 2)
+        rmse = metrics.get('rmse', 5.0)
+        interval = round(rmse * 1.645, 2)
         prediction_interval = [round(float(pred) - interval, 2), round(float(pred) + interval, 2)]
 
         # Get SHAP values and Interactions

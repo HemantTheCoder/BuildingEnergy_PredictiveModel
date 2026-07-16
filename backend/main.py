@@ -65,8 +65,8 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={
             "detail": str(exc),
-            "traceback": trace,
-            "message": "Internal Server Error - Detailed Traceback attached"
+            "traceback": "Redacted in production for security",
+            "message": "Internal Server Error"
         },
         headers={
             "Access-Control-Allow-Origin": "*",
@@ -111,7 +111,7 @@ class LoginRequest(BaseModel):
 
 @app.post("/admin/login")
 def admin_login(payload: LoginRequest):
-    _admin_pass = os.environ.get("ADMIN_PASSWORD", "banhae")
+    _admin_pass = os.environ.get("ADMIN_PASSWORD", "secure_admin_123")
     if payload.password == _admin_pass:
         return {"status": "success", "token": "admin_session_active"}
     raise HTTPException(status_code=401, detail="Unauthorized - Invalid Password")
