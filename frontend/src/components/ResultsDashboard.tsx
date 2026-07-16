@@ -233,7 +233,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     const getEUIColor = (eui: number) => {
         if (eui < starBands.s4) return "text-emerald-600";
         if (eui < starBands.s3) return "text-amber-500";
-        return "text-orange-600";
+        return "text-orange-400";
     };
 
     const totalEmbodiedCarbon = (material_sources.wall.carbon || 0) + (material_sources.roof.carbon || 0) + (material_sources.glazing.carbon || 0);
@@ -295,10 +295,10 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                     {ecbc_compliance && (
                         <span className={cn(
                             "text-[10px] font-bold px-3 py-1 rounded-full border",
-                            ecbc_compliance.status === "SuperECBC"      ? "bg-emerald-100 border-emerald-300 text-emerald-700" :
+                            ecbc_compliance.status === "SuperECBC"      ? "bg-emerald-100 border-emerald-300 text-emerald-400" :
                             ecbc_compliance.status === "ECBC+"           ? "bg-sky-100 border-sky-300 text-sky-700" :
                             ecbc_compliance.status === "ECBC Compliant"  ? "bg-blue-100 border-blue-300 text-blue-700" :
-                            "bg-red-100 border-red-300 text-red-700"
+                            "bg-red-100 border-red-300 text-red-400"
                         )}>
                             {ecbc_compliance.status} — ECBC 2017
                         </span>
@@ -372,11 +372,11 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     <div>
                                         <span className="text-[10px] font-bold text-emerald-600 uppercase block">Paris 2050 Target</span>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-emerald-700">≤ 10 kg CO₂/m²·yr</span>
+                                            <span className="text-xs font-bold text-emerald-400">≤ 10 kg CO₂/m²·yr</span>
                                             <span className="text-[9px] text-emerald-500">IPCC AR6 WG3 § 9.4</span>
                                         </div>
                                     </div>
-                                    <span className="citation-badge bg-emerald-100 border-emerald-300 text-emerald-700">CEA 2022 — 0.82 kg CO₂/kWh</span>
+                                    <span className="citation-badge bg-emerald-100 border-emerald-300 text-emerald-400">CEA 2022 — 0.82 kg CO₂/kWh</span>
                                 </div>
                             </div>
                             
@@ -451,7 +451,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             </div>
                             <div className="flex items-center gap-2">
                                 <Cpu className="w-4 h-4 text-emerald-500" />
-                                <span className="text-xs font-bold text-emerald-700">System Confidence: {evidence_panel ? (evidence_panel.overall_confidence * 100).toFixed(0) : "80"}%</span>
+                                <span className="text-xs font-bold text-emerald-400">System Confidence: {evidence_panel ? (evidence_panel.overall_confidence * 100).toFixed(0) : "80"}%</span>
                             </div>
                         </div>
                     </div>
@@ -483,7 +483,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         {thermal_comfort?.status || "Neutral"}
                                     </span>
                                 </div>
-                                <span className="text-[9px] font-semibold text-amber-600 bg-amber-500/20 border border-amber-200 rounded px-1.5 py-0.5 inline-block mt-1">
+                                <span className="text-[9px] font-semibold text-amber-400 bg-amber-500/20 border border-amber-200 rounded px-1.5 py-0.5 inline-block mt-1">
                                     ★ Envelope proxy — not full ISO 7730 PMV
                                 </span>
                             </div>
@@ -530,7 +530,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             </p>
                             <button 
                                 onClick={() => setIsOptimizerOpen(true)}
-                                className="w-full h-10 rounded-xl bg-emerald-500/20 border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 group/btn text-emerald-700"
+                                className="w-full h-10 rounded-xl bg-emerald-500/20 border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 group/btn text-emerald-400"
                             >
                                 <Sparkles className="w-4 h-4" />
                                 <span className="text-xs font-semibold uppercase">✨ AI Optimize Design</span>
@@ -685,7 +685,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         Predicted EUI of <span className="font-bold text-slate-50">{predicted_eui.toFixed(1)} kWh/m²·yr</span> is{' '}
                                         {benchmarkResult.deviation < 0
                                             ? <span className="text-emerald-600 font-bold">{Math.abs(benchmarkResult.deviationPct).toFixed(1)}% below</span>
-                                            : <span className="text-orange-600 font-bold">{benchmarkResult.deviationPct.toFixed(1)}% above</span>}{' '}
+                                            : <span className="text-orange-400 font-bold">{benchmarkResult.deviationPct.toFixed(1)}% above</span>}{' '}
                                         the published typical for {benchmarkResult.archetype.replace('_', ' ')} buildings in a{' '}
                                         <span className="font-semibold">{benchmarkResult.zone}</span> climate.
                                         ECBC 2017 prescriptive baseline for this zone: <span className="font-bold">{benchmarkResult.range.ecbcBaseline} kWh/m²·yr</span>.
