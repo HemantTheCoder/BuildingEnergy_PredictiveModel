@@ -21,8 +21,8 @@ const C = {
   teal:       [12,  114, 119] as [number,number,number],
   sage:       [126, 178, 129] as [number,number,number],
   orange:     [234, 88,  12]  as [number,number,number],
-  slate:      [100, 116, 139] as [number,number,number],
-  slateLight: [148, 163, 184] as [number,number,number],
+  slate:      [71,  85,  105] as [number,number,number],
+  slateLight: [100, 116, 139] as [number,number,number],
   border:     [226, 232, 240] as [number,number,number],
   bg:         [248, 250, 252] as [number,number,number],
   white:      [255, 255, 255] as [number,number,number],
@@ -41,6 +41,15 @@ const MT  = 16;    // top margin
 const CW  = PW - ML - MR;  // content width = 178 mm
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+/** Dynamic pagination check */
+function checkBreak(doc: jsPDF, currentY: number, requiredH: number, subtitle: string): number {
+  if (currentY + requiredH > PH - 20) {
+    doc.addPage();
+    pageHeader(doc, subtitle);
+    return MT + 8;
+  }
+  return currentY;
+}
 function rgb(doc: jsPDF, col: [number,number,number]) {
   doc.setTextColor(col[0], col[1], col[2]);
 }
@@ -76,7 +85,7 @@ function sectionHeader(doc: jsPDF, y: number, title: string, color: [number,numb
   return y + 10;
 }
 
-/** Small label + value pair (inline) */
+/** Small label + value pair (inline) with wrapping */
 function kv(doc: jsPDF, x: number, y: number, label: string, value: string, labelCol = C.slate, valCol = C.black) {
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
@@ -84,7 +93,10 @@ function kv(doc: jsPDF, x: number, y: number, label: string, value: string, labe
   doc.text(label, x, y);
   doc.setFont('helvetica', 'normal');
   rgb(doc, valCol);
-  doc.text(value, x + doc.getTextWidth(label) + 1.5, y);
+  const startX = x + doc.getTextWidth(label) + 1.5;
+  const maxW = Math.max(10, PW - MR - startX); // Don't overflow right margin
+  const lines = doc.splitTextToSize(String(value), maxW);
+  doc.text(lines, startX, y);
 }
 
 /** Wrap text within maxW, return lines */
@@ -190,7 +202,15 @@ function tornadoChart(doc: jsPDF, x: number, y: number, w: number, h: number,
     doc.setFont('helvetica', 'bold');
     rgb(doc, C.black);
     const label = d.param.replace(/_/g, ' ').substring(0, 14);
-    doc.text(label, midX - lowW - 1, barY + barH / 2 + 1.5, { align: 'right' });
+      let displayLabel = label;
+      const maxLabelW = (midX - lowW - 1) - x; // distance to left edge of chart box
+      if (doc.getTextWidth(displayLabel) > maxLabelW) {
+         while (displayLabel.length > 3 && doc.getTextWidth(displayLabel + '...') > maxLabelW) {
+            displayLabel = displayLabel.substring(0, displayLabel.length - 1);
+         }
+         displayLabel += '...';
+      }
+      doc.text(displayLabel, midX - lowW - 1, barY + barH / 2 + 1.5, { align: 'right' });
 
     // Values
     doc.setFontSize(5.8);
@@ -258,7 +278,7 @@ function barChart(doc: jsPDF, x: number, y: number, w: number, h: number,
     doc.setFont('helvetica', 'normal');
     rgb(doc, C.slate);
     const lines = wrapText(doc, d.label, gap - 2);
-    lines.slice(0, 2).forEach((line, li) => {
+    lines.slice(0, 3).forEach((line, li) => {
       doc.text(line, bx + barW / 2, y + h + 4.5 + li * 3.5, { align: 'center' });
     });
   });
@@ -799,7 +819,8 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
     doc.text(k + ':', cx2, ry);
     doc.setFont('helvetica', 'normal');
     rgb(doc, C.black);
-    doc.text(v, cx2 + 43, ry);
+    const valLines = wrapText(doc, v, (CW/2) - 50);
+    valLines.forEach((line, li) => doc.text(line, cx2 + 43, ry + li * 3.5));
   });
 
   // ECBC compliance badge
@@ -888,6 +909,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   });
   y += 20;
 
+  y = checkBreak(doc, y, 90, `Energy Performance Analysis  ·  ${cityName}`);
   y = sectionHeader(doc, y, '2. Sensitivity Analysis — Tornado Chart (±50% Parameter Variation)', C.teal);
 
   // Two-column layout: tornado chart left, bar chart right
@@ -945,7 +967,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   rgb(doc, C.slate);
   const insightText = 'Each parameter was varied ±50% from its baseline while all others were held constant (ceteris paribus). The parameter with the largest relative range represents the highest-leverage design lever for energy reduction. Real-world interactions between parameters can amplify or dampen these individual effects. Methodology: ASHRAE Handbook of Fundamentals (2021) Ch. 18.';
   const insightLines = wrapText(doc, insightText, CW - 10);
-  insightLines.slice(0, 2).forEach((line, li) => doc.text(line, ML + 5, y + 12 + li * 4.5));
+  insightLines.slice(0, 3).forEach((line, li) => doc.text(line, ML + 5, y + 12 + li * 4.5));
   y += 26;
 
   footer(doc, 2, 5);
@@ -957,6 +979,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   pageHeader(doc, `Material Recommendations & Climate Profile  ·  ${cityName}`);
   y = MT + 8;
 
+  y = checkBreak(doc, y, 90, `Material Recommendations & Climate Profile  ·  ${cityName}`);
   y = sectionHeader(doc, y, '3. Material Recommendations — Multi-Scenario Comparison', C.sage);
 
   // Recommendations table
@@ -1006,7 +1029,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
       doc.setFont('helvetica', ci < 2 ? 'normal' : 'bold');
       rgb(doc, ci < 2 ? C.black : rowColors[ri]);
       const lines2 = wrapText(doc, cell, cols[ci] - 3);
-      lines2.slice(0, 2).forEach((line, li) => doc.text(line, cx4 + 2, rowY + 5 + li * 4));
+      lines2.slice(0, 3).forEach((line, li) => doc.text(line, cx4 + 2, rowY + 5 + li * 4));
       cx4 += cols[ci];
     });
   });
@@ -1038,12 +1061,14 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
 
   // Monthly climate chart
   if (mCDD.length === 12 || mHDD.length === 12) {
+    y = checkBreak(doc, y, 70, `Material Recommendations & Climate Profile  ·  ${cityName}`);
     y = sectionHeader(doc, y, '4. Monthly Climate Load Profile — Degree Days (Base 18.3°C)', C.teal);
     monthlyChart(doc, ML + 10, y, CW - 10, 50, mCDD, mHDD);
     y += 70;
   }
 
   // Radar chart
+  y = checkBreak(doc, y, 70, `Material Recommendations & Climate Profile  ·  ${cityName}`);
   y = sectionHeader(doc, y, '5. Multi-Criteria Performance Radar — Normalised Scenario Scores (0–100)', C.navy);
   const radarCX = ML + CW / 4 + 5;
   const radarCY = y + 45;
@@ -1120,7 +1145,8 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   y += 65;
 
   // LCCA section
-  y = sectionHeader(doc, y, '8. Lifecycle Cost Analysis (LCCA) — 30-Year NPV Comparison', C.emerald);
+  y = checkBreak(doc, y, 80, `AI Explainability, LCCA & Thermal Analysis  ·  ${cityName}`);
+  y = sectionHeader(doc, y, '8. Life Cycle Cost Analysis (LCCA) — 30-Year Horizon', C.emerald);
 
   // LCCA params
   fill(doc, C.bg);
@@ -1153,6 +1179,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   pageHeader(doc, `Methodology, Model Metrics & References`);
   y = MT + 8;
 
+  y = checkBreak(doc, y, 70, `Methodology, Model Metrics & References`);
   y = sectionHeader(doc, y, '9. Physics-Informed Hybrid ML Methodology', C.navy);
 
   const methodSections = [
@@ -1305,6 +1332,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   doc.text('All values in kWh/m²·yr. ◄ = this building\'s predicted EUI. Sources: BEE Star Rating Programme 2020; TERI Energy Benchmarking 2019; ECBC 2017 §6; GRIHA 2022.', ML, y + 3.5);
   y += 10;
 
+  y = checkBreak(doc, y, 60, `Methodology, Model Metrics & References`);
   y = sectionHeader(doc, y, '11. Data Sources & References', C.slate);
   const refs = [
     '[1] Bureau of Energy Efficiency (BEE). Energy Conservation Building Code (ECBC) 2017. Ministry of Power, Govt. of India.',
