@@ -123,9 +123,9 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden selection:bg-primary/20 relative bg-slate-50 text-slate-900">
+    <div className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden selection:bg-primary/20 relative bg-transparent text-slate-100">
       {/* ── Top Navigation ── */}
-      <nav className="fixed top-0 left-0 w-full z-[100] border-b border-slate-200 bg-white/95 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 w-full z-[100] border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-6 md:px-8 h-14 md:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('simulator')}>
             <div className="h-9 md:h-14 flex items-center justify-start">
@@ -147,8 +147,8 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200">
-              <Globe className="w-3 h-3 text-slate-500" />
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-white/10">
+              <Globe className="w-3 h-3 text-slate-400" />
               <span className="text-xs font-semibold text-slate-600">BEE Standards</span>
             </div>
           </div>
@@ -186,11 +186,11 @@ export default function App() {
               className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 w-full lg:h-full lg:min-h-0"
             >
               {/* Left panel — form */}
-              <section className="lg:col-span-4 lg:flex lg:flex-col lg:min-h-0 border-b border-slate-200 pb-6 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-8">
-                <div className="space-y-1 page-enter shrink-0 mb-5 border-b border-slate-200 pb-5">
-                  <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-800 flex flex-col gap-0.5">
-                    <span>Performance</span>
-                    <span className="text-slate-500">Simulation Setup</span>
+              <section className="lg:col-span-4 lg:flex lg:flex-col lg:min-h-0 border-b border-white/10 pb-6 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-8">
+                <div className="space-y-1 page-enter shrink-0 mb-5 border-b border-white/10 pb-5">
+                  <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-100 flex flex-col gap-0.5">
+                    Performance
+                    <span className="text-slate-400">Simulation Setup</span>
                   </h1>
                 </div>
 
