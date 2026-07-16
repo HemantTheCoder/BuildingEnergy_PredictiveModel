@@ -431,8 +431,7 @@ function radarChart(doc: jsPDF, cx: number, cy: number, r: number,
     fill(doc, ds.color);
     pts.forEach(p => doc.circle(p[0], p[1], 1, 'F'));
   });
-  void pathData; // suppress unused warning — polygon drawing done via lines
-
+  // Suppressed pathData warning
   // Legend
   let lx = cx - r;
   datasets.forEach((ds, i) => {
@@ -847,7 +846,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   // PAGE 2 — ENERGY ANALYSIS + SENSITIVITY
   // ══════════════════════════════════════════════════════════════════════════
   doc.addPage();
-  pageHeader(`Energy Performance Analysis  ·  ${cityName}`);
+  pageHeader(doc, `Energy Performance Analysis  ·  ${cityName}`);
   let y = MT + 8;
 
   y = sectionHeader(doc, y, '1. Energy Use Intensity (EUI) — Scenario Comparison', C.navy);
@@ -955,7 +954,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   // PAGE 3 — MATERIAL RECOMMENDATIONS + MONTHLY CLIMATE + RADAR
   // ══════════════════════════════════════════════════════════════════════════
   doc.addPage();
-  pageHeader(`Material Recommendations & Climate Profile  ·  ${cityName}`);
+  pageHeader(doc, `Material Recommendations & Climate Profile  ·  ${cityName}`);
   y = MT + 8;
 
   y = sectionHeader(doc, y, '3. Material Recommendations — Multi-Scenario Comparison', C.sage);
@@ -1074,7 +1073,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   // PAGE 4 — SHAP EXPLAINABILITY + LCCA + THERMAL COMFORT
   // ══════════════════════════════════════════════════════════════════════════
   doc.addPage();
-  pageHeader(`AI Explainability, LCCA & Thermal Analysis  ·  ${cityName}`);
+  pageHeader(doc, `AI Explainability, LCCA & Thermal Analysis  ·  ${cityName}`);
   y = MT + 8;
 
   // SHAP section
@@ -1151,7 +1150,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   // PAGE 5 — METHODOLOGY, MODEL METRICS & REFERENCES
   // ══════════════════════════════════════════════════════════════════════════
   doc.addPage();
-  pageHeader(`Methodology, Model Metrics & References`);
+  pageHeader(doc, `Methodology, Model Metrics & References`);
   y = MT + 8;
 
   y = sectionHeader(doc, y, '9. Physics-Informed Hybrid ML Methodology', C.navy);
