@@ -90,8 +90,8 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
                         30-Year Lifecycle Cost Analysis (LCCA)
                     </h3>
                     <p className="text-xs text-slate-400 mt-1">Cumulative Net Present Value (NPV) vs ECBC Baseline</p>
-                    <p className="text-[10px] text-amber-600 font-semibold mt-0.5 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500/200 inline-block"></span>
+                    <p className="text-[10px] text-amber-400 font-semibold mt-0.5 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
                         Cost values are relative comparison indices, not absolute construction estimates (CPWD 2024).
                     </p>
                 </div>
@@ -99,12 +99,12 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
                 {lccaData.paybackYear ? (
                     <div className="text-right">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Payback Period</div>
-                        <div className="text-2xl font-black text-emerald-600">{lccaData.paybackYear} Years</div>
+                        <div className="text-2xl font-black text-emerald-400">{lccaData.paybackYear} Years</div>
                     </div>
                 ) : lccaData.current_upfront <= lccaData.baseline_upfront ? (
                     <div className="text-right">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Payback Period</div>
-                        <div className="text-2xl font-black text-emerald-600">Immediate</div>
+                        <div className="text-2xl font-black text-emerald-400">Immediate</div>
                     </div>
                 ) : (
                     <div className="text-right">

@@ -1,12 +1,12 @@
 import { BookOpen, Database, FlaskConical, Globe, BarChart3, Layers, Shield, Cpu, Sun, Thermometer, Sparkles } from 'lucide-react';
 
 const BEE_BENCHMARKS = [
-    { label: "5-Star (Best Practice)", eui: "< 75", color: "bg-emerald-500/200", textColor: "text-emerald-700", bgLight: "bg-emerald-500/20 border-emerald-200" },
-    { label: "4-Star (Efficient)",      eui: "75–100", color: "bg-primary",       textColor: "text-primary",       bgLight: "bg-blue-50 border-blue-200" },
-    { label: "3-Star (Standard)",       eui: "100–125", color: "bg-sky-400",      textColor: "text-sky-700",       bgLight: "bg-sky-50 border-sky-200" },
-    { label: "2-Star (Below Average)", eui: "125–150", color: "bg-yellow-400",    textColor: "text-yellow-700",    bgLight: "bg-yellow-50 border-yellow-200" },
-    { label: "1-Star (Poor)",          eui: "150–175", color: "bg-orange-500/200",    textColor: "text-orange-700",    bgLight: "bg-orange-500/20 border-orange-200" },
-    { label: "Non-Compliant (ECBC)",   eui: "> 175",   color: "bg-red-500/200",       textColor: "text-red-700",       bgLight: "bg-red-500/20 border-red-200" },
+    { label: "5-Star (Best Practice)", eui: "< 75", color: "bg-emerald-500", textColor: "text-emerald-400", bgLight: "bg-emerald-500/10 border-emerald-500/30" },
+    { label: "4-Star (Efficient)",      eui: "75–100", color: "bg-blue-400",       textColor: "text-blue-400",       bgLight: "bg-blue-500/10 border-blue-500/30" },
+    { label: "3-Star (Standard)",       eui: "100–125", color: "bg-sky-400",      textColor: "text-sky-400",       bgLight: "bg-sky-500/10 border-sky-500/30" },
+    { label: "2-Star (Below Average)", eui: "125–150", color: "bg-yellow-400",    textColor: "text-yellow-400",    bgLight: "bg-yellow-500/10 border-yellow-500/30" },
+    { label: "1-Star (Poor)",          eui: "150–175", color: "bg-orange-500",    textColor: "text-orange-400",    bgLight: "bg-orange-500/10 border-orange-500/30" },
+    { label: "Non-Compliant (ECBC)",   eui: "> 175",   color: "bg-red-500",       textColor: "text-red-400",       bgLight: "bg-red-500/10 border-red-500/30" },
 ];
 
 const BEE_ZONES = [
@@ -173,8 +173,8 @@ export default function ResearchContext() {
             {/* Limitations & Caveats */}
             <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-200 space-y-3">
                 <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-amber-600" />
-                    <span className="text-xs font-bold text-amber-700 uppercase">Known Limitations & Caveats</span>
+                    <Layers className="w-4 h-4 text-amber-400" />
+                    <span className="text-xs font-bold text-amber-400 uppercase">Known Limitations & Caveats</span>
                 </div>
                 <ul className="space-y-1.5 pl-1">
                     {[

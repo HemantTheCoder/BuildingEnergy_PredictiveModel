@@ -519,7 +519,7 @@ export default function KnowledgeBase() {
                     { icon: Zap, label: 'EUI & Star Rating', desc: 'The core energy metrics', color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/15' },
                     { icon: Layers, label: 'Building Envelope', desc: 'Walls, roofs & glazing', color: 'text-secondary', bg: 'bg-secondary/5', border: 'border-secondary/15' },
                     { icon: Cpu, label: 'AI Explainability', desc: 'SHAP values & the model', color: 'text-accent', bg: 'bg-accent/5', border: 'border-accent/15' },
-                    { icon: Leaf, label: 'Carbon & Climate', desc: 'Emissions & degree-days', color: 'text-emerald-600', bg: 'bg-emerald-500/20', border: 'border-emerald-200' },
+                    { icon: Leaf, label: 'Carbon & Climate', desc: 'Emissions & degree-days', color: 'text-emerald-400', bg: 'bg-emerald-500/20', border: 'border-emerald-200' },
                 ].map(item => {
                     const Icon = item.icon;
                     return (

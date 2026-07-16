@@ -263,7 +263,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
 
             {/* Uncertainty disclaimer */}
             <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-200 flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <p className="text-[10px] text-amber-800 leading-relaxed">
                     <span className="font-bold">Uncertainty note:</span> The prediction interval shown in results 
                     is computed as MAE × 1.96. This is a practical heuristic; it is <em>not</em> a formal 95% 
@@ -305,10 +305,10 @@ function ConfigRow({ label, value, sub }: { label: string; value: string; sub?: 
 
 function MetricPill({ label, value, unit, note, good }: { label: string; value: string; unit?: string; note: string; good: boolean }) {
     return (
-        <div className={cn("p-4 rounded-2xl border flex flex-col", good ? "bg-emerald-500/20 border-emerald-200" : "bg-slate-800/50 border-white/10")}>
+        <div className={cn("p-4 rounded-2xl border flex flex-col", good ? "bg-emerald-500/10 border-emerald-500/30" : "bg-slate-800/50 border-white/10")}>
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
             <div className="flex items-baseline gap-1 mt-1">
-                <span className={cn("text-2xl font-black italic", good ? "text-emerald-700" : "text-slate-200")}>{value}</span>
+                <span className={cn("text-2xl font-black italic", good ? "text-emerald-400" : "text-slate-200")}>{value}</span>
                 {unit && <span className="text-[9px] font-bold text-slate-400 uppercase">{unit}</span>}
             </div>
             <span className="text-[9px] text-slate-400 mt-0.5">{note}</span>

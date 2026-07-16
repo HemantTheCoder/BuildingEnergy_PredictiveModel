@@ -292,8 +292,8 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                             <div className={cn(
                                 "flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border",
                                 epwStatus.type === 'success'
-                                    ? "bg-emerald-500/20 border-emerald-200 text-emerald-700"
-                                    : "bg-red-500/20 border-red-200 text-red-700"
+                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                    : "bg-red-500/10 border-red-500/30 text-red-400"
                             )}>
                                 {epwStatus.type === 'success' ? '✓' : '✗'} {epwStatus.msg}
                             </div>
@@ -596,7 +596,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('roof')}
-                                            className="px-4 h-10 rounded-lg bg-slate-900 border border-white/10 text-yellow-600 text-xs font-semibold hover:bg-slate-800/60 transition-all"
+                                            className="px-4 h-10 rounded-lg bg-slate-900 border border-white/10 text-yellow-400 text-xs font-semibold hover:bg-slate-800/60 transition-all"
                                         >
                                             Save Roof
                                         </button>

@@ -13,25 +13,25 @@ function getECBCContext(material: any): { label: string; color: string } | null 
     const u = parseFloat(material.u_value);
     const type = material.component_type;
     if (type === "wall") {
-        if (u <= 0.44) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
-        if (u <= 0.80) return { label: "ECBC 2017 ✓",  color: "text-sky-700 bg-sky-50 border-sky-200" };
+        if (u <= 0.44) return { label: "SuperECBC ✓", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" };
+        if (u <= 0.80) return { label: "ECBC 2017 ✓",  color: "text-sky-400 bg-sky-500/10 border-sky-500/30" };
     }
     if (type === "roof") {
-        if (u <= 0.20) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
-        if (u <= 0.40) return { label: "ECBC 2017 ✓",  color: "text-sky-700 bg-sky-50 border-sky-200" };
+        if (u <= 0.20) return { label: "SuperECBC ✓", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" };
+        if (u <= 0.40) return { label: "ECBC 2017 ✓",  color: "text-sky-400 bg-sky-500/10 border-sky-500/30" };
     }
     if (type === "glazing") {
-        if (u <= 1.80) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
-        if (u <= 3.30) return { label: "ECBC 2017 ✓",  color: "text-sky-700 bg-sky-50 border-sky-200" };
+        if (u <= 1.80) return { label: "SuperECBC ✓", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" };
+        if (u <= 3.30) return { label: "ECBC 2017 ✓",  color: "text-sky-400 bg-sky-500/10 border-sky-500/30" };
     }
     return null;
 }
 
 function getCarbonLabel(carbon: number): { label: string; color: string } {
-    if (carbon < 0)    return { label: "Carbon-Negative", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
-    if (carbon < 0.50) return { label: "Low Carbon",      color: "text-sky-700 bg-sky-50 border-sky-200" };
-    if (carbon < 1.50) return { label: "Medium Carbon",   color: "text-yellow-700 bg-yellow-50 border-yellow-200" };
-    return               { label: "High Carbon",          color: "text-red-700 bg-red-500/20 border-red-200" };
+    if (carbon < 0)    return { label: "Carbon-Negative", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" };
+    if (carbon < 0.50) return { label: "Low Carbon",      color: "text-sky-400 bg-sky-500/10 border-sky-500/30" };
+    if (carbon < 1.50) return { label: "Medium Carbon",   color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/30" };
+    return               { label: "High Carbon",          color: "text-red-400 bg-red-500/10 border-red-500/30" };
 }
 
 export default function MaterialLibrary({ materials }: { materials: any[] }) {
@@ -113,9 +113,9 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
 
             {/* Legend */}
             <div className="flex flex-wrap gap-3 text-[10px] font-semibold">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500/200" /><span className="text-emerald-700">SuperECBC threshold</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-400" /><span className="text-sky-700">ECBC 2017 compliant</span></div>
-                <div className="flex items-center gap-1.5"><Leaf className="w-3 h-3 text-emerald-600" /><span className="text-slate-400">Carbon-negative</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-emerald-400">SuperECBC threshold</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-400" /><span className="text-sky-400">ECBC 2017 compliant</span></div>
+                <div className="flex items-center gap-1.5"><Leaf className="w-3 h-3 text-emerald-400" /><span className="text-slate-400">Carbon-negative</span></div>
             </div>
 
             {/* Cards */}
@@ -175,11 +175,11 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="p-3 rounded-xl bg-slate-800/50 border border-white/10 space-y-1">
                                     <div className="flex items-center gap-1">
-                                        <Leaf className="w-3 h-3 text-emerald-600" />
+                                        <Leaf className="w-3 h-3 text-emerald-400" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Embodied Carbon</span>
                                     </div>
                                     <div className="flex items-baseline gap-1">
-                                        <span className={cn("text-sm font-bold", carbon < 0 ? "text-emerald-700" : "text-slate-100")}>
+                                        <span className={cn("text-sm font-bold", carbon < 0 ? "text-emerald-400" : "text-slate-100")}>
                                             {carbon >= 0 ? "+" : ""}{carbon.toFixed(2)}
                                         </span>
                                         <span className="text-[8px] text-slate-400 uppercase">kgCO₂e/kg</span>
@@ -244,10 +244,10 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
 
 function Property({ label, value, unit, highlight = false }: { label: string; value: any; unit: string; highlight?: boolean }) {
     return (
-        <div className={cn("p-3 rounded-xl border space-y-0.5", highlight ? "bg-emerald-500/20 border-emerald-200" : "bg-slate-800/50 border-white/10")}>
+        <div className={cn("p-3 rounded-xl border space-y-0.5", highlight ? "bg-emerald-500/10 border-emerald-500/30" : "bg-slate-800/50 border-white/10")}>
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none block">{label}</span>
             <div className="flex items-baseline gap-1">
-                <span className={cn("text-sm font-bold", highlight ? "text-emerald-700" : "text-slate-100")}>
+                <span className={cn("text-sm font-bold", highlight ? "text-emerald-400" : "text-slate-100")}>
                     {typeof value === 'number' ? value : (isNaN(parseFloat(value)) ? value : value)}
                 </span>
                 <span className="text-[8px] font-bold text-slate-400 uppercase">{unit}</span>

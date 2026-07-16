@@ -73,7 +73,7 @@ export default function OptimizerModal({ isOpen, setIsOpen, formData, onApply }:
                                                 <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-100">
                                                     <div className="text-[10px] font-bold text-slate-400 uppercase">Predicted EUI</div>
                                                     <div className="text-xl font-black text-slate-100">{opt.predicted_eui}</div>
-                                                    <div className="text-xs font-bold text-emerald-600">-{opt.improvement_pct}% vs ECBC</div>
+                                                    <div className="text-xs font-bold text-emerald-400">-{opt.improvement_pct}% vs ECBC</div>
                                                 </div>
                                                 <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-100">
                                                     <div className="text-[10px] font-bold text-slate-400 uppercase">Est. Payback</div>

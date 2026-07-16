@@ -231,7 +231,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
     const starBands = BEE_STAR_THRESHOLDS[archKey]?.[ecbcZone] || BEE_STAR_THRESHOLDS['office_small']['Composite'];
 
     const getEUIColor = (eui: number) => {
-        if (eui < starBands.s4) return "text-emerald-600";
+        if (eui < starBands.s4) return "text-emerald-400";
         if (eui < starBands.s3) return "text-amber-500";
         return "text-orange-400";
     };
@@ -296,8 +296,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <span className={cn(
                             "text-[10px] font-bold px-3 py-1 rounded-full border",
                             ecbc_compliance.status === "SuperECBC"      ? "bg-emerald-100 border-emerald-300 text-emerald-400" :
-                            ecbc_compliance.status === "ECBC+"           ? "bg-sky-100 border-sky-300 text-sky-700" :
-                            ecbc_compliance.status === "ECBC Compliant"  ? "bg-blue-100 border-blue-300 text-blue-700" :
+                            ecbc_compliance.status === "ECBC+"           ? "bg-sky-100 border-sky-300 text-sky-400" :
+                            ecbc_compliance.status === "ECBC Compliant"  ? "bg-blue-100 border-blue-300 text-blue-400" :
                             "bg-red-100 border-red-300 text-red-400"
                         )}>
                             {ecbc_compliance.status} — ECBC 2017
@@ -340,8 +340,8 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             
                             {/* Color Legend — BEE Star Rating reference (dynamic per archetype + zone) */}
                             <div className="flex flex-wrap items-center gap-3 mt-1 pb-2">
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500/200" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE 4–5★ (&lt;{starBands.s4})</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500/200" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE 2–3★ ({starBands.s4}–{starBands.s3})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE 4–5★ (&lt;{starBands.s4})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE 2–3★ ({starBands.s4}–{starBands.s3})</span></div>
                                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-600" /><span className="text-[10px] font-bold text-slate-400 uppercase">BEE &lt;2★ (&gt;{starBands.s3})</span></div>
                                 <span className="citation-badge ml-auto">BEE Star Rating 2020 · {ecbcZone}</span>
                             </div>
@@ -350,27 +350,27 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                             <div className="mt-2 mb-4 p-4 rounded-xl bg-emerald-500/20 border border-emerald-200">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="flex items-start gap-3">
-                                        <Leaf className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                                        <Leaf className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                                         <div>
-                                            <span className="text-[10px] font-bold text-emerald-600 uppercase block mb-1">CO₂ Intensity</span>
+                                            <span className="text-[10px] font-bold text-emerald-400 uppercase block mb-1">CO₂ Intensity</span>
                                             <div className="flex items-baseline gap-1">
-                                                <span className="text-2xl font-bold text-emerald-800">{co2Intensity.toFixed(1)}</span>
-                                                <span className="text-xs font-semibold text-emerald-600">kg CO₂/m²·yr</span>
+                                                <span className="text-2xl font-bold text-emerald-300">{co2Intensity.toFixed(1)}</span>
+                                                <span className="text-xs font-semibold text-emerald-400">kg CO₂/m²·yr</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
-                                        <span className="text-[10px] font-bold text-emerald-600 uppercase block mb-1">Annual Building Total</span>
+                                        <span className="text-[10px] font-bold text-emerald-400 uppercase block mb-1">Annual Building Total</span>
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-2xl font-bold text-emerald-800">{co2TotalTonnes.toFixed(1)}</span>
-                                            <span className="text-xs font-semibold text-emerald-600">t CO₂/yr</span>
+                                            <span className="text-2xl font-bold text-emerald-300">{co2TotalTonnes.toFixed(1)}</span>
+                                            <span className="text-xs font-semibold text-emerald-400">t CO₂/yr</span>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div className="mt-4 pt-3 border-t border-emerald-200/60 flex flex-wrap items-center justify-between gap-3">
                                     <div>
-                                        <span className="text-[10px] font-bold text-emerald-600 uppercase block">Paris 2050 Target</span>
+                                        <span className="text-[10px] font-bold text-emerald-400 uppercase block">Paris 2050 Target</span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs font-bold text-emerald-400">≤ 10 kg CO₂/m²·yr</span>
                                             <span className="text-[9px] text-emerald-500">IPCC AR6 WG3 § 9.4</span>
@@ -633,7 +633,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                         <div className="premium-card p-6 border-white/10 bg-slate-900">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                                     <span className="text-xs font-bold text-slate-100 uppercase tracking-wide">Benchmark Validation</span>
                                     <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest"
                                         style={{ backgroundColor: benchmarkResult.statusColor + '18', color: benchmarkResult.statusColor }}>
@@ -684,7 +684,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         style={{ borderColor: benchmarkResult.statusColor }}>
                                         Predicted EUI of <span className="font-bold text-slate-50">{predicted_eui.toFixed(1)} kWh/m²·yr</span> is{' '}
                                         {benchmarkResult.deviation < 0
-                                            ? <span className="text-emerald-600 font-bold">{Math.abs(benchmarkResult.deviationPct).toFixed(1)}% below</span>
+                                            ? <span className="text-emerald-400 font-bold">{Math.abs(benchmarkResult.deviationPct).toFixed(1)}% below</span>
                                             : <span className="text-orange-400 font-bold">{benchmarkResult.deviationPct.toFixed(1)}% above</span>}{' '}
                                         the published typical for {benchmarkResult.archetype.replace('_', ' ')} buildings in a{' '}
                                         <span className="font-semibold">{benchmarkResult.zone}</span> climate.

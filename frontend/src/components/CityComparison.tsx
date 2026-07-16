@@ -64,18 +64,18 @@ const HVAC_OPTIONS = [
 ];
 
 const ZONE_COLOR: Record<string, string> = {
-    'Hot-Dry':   'bg-orange-100 text-orange-700 border-orange-200',
-    'Warm-Humid':'bg-blue-100 text-blue-700 border-blue-200',
+    'Hot-Dry':   'bg-orange-100 text-orange-400 border-orange-200',
+    'Warm-Humid':'bg-blue-100 text-blue-400 border-blue-200',
     'Composite': 'bg-violet-100 text-violet-700 border-violet-200',
-    'Temperate': 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    'Cold':      'bg-sky-100 text-sky-700 border-sky-200',
+    'Temperate': 'bg-emerald-100 text-emerald-400 border-emerald-200',
+    'Cold':      'bg-sky-100 text-sky-400 border-sky-200',
 };
 
 const COMPLIANCE_COLOR: Record<string, string> = {
-    'SuperECBC':     'bg-emerald-100 text-emerald-700 border-emerald-300',
-    'ECBC+':         'bg-sky-100 text-sky-700 border-sky-300',
-    'ECBC Compliant':'bg-blue-100 text-blue-700 border-blue-300',
-    'Non-Compliant': 'bg-red-100 text-red-700 border-red-300',
+    'SuperECBC':     'bg-emerald-100 text-emerald-400 border-emerald-300',
+    'ECBC+':         'bg-sky-100 text-sky-400 border-sky-300',
+    'ECBC Compliant':'bg-blue-100 text-blue-400 border-blue-300',
+    'Non-Compliant': 'bg-red-100 text-red-400 border-red-300',
 };
 
 function KpiCard({ label, a, b, unit, invert = false, format = (v: number) => v.toFixed(1) }: any) {
@@ -88,17 +88,17 @@ function KpiCard({ label, a, b, unit, invert = false, format = (v: number) => v.
             <div className="grid grid-cols-2 gap-3">
                 <div className={cn("rounded-xl p-3 border-2 transition-all", aWins ? "border-emerald-400 bg-emerald-500/20" : bWins ? "border-white/10 bg-slate-800/50" : "border-white/10 bg-slate-800/50")}>
                     <div className="text-[9px] font-black text-slate-400 uppercase mb-1">City A</div>
-                    <div className={cn("text-xl font-black", aWins ? "text-emerald-700" : "text-slate-200")}>{format(a)}</div>
+                    <div className={cn("text-xl font-black", aWins ? "text-emerald-400" : "text-slate-200")}>{format(a)}</div>
                     <div className="text-[9px] text-slate-400 mt-0.5">{unit}</div>
                 </div>
                 <div className={cn("rounded-xl p-3 border-2 transition-all", bWins ? "border-emerald-400 bg-emerald-500/20" : aWins ? "border-white/10 bg-slate-800/50" : "border-white/10 bg-slate-800/50")}>
                     <div className="text-[9px] font-black text-slate-400 uppercase mb-1">City B</div>
-                    <div className={cn("text-xl font-black", bWins ? "text-emerald-700" : "text-slate-200")}>{format(b)}</div>
+                    <div className={cn("text-xl font-black", bWins ? "text-emerald-400" : "text-slate-200")}>{format(b)}</div>
                     <div className="text-[9px] text-slate-400 mt-0.5">{unit}</div>
                 </div>
             </div>
             <div className={cn("text-xs font-bold flex items-center gap-1.5 pt-2 border-t border-slate-100",
-                Math.abs(diff) < 0.5 ? "text-slate-400" : diff < 0 ? (invert ? "text-rose-500" : "text-emerald-600") : (invert ? "text-emerald-600" : "text-rose-500")
+                Math.abs(diff) < 0.5 ? "text-slate-400" : diff < 0 ? (invert ? "text-rose-500" : "text-emerald-400") : (invert ? "text-emerald-400" : "text-rose-500")
             )}>
                 {Math.abs(diff) < 0.5 ? '≈ Equal' : diff < 0 ? '▼' : '▲'} {format(Math.abs(diff))} {unit} {diff < 0 ? 'lower in A' : 'higher in A'}
             </div>
@@ -303,7 +303,7 @@ export default function CityComparison() {
                             <div>
                                 <div className="flex items-center justify-between mb-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">{label}</label>
-                                    {epwName && <span className="text-[9px] font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">EPW LOADED</span>}
+                                    {epwName && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">EPW LOADED</span>}
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
@@ -391,7 +391,7 @@ export default function CityComparison() {
                 </button>
 
                 {error && (
-                    <div className="p-4 rounded-xl bg-orange-500/20 border border-orange-200 text-orange-700 text-xs font-bold">
+                    <div className="p-4 rounded-xl bg-orange-500/20 border border-orange-200 text-orange-400 text-xs font-bold">
                         <AlertTriangle className="w-4 h-4 inline mr-2" />{error}
                     </div>
                 )}
@@ -414,7 +414,7 @@ export default function CityComparison() {
                                 <div className="text-xs font-black text-primary uppercase tracking-widest mb-2">Key Finding</div>
                                 <h3 className="text-2xl font-bold text-slate-100">
                                     <span className="text-primary">{result.delta.lower_eui_city.split(',')[0]}</span> uses{' '}
-                                    <span className="text-emerald-600 font-black">{Math.abs(result.delta.eui_pct_diff).toFixed(1)}%</span> less energy
+                                    <span className="text-emerald-400 font-black">{Math.abs(result.delta.eui_pct_diff).toFixed(1)}%</span> less energy
                                     <br className="hidden sm:block" /> than{' '}
                                     <span className="text-accent">{result.delta.higher_eui_city.split(',')[0]}</span>
                                 </h3>
@@ -452,7 +452,7 @@ export default function CityComparison() {
                                     )}
                                 >
                                     {isLower && (
-                                        <div className="absolute top-3 right-3 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
+                                        <div className="absolute top-3 right-3 bg-emerald-100 text-emerald-400 text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
                                             <CheckCircle2 className="w-2.5 h-2.5" /> Lower EUI
                                         </div>
                                     )}
@@ -573,12 +573,12 @@ export default function CityComparison() {
                                     return (
                                         <tr key={i} className="hover:bg-slate-800/50">
                                             <td className="py-3 px-3 font-semibold text-slate-300">{metric}</td>
-                                            <td className={cn("py-3 px-3 text-center font-bold", aWins ? "text-emerald-600" : "text-slate-100")}>{fmt(a)}</td>
-                                            <td className={cn("py-3 px-3 text-center font-bold", bWins ? "text-emerald-600" : "text-slate-100")}>{fmt(b)}</td>
+                                            <td className={cn("py-3 px-3 text-center font-bold", aWins ? "text-emerald-400" : "text-slate-100")}>{fmt(a)}</td>
+                                            <td className={cn("py-3 px-3 text-center font-bold", bWins ? "text-emerald-400" : "text-slate-100")}>{fmt(b)}</td>
                                             <td className={cn("py-3 px-3 text-center font-mono text-[11px]",
                                                 lowerIsBetter === null ? "text-slate-400" :
-                                                diff < 0 ? (lowerIsBetter ? "text-emerald-600 font-bold" : "text-rose-500") :
-                                                diff > 0 ? (lowerIsBetter ? "text-rose-500" : "text-emerald-600 font-bold") : "text-slate-400"
+                                                diff < 0 ? (lowerIsBetter ? "text-emerald-400 font-bold" : "text-rose-500") :
+                                                diff > 0 ? (lowerIsBetter ? "text-rose-500" : "text-emerald-400 font-bold") : "text-slate-400"
                                             )}>
                                                 {diff === 0 ? '—' : `${diff > 0 ? '+' : ''}${fmt(diff).replace('₹', '').replace('%', '')}`}
                                             </td>
@@ -651,7 +651,7 @@ export default function CityComparison() {
                                             <div className="text-xs font-semibold text-slate-200">{city.top_material_recommendations[0].wall}</div>
                                             <div className="text-xs text-slate-400">{city.top_material_recommendations[0].roof}</div>
                                             <div className="flex items-center gap-3 mt-2">
-                                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                                                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-100 px-2 py-0.5 rounded-full">
                                                     EUI: {city.top_material_recommendations[0].predicted_eui?.toFixed(1)} kWh/m²·yr
                                                 </span>
                                             </div>
