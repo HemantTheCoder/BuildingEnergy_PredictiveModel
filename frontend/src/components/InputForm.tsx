@@ -172,16 +172,16 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
     };
 
     return (
-        <form onSubmit={handleSubmit} className="premium-card p-6 space-y-8 relative group text-slate-800">
+        <form onSubmit={handleSubmit} className="premium-card p-6 space-y-8 relative group text-slate-100">
             
             {/* Mode Toggle Bar */}
-            <div className="flex border-b border-slate-200 mb-6 pb-2">
+            <div className="flex border-b border-white/10 mb-6 pb-2">
                 <button
                     type="button"
                     onClick={() => setIsAdvancedMode(false)}
                     className={cn(
                         "px-6 py-2 text-sm font-semibold transition-all relative",
-                        !isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-slate-500 hover:text-slate-800"
+                        !isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-slate-400 hover:text-slate-100"
                     )}
                 >
                     Simple Mode
@@ -192,7 +192,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                     onClick={() => setIsAdvancedMode(true)}
                     className={cn(
                         "px-6 py-2 text-sm font-semibold transition-all relative",
-                        isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-slate-500 hover:text-slate-800"
+                        isAdvancedMode ? "text-primary bg-primary/5 rounded-t-lg" : "text-slate-400 hover:text-slate-100"
                     )}
                 >
                     Advanced Editor
@@ -217,18 +217,18 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                     )}
                 </div>
 
-                <div className="flex bg-slate-100/50 p-1 rounded-xl w-full mb-2 border border-slate-200">
+                <div className="flex bg-slate-800/60/50 p-1 rounded-xl w-full mb-2 border border-white/10">
                     <button 
                         type="button" 
                         onClick={() => setClimateSource('nasa')} 
-                        className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", climateSource === 'nasa' ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700")}
+                        className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", climateSource === 'nasa' ? "bg-slate-900 shadow-sm text-primary" : "text-slate-400 hover:text-slate-200")}
                     >
                         NASA POWER API (Auto)
                     </button>
                     <button 
                         type="button" 
                         onClick={() => setClimateSource('epw')} 
-                        className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", climateSource === 'epw' ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700")}
+                        className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", climateSource === 'epw' ? "bg-slate-900 shadow-sm text-primary" : "text-slate-400 hover:text-slate-200")}
                     >
                         EPW File Upload
                     </button>
@@ -241,7 +241,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                 list="indian-cities"
                                 type="text"
                                 value={formData.city}
-                                className="w-full glass-input h-12 text-sm pl-10 bg-white"
+                                className="w-full glass-input h-12 text-sm pl-10 bg-slate-900"
                                 onChange={(e) => {
                                     const val = e.target.value;
                                     setFormData({ ...formData, city: val });
@@ -261,7 +261,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                             type="button"
                             title="Force Climate Fetch"
                             onClick={() => fetchClimate(formData.city)}
-                            className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all text-slate-500"
+                            className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-800/50 border border-white/10 hover:bg-slate-800/60 transition-all text-slate-400"
                         >
                             <RefreshCcw className={cn("w-4 h-4", fetchingClimate && "animate-spin")} />
                         </button>
@@ -270,7 +270,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                             onClick={() => setManualClimate(!manualClimate)}
                             className={cn(
                                 "flex items-center gap-2 px-4 h-12 rounded-xl border transition-all text-sm font-semibold",
-                                manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800"
+                                manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-800/50 border-white/10 text-slate-300 hover:text-slate-100"
                             )}
                         >
                             <Settings2 className="w-4 h-4" />
@@ -281,10 +281,10 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                     <div className="space-y-3">
                         <label className={cn(
                             "flex flex-col items-center justify-center w-full h-28 rounded-xl border-2 border-dashed transition-all cursor-pointer",
-                            uploadingEPW ? "bg-slate-50 border-slate-300 opacity-70" : "bg-white border-slate-300 hover:border-primary hover:bg-primary/5"
+                            uploadingEPW ? "bg-slate-800/50 border-white/20 opacity-70" : "bg-slate-900 border-white/20 hover:border-primary hover:bg-primary/5"
                         )}>
                             <UploadCloud className={cn("w-6 h-6 text-slate-400 mb-2", uploadingEPW && "animate-bounce text-primary")} />
-                            <span className="text-sm font-semibold text-slate-600">{uploadingEPW ? 'Parsing Data...' : 'Drop EPW file here or click to browse'}</span>
+                            <span className="text-sm font-semibold text-slate-300">{uploadingEPW ? 'Parsing Data...' : 'Drop EPW file here or click to browse'}</span>
                             <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Standard .epw weather format</span>
                             <input type="file" accept=".epw" className="hidden" onChange={handleFileUpload} disabled={uploadingEPW} />
                         </label>
@@ -292,8 +292,8 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                             <div className={cn(
                                 "flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border",
                                 epwStatus.type === 'success'
-                                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                                    : "bg-red-50 border-red-200 text-red-700"
+                                    ? "bg-emerald-500/20 border-emerald-200 text-emerald-700"
+                                    : "bg-red-500/20 border-red-200 text-red-700"
                             )}>
                                 {epwStatus.type === 'success' ? '✓' : '✗'} {epwStatus.msg}
                             </div>
@@ -305,10 +305,10 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                     <span>Download EPW from Climate.OneBuilding</span>
                                 </a>
                                 {detectedEPWCity && (
-                                    <div className="flex items-center gap-2 mt-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg w-fit">
+                                    <div className="flex items-center gap-2 mt-2 bg-slate-800/50 border border-white/10 px-3 py-1.5 rounded-lg w-fit">
                                         <MapPin className="w-3 h-3 text-secondary" />
-                                        <span className="text-[10px] uppercase font-bold text-slate-500">Detected: </span>
-                                        <span className="text-xs font-bold text-slate-800">{detectedEPWCity}</span>
+                                        <span className="text-[10px] uppercase font-bold text-slate-400">Detected: </span>
+                                        <span className="text-xs font-bold text-slate-100">{detectedEPWCity}</span>
                                     </div>
                                 )}
                             </div>
@@ -317,7 +317,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                 onClick={() => setManualClimate(!manualClimate)}
                                 className={cn(
                                     "flex items-center gap-2 px-4 h-9 rounded-lg border transition-all text-xs font-semibold",
-                                    manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800"
+                                    manualClimate ? "bg-primary/10 border-primary/30 text-primary" : "bg-slate-800/50 border-white/10 text-slate-400 hover:text-slate-100"
                                 )}
                             >
                                 <Settings2 className="w-3.5 h-3.5" />
@@ -335,7 +335,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
                                 <ClimateField
                                     icon={<Thermometer className="w-4 h-4 text-orange-500" />}
                                     label="Cooling Degree Days"
@@ -368,7 +368,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Primary Archetype</label>
+                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Primary Archetype</label>
                         <select
                             className="w-full glass-input h-12"
                             value={formData.archetype}
@@ -390,8 +390,8 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                             <option value="healthcare">Healthcare / Clinic</option>
                         </select>
                         {!isAdvancedMode && (
-                            <div className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-500 font-medium leading-relaxed">
-                                <span className="font-bold text-slate-700">Physics Defaults Applied: </span>
+                            <div className="mt-2 p-2 bg-slate-800/50 border border-white/10 rounded text-[10px] text-slate-400 font-medium leading-relaxed">
+                                <span className="font-bold text-slate-200">Physics Defaults Applied: </span>
                                 {ARCHETYPE_DEFAULTS[formData.archetype]?.hours || 50} hrs/wk, {ARCHETYPE_DEFAULTS[formData.archetype]?.occ || 0.1} ppl/m², {ARCHETYPE_DEFAULTS[formData.archetype]?.eq || 10.0} W/m².<br/>
                                 <span className="text-primary italic">Toggle Advanced Editor to manually override.</span>
                             </div>
@@ -399,7 +399,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Net Floor Area (m²)</label>
+                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Net Floor Area (m²)</label>
                         <div className="relative">
                             <input
                                 type="number"
@@ -413,12 +413,12 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Simulation Model</label>
+                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Simulation Model</label>
                             <select
                                 name="model_type"
                                 value={formData.model_type}
                                 onChange={(e) => setFormData({ ...formData, model_type: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl focus:ring-secondary focus:border-secondary transition-all px-4 py-3 appearance-none font-bold"
+                                className="w-full bg-slate-800/50 border border-white/10 text-slate-100 text-xs rounded-xl focus:ring-secondary focus:border-secondary transition-all px-4 py-3 appearance-none font-bold"
                             >
                                 <option value="XGBoost">XGBoost API</option>
                                 <option value="RandomForest">Random Forest</option>
@@ -430,7 +430,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">HVAC Strategy</label>
+                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">HVAC Strategy</label>
                             <select
                                 className="w-full glass-input h-12"
                                 value={formData.hvac_type}
@@ -446,7 +446,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
                                 Operating Hours / Wk <Definition text="Hours the building is fully active per week." />
                             </label>
                             <input
@@ -460,7 +460,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
                                 Occupancy Density <Definition text="Personnel density (ppl/m²)." />
                             </label>
                             <input
@@ -474,7 +474,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
                     {isAdvancedMode && (
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
                                 Plug Loads (W/m²) <Definition text="Equipment heat load." />
                             </label>
                             <input
@@ -523,7 +523,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
             {/* Section 2.5: Thermal Performance Overrides */}
             {isAdvancedMode && (
-                <section className="space-y-4 border-t border-slate-200 pt-4">
+                <section className="space-y-4 border-t border-white/10 pt-4">
                      <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold text-accent flex items-center gap-2">
                             <Layers className="w-4 h-4" /> Thermal Performance Overrides
@@ -533,7 +533,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                             onClick={() => setManualMaterials(!manualMaterials)}
                             className={cn(
                                 "flex items-center gap-2 px-4 h-9 rounded-xl border transition-all text-xs font-semibold",
-                                manualMaterials ? "bg-orange-100 border-orange-300 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700"
+                                manualMaterials ? "bg-orange-100 border-orange-300 text-orange-600" : "bg-slate-800/50 border-white/10 text-slate-400 hover:text-slate-200"
                             )}
                         >
                             <Settings2 className="w-3.5 h-3.5" />
@@ -576,8 +576,8 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                     />
                                 </div>
                                 
-                                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
-                                    <div className="text-xs font-semibold text-slate-500">Save to Project Library</div>
+                                <div className="p-4 rounded-xl border border-white/10 bg-slate-800/50 space-y-3">
+                                    <div className="text-xs font-semibold text-slate-400">Save to Project Library</div>
                                     <div className="flex gap-3">
                                         <input 
                                             type="text" 
@@ -589,21 +589,21 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('wall')}
-                                            className="px-4 h-10 rounded-lg bg-white border border-slate-200 text-orange-600 text-xs font-semibold hover:bg-slate-100 transition-all"
+                                            className="px-4 h-10 rounded-lg bg-slate-900 border border-white/10 text-orange-600 text-xs font-semibold hover:bg-slate-800/60 transition-all"
                                         >
                                             Save Wall
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('roof')}
-                                            className="px-4 h-10 rounded-lg bg-white border border-slate-200 text-yellow-600 text-xs font-semibold hover:bg-slate-100 transition-all"
+                                            className="px-4 h-10 rounded-lg bg-slate-900 border border-white/10 text-yellow-600 text-xs font-semibold hover:bg-slate-800/60 transition-all"
                                         >
                                             Save Roof
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={() => saveToLibrary('glazing')}
-                                            className="px-4 h-10 rounded-lg bg-white border border-slate-200 text-primary text-xs font-semibold hover:bg-slate-100 transition-all"
+                                            className="px-4 h-10 rounded-lg bg-slate-900 border border-white/10 text-primary text-xs font-semibold hover:bg-slate-800/60 transition-all"
                                         >
                                             Save Glass
                                         </button>
@@ -620,7 +620,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                                             property_overrides: { ...m.props },
                                                             material_overrides: { ...formData.material_overrides, [m.type]: m.name }
                                                         })}
-                                                        className="px-3 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors shadow-sm"
+                                                        className="px-3 py-1.5 rounded-md bg-slate-900 border border-white/10 text-xs font-medium text-slate-300 hover:text-slate-50 transition-colors shadow-sm"
                                                     >
                                                         {m.name.replace('Custom: ', '')}
                                                     </button>
@@ -652,7 +652,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
                                     "p-3 rounded-xl border transition-all text-sm font-semibold flex items-center justify-center gap-2 shadow-sm",
                                     formData.orientation === dir 
                                         ? "bg-primary/10 border-primary/40 text-primary" 
-                                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                                        : "bg-slate-900 border-white/10 text-slate-400 hover:bg-slate-800/50"
                                 )}
                             >
                                 <div className={cn(
@@ -668,7 +668,7 @@ export default function InputForm({ onPredict, onChange, loading, backendStatus 
 
             <section className="space-y-4 pb-4">
                 <div className="flex justify-between items-center">
-                    <label className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                    <label className="text-sm font-semibold text-slate-100 flex items-center gap-2">
                          Window to Wall Ratio (WWR)
                     </label>
                     <div className="text-xl font-bold text-primary">{(formData.wwr * 100).toFixed(0)}%</div>
@@ -732,16 +732,16 @@ function Definition({ text }: { text: string }) {
 
 function ClimateField({ icon, label, value, onChange }: any) {
     return (
-        <div className="space-y-2 p-3 rounded-xl bg-white border border-slate-200 shadow-sm">
+        <div className="space-y-2 p-3 rounded-xl bg-slate-900 border border-white/10 shadow-sm">
             <div className="flex items-center gap-2">
                 {icon}
-                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{label}</span>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span>
             </div>
             <input
                 type="number"
                 value={value}
                 onChange={(e) => onChange(Number(e.target.value))}
-                className="w-full bg-transparent text-lg font-bold focus:outline-none text-slate-800"
+                className="w-full bg-transparent text-lg font-bold focus:outline-none text-slate-100"
             />
         </div>
     );
@@ -750,12 +750,12 @@ function ClimateField({ icon, label, value, onChange }: any) {
 function MaterialSelect({ label, value, options, customOptions, onChange }: any) {
     return (
         <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{label}</label>
             <div className="relative group/sel">
                 <select 
                     value={value || ""}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full glass-input h-12 text-sm appearance-none pr-10 bg-white"
+                    className="w-full glass-input h-12 text-sm appearance-none pr-10 bg-slate-900"
                 >
                     <option value="">System Default</option>
                     {customOptions.length > 0 && (

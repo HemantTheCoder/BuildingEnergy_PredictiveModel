@@ -1,12 +1,12 @@
 import { BookOpen, Database, FlaskConical, Globe, BarChart3, Layers, Shield, Cpu, Sun, Thermometer, Sparkles } from 'lucide-react';
 
 const BEE_BENCHMARKS = [
-    { label: "5-Star (Best Practice)", eui: "< 75", color: "bg-emerald-500", textColor: "text-emerald-700", bgLight: "bg-emerald-50 border-emerald-200" },
+    { label: "5-Star (Best Practice)", eui: "< 75", color: "bg-emerald-500/200", textColor: "text-emerald-700", bgLight: "bg-emerald-500/20 border-emerald-200" },
     { label: "4-Star (Efficient)",      eui: "75–100", color: "bg-primary",       textColor: "text-primary",       bgLight: "bg-blue-50 border-blue-200" },
     { label: "3-Star (Standard)",       eui: "100–125", color: "bg-sky-400",      textColor: "text-sky-700",       bgLight: "bg-sky-50 border-sky-200" },
     { label: "2-Star (Below Average)", eui: "125–150", color: "bg-yellow-400",    textColor: "text-yellow-700",    bgLight: "bg-yellow-50 border-yellow-200" },
-    { label: "1-Star (Poor)",          eui: "150–175", color: "bg-orange-500",    textColor: "text-orange-700",    bgLight: "bg-orange-50 border-orange-200" },
-    { label: "Non-Compliant (ECBC)",   eui: "> 175",   color: "bg-red-500",       textColor: "text-red-700",       bgLight: "bg-red-50 border-red-200" },
+    { label: "1-Star (Poor)",          eui: "150–175", color: "bg-orange-500/200",    textColor: "text-orange-700",    bgLight: "bg-orange-500/20 border-orange-200" },
+    { label: "Non-Compliant (ECBC)",   eui: "> 175",   color: "bg-red-500/200",       textColor: "text-red-700",       bgLight: "bg-red-500/20 border-red-200" },
 ];
 
 const BEE_ZONES = [
@@ -65,10 +65,10 @@ export default function ResearchContext() {
                     <BookOpen className="w-4 h-4 text-primary" />
                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Research Context</span>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+                <h2 className="text-2xl font-bold text-slate-100 tracking-tight">
                     How This Tool Works
                 </h2>
-                <p className="text-sm text-slate-500 leading-relaxed max-w-2xl">
+                <p className="text-sm text-slate-400 leading-relaxed max-w-2xl">
                     ClimaBuild AI is a physics-informed machine learning surrogate for commercial building 
                     energy simulation in India, grounded in BEE ECBC 2017, NASA POWER climate data, 
                     BMTPC material standards, and ASHRAE thermal science.
@@ -76,15 +76,15 @@ export default function ResearchContext() {
             </div>
 
             {/* BEE EUI Benchmark Reference */}
-            <div className="premium-card p-6 space-y-4 border-slate-200">
+            <div className="premium-card p-6 space-y-4 border-white/10">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <BarChart3 className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-bold text-slate-800">BEE Star Rating — EUI Benchmarks (Office Buildings)</span>
+                        <span className="text-sm font-bold text-slate-100">BEE Star Rating — EUI Benchmarks (Office Buildings)</span>
                     </div>
                     <span className="citation-badge">BEE Star Rating 2020</span>
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-400 leading-relaxed">
                     Energy Use Intensity (kWh/m²·yr) reference ranges for commercial offices per the 
                     Bureau of Energy Efficiency Star Rating Programme for Buildings.
                 </p>
@@ -95,7 +95,7 @@ export default function ResearchContext() {
                                 <div className={`w-2.5 h-2.5 rounded-full ${b.color}`} />
                                 <span className={b.textColor}>{b.label}</span>
                             </div>
-                            <span className="font-bold text-slate-700">{b.eui} kWh/m²·yr</span>
+                            <span className="font-bold text-slate-200">{b.eui} kWh/m²·yr</span>
                         </div>
                     ))}
                 </div>
@@ -110,22 +110,22 @@ export default function ResearchContext() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 
                 {/* BEE Climate Zones */}
-                <div className="premium-card p-6 space-y-4 border-slate-200">
+                <div className="premium-card p-6 space-y-4 border-white/10">
                     <div className="flex items-center gap-2">
                         <Thermometer className="w-4 h-4 text-secondary" />
-                        <span className="text-sm font-bold text-slate-800">NBC 2016 / ECBC 2017 Climate Zones</span>
+                        <span className="text-sm font-bold text-slate-100">NBC 2016 / ECBC 2017 Climate Zones</span>
                         <span className="citation-badge ml-auto">NBC 2016 · SP 41</span>
                     </div>
                     <div className="space-y-2">
                         {BEE_ZONES.map((z) => (
-                            <div key={z.name} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <div key={z.name} className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/50 border border-white/10">
                                 <span className="text-lg leading-none mt-0.5">{z.icon}</span>
                                 <div className="min-w-0">
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-xs font-bold text-slate-800">{z.name}</span>
+                                        <span className="text-xs font-bold text-slate-100">{z.name}</span>
                                         <span className="text-[10px] text-slate-400 italic">{z.desc}</span>
                                     </div>
-                                    <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{z.example}</p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5 font-medium">{z.example}</p>
                                 </div>
                             </div>
                         ))}
@@ -133,20 +133,20 @@ export default function ResearchContext() {
                 </div>
 
                 {/* Simulation Methodology */}
-                <div className="premium-card p-6 space-y-4 border-slate-200">
+                <div className="premium-card p-6 space-y-4 border-white/10">
                     <div className="flex items-center gap-2">
                         <FlaskConical className="w-4 h-4 text-accent" />
-                        <span className="text-sm font-bold text-slate-800">Simulation Methodology</span>
+                        <span className="text-sm font-bold text-slate-100">Simulation Methodology</span>
                     </div>
                     <div className="space-y-3">
                         {METHODOLOGY_STEPS.map((step, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                                <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
+                            <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/50 border border-white/10">
+                                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center shrink-0 shadow-sm">
                                     {step.icon}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-bold text-slate-800">{step.title}</p>
-                                    <p className="text-[10px] text-slate-500 leading-relaxed mt-0.5">{step.desc}</p>
+                                    <p className="text-xs font-bold text-slate-100">{step.title}</p>
+                                    <p className="text-[10px] text-slate-400 leading-relaxed mt-0.5">{step.desc}</p>
                                 </div>
                             </div>
                         ))}
@@ -155,23 +155,23 @@ export default function ResearchContext() {
             </div>
 
             {/* Data Sources */}
-            <div className="premium-card p-6 space-y-4 border-slate-200">
+            <div className="premium-card p-6 space-y-4 border-white/10">
                 <div className="flex items-center gap-2">
                     <Database className="w-4 h-4 text-secondary" />
-                    <span className="text-sm font-bold text-slate-800">Data Provenance</span>
+                    <span className="text-sm font-bold text-slate-100">Data Provenance</span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {DATA_SOURCES.map((src) => (
-                        <div key={src.name} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <div key={src.name} className="p-3 rounded-xl bg-slate-800/50 border border-white/10 space-y-1">
                             <span className="text-[10px] font-bold text-primary uppercase tracking-wide block">{src.name}</span>
-                            <span className="text-[10px] text-slate-500 leading-relaxed">{src.role}</span>
+                            <span className="text-[10px] text-slate-400 leading-relaxed">{src.role}</span>
                         </div>
                     ))}
                 </div>
             </div>
 
             {/* Limitations & Caveats */}
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-3">
+            <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-200 space-y-3">
                 <div className="flex items-center gap-2">
                     <Layers className="w-4 h-4 text-amber-600" />
                     <span className="text-xs font-bold text-amber-700 uppercase">Known Limitations & Caveats</span>
@@ -193,12 +193,12 @@ export default function ResearchContext() {
             </div>
 
             {/* Key Literature */}
-            <div className="premium-card p-6 space-y-4 border-slate-200">
+            <div className="premium-card p-6 space-y-4 border-white/10">
                 <div className="flex items-center gap-2">
                     <Sun className="w-4 h-4 text-accent" />
-                    <span className="text-sm font-bold text-slate-800">Key Literature</span>
+                    <span className="text-sm font-bold text-slate-100">Key Literature</span>
                 </div>
-                <div className="space-y-2 text-[10px] text-slate-600 leading-relaxed font-mono">
+                <div className="space-y-2 text-[10px] text-slate-300 leading-relaxed font-mono">
                     {[
                         "[1] BEE. Energy Conservation Building Code (ECBC) 2017. Ministry of Power, India.",
                         "[2] Bureau of Energy Efficiency. Star Rating Programme for Commercial Buildings, 2018–2020.",

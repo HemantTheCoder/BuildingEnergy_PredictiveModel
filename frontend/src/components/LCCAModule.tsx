@@ -82,16 +82,16 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
     const formatRupee = (val: number) => `₹${val.toFixed(1)}L`;
 
     return (
-        <div className="premium-card bg-white p-6 space-y-6">
+        <div className="premium-card bg-slate-900 p-6 space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-emerald-500" />
                         30-Year Lifecycle Cost Analysis (LCCA)
                     </h3>
-                    <p className="text-xs text-slate-500 mt-1">Cumulative Net Present Value (NPV) vs ECBC Baseline</p>
+                    <p className="text-xs text-slate-400 mt-1">Cumulative Net Present Value (NPV) vs ECBC Baseline</p>
                     <p className="text-[10px] text-amber-600 font-semibold mt-0.5 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500/200 inline-block"></span>
                         Cost values are relative comparison indices, not absolute construction estimates (CPWD 2024).
                     </p>
                 </div>
@@ -117,30 +117,30 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-4">
                     <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Electricity Rate (₹/kWh)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Electricity Rate (₹/kWh)</label>
                         <div className="flex items-center gap-3">
                             <input type="range" min="4" max="15" step="0.5" value={elecRate} onChange={e => setElecRate(parseFloat(e.target.value))} className="w-full accent-emerald-500" />
-                            <span className="text-sm font-bold text-slate-800 w-12">₹{elecRate}</span>
+                            <span className="text-sm font-bold text-slate-100 w-12">₹{elecRate}</span>
                         </div>
                     </div>
                     <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Discount Rate (%)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Discount Rate (%)</label>
                         <div className="flex items-center gap-3">
                             <input type="range" min="2" max="15" step="0.5" value={discountRate} onChange={e => setDiscountRate(parseFloat(e.target.value))} className="w-full accent-emerald-500" />
-                            <span className="text-sm font-bold text-slate-800 w-12">{discountRate}%</span>
+                            <span className="text-sm font-bold text-slate-100 w-12">{discountRate}%</span>
                         </div>
                     </div>
                     <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Energy Inflation (%)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Energy Inflation (%)</label>
                         <div className="flex items-center gap-3">
                             <input type="range" min="0" max="10" step="0.5" value={inflationRate} onChange={e => setInflationRate(parseFloat(e.target.value))} className="w-full accent-emerald-500" />
-                            <span className="text-sm font-bold text-slate-800 w-12">{inflationRate}%</span>
+                            <span className="text-sm font-bold text-slate-100 w-12">{inflationRate}%</span>
                         </div>
                     </div>
                     
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mt-4">
-                        <h4 className="text-xs font-bold text-slate-800 mb-2 flex items-center gap-1"><Settings2 className="w-3 h-3" /> Baseline Assumptions</h4>
-                        <ul className="text-[10px] text-slate-600 space-y-1">
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-100 mt-4">
+                        <h4 className="text-xs font-bold text-slate-100 mb-2 flex items-center gap-1"><Settings2 className="w-3 h-3" /> Baseline Assumptions</h4>
+                        <ul className="text-[10px] text-slate-300 space-y-1">
                             <li>• <b>WWR:</b> 40%</li>
                             <li>• <b>Wall U-Value:</b> 0.80 W/m²·K</li>
                             <li>• <b>Roof U-Value:</b> 0.40 W/m²·K</li>
@@ -155,8 +155,8 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={lccaData.data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                            <XAxis dataKey="year" tick={{fill: '#64748b', fontSize: 10}} tickLine={false} axisLine={false} />
-                            <YAxis tickFormatter={formatRupee} tick={{fill: '#64748b', fontSize: 10}} tickLine={false} axisLine={false} width={60} />
+                            <XAxis dataKey="year" tick={{fill: '#cbd5e1', fontSize: 10}} tickLine={false} axisLine={false} />
+                            <YAxis tickFormatter={formatRupee} tick={{fill: '#cbd5e1', fontSize: 10}} tickLine={false} axisLine={false} width={60} />
                             <RechartsTooltip 
                                 formatter={(value: any) => [`₹${Number(value).toFixed(1)} Lakhs`, '']}
                                 labelFormatter={(label) => `Year ${label}`}

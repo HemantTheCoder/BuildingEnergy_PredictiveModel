@@ -83,17 +83,17 @@ function KpiCard({ label, a, b, unit, invert = false, format = (v: number) => v.
     const aWins = invert ? a > b : a < b;
     const bWins = invert ? b > a : b < a;
     return (
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+        <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
             <div className="grid grid-cols-2 gap-3">
-                <div className={cn("rounded-xl p-3 border-2 transition-all", aWins ? "border-emerald-400 bg-emerald-50" : bWins ? "border-slate-200 bg-slate-50" : "border-slate-200 bg-slate-50")}>
+                <div className={cn("rounded-xl p-3 border-2 transition-all", aWins ? "border-emerald-400 bg-emerald-500/20" : bWins ? "border-white/10 bg-slate-800/50" : "border-white/10 bg-slate-800/50")}>
                     <div className="text-[9px] font-black text-slate-400 uppercase mb-1">City A</div>
-                    <div className={cn("text-xl font-black", aWins ? "text-emerald-700" : "text-slate-700")}>{format(a)}</div>
+                    <div className={cn("text-xl font-black", aWins ? "text-emerald-700" : "text-slate-200")}>{format(a)}</div>
                     <div className="text-[9px] text-slate-400 mt-0.5">{unit}</div>
                 </div>
-                <div className={cn("rounded-xl p-3 border-2 transition-all", bWins ? "border-emerald-400 bg-emerald-50" : aWins ? "border-slate-200 bg-slate-50" : "border-slate-200 bg-slate-50")}>
+                <div className={cn("rounded-xl p-3 border-2 transition-all", bWins ? "border-emerald-400 bg-emerald-500/20" : aWins ? "border-white/10 bg-slate-800/50" : "border-white/10 bg-slate-800/50")}>
                     <div className="text-[9px] font-black text-slate-400 uppercase mb-1">City B</div>
-                    <div className={cn("text-xl font-black", bWins ? "text-emerald-700" : "text-slate-700")}>{format(b)}</div>
+                    <div className={cn("text-xl font-black", bWins ? "text-emerald-700" : "text-slate-200")}>{format(b)}</div>
                     <div className="text-[9px] text-slate-400 mt-0.5">{unit}</div>
                 </div>
             </div>
@@ -272,10 +272,10 @@ export default function CityComparison() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-2">
                     <div className="text-xs font-black text-primary uppercase tracking-[0.3em]">Research · ECBC 2017</div>
-                    <h2 className="text-4xl font-bold tracking-tight text-slate-800">
+                    <h2 className="text-4xl font-bold tracking-tight text-slate-100">
                         City <span className="text-secondary">Comparison</span>
                     </h2>
-                    <p className="text-slate-500 text-base max-w-2xl">
+                    <p className="text-slate-400 text-base max-w-2xl">
                         Run identical building simulations across two Indian cities to quantify the climate-driven
                         EUI differential — ideal for your research paper's comparative analysis section.
                     </p>
@@ -287,10 +287,10 @@ export default function CityComparison() {
             </div>
 
             {/* Config Panel */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+            <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-sm space-y-6">
                 <div className="flex items-center gap-2 mb-1">
                     <ArrowRightLeft className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Simulation Configuration</h3>
+                    <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wide">Simulation Configuration</h3>
                 </div>
 
                 {/* City selectors */}
@@ -320,8 +320,8 @@ export default function CityComparison() {
                                     />
                                 </div>
                             </div>
-                            <div className="mt-3 pt-3 border-t border-slate-200/50 flex justify-end">
-                                <label className="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors">
+                            <div className="mt-3 pt-3 border-t border-white/10/50 flex justify-end">
+                                <label className="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-primary transition-colors">
                                     <Upload className="w-3.5 h-3.5" />
                                     {epwName ? 'Replace EPW' : 'Upload .epw'}
                                     <input type="file" accept=".epw" className="hidden" onChange={e => {
@@ -391,7 +391,7 @@ export default function CityComparison() {
                 </button>
 
                 {error && (
-                    <div className="p-4 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold">
+                    <div className="p-4 rounded-xl bg-orange-500/20 border border-orange-200 text-orange-700 text-xs font-bold">
                         <AlertTriangle className="w-4 h-4 inline mr-2" />{error}
                     </div>
                 )}
@@ -412,13 +412,13 @@ export default function CityComparison() {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                             <div>
                                 <div className="text-xs font-black text-primary uppercase tracking-widest mb-2">Key Finding</div>
-                                <h3 className="text-2xl font-bold text-slate-800">
+                                <h3 className="text-2xl font-bold text-slate-100">
                                     <span className="text-primary">{result.delta.lower_eui_city.split(',')[0]}</span> uses{' '}
                                     <span className="text-emerald-600 font-black">{Math.abs(result.delta.eui_pct_diff).toFixed(1)}%</span> less energy
                                     <br className="hidden sm:block" /> than{' '}
                                     <span className="text-accent">{result.delta.higher_eui_city.split(',')[0]}</span>
                                 </h3>
-                                <p className="text-slate-500 text-sm mt-2">
+                                <p className="text-slate-400 text-sm mt-2">
                                     EUI Δ = {Math.abs(result.delta.eui_diff).toFixed(1)} kWh/m²·yr &nbsp;|&nbsp;
                                     CO₂ Δ = {Math.abs(result.delta.co2_diff_kg_m2).toFixed(1)} kg CO₂/m²·yr &nbsp;|&nbsp;
                                     Zones: {result.delta.climate_zone_a} vs {result.delta.climate_zone_b}
@@ -426,7 +426,7 @@ export default function CityComparison() {
                             </div>
                             <button
                                 onClick={exportResearchCSV}
-                                className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-sm font-bold text-slate-700 shadow-sm transition-all shrink-0"
+                                className="flex items-center gap-2 px-5 py-3 bg-slate-900 border border-white/10 hover:bg-slate-800/50 rounded-xl text-sm font-bold text-slate-200 shadow-sm transition-all shrink-0"
                             >
                                 <Download className="w-4 h-4 text-primary" />
                                 Export Research CSV
@@ -447,8 +447,8 @@ export default function CityComparison() {
                                     initial={{ opacity: 0, scale: 0.97 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className={cn("bg-white border-2 rounded-2xl p-6 shadow-sm relative overflow-hidden",
-                                        isLower ? "border-emerald-300" : "border-slate-200"
+                                    className={cn("bg-slate-900 border-2 rounded-2xl p-6 shadow-sm relative overflow-hidden",
+                                        isLower ? "border-emerald-300" : "border-white/10"
                                     )}
                                 >
                                     {isLower && (
@@ -458,33 +458,33 @@ export default function CityComparison() {
                                     )}
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className={cn("w-3 h-3 rounded-full", idx === 0 ? "bg-primary" : "bg-secondary")} />
-                                        <h4 className="font-bold text-slate-800 text-base">{city.name}</h4>
+                                        <h4 className="font-bold text-slate-100 text-base">{city.name}</h4>
                                     </div>
-                                    <div className="text-5xl font-black text-slate-800 tracking-tight">{city.predicted_eui.toFixed(1)}</div>
+                                    <div className="text-5xl font-black text-slate-100 tracking-tight">{city.predicted_eui.toFixed(1)}</div>
                                     <div className="text-xs font-bold text-slate-400 mt-1">kWh/m²·yr</div>
 
                                     <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-100">
                                         <div>
                                             <div className="text-[9px] font-black text-slate-400 uppercase">CO₂</div>
-                                            <div className="text-sm font-bold text-slate-700">{city.co2_intensity_kg_m2_yr.toFixed(1)}</div>
+                                            <div className="text-sm font-bold text-slate-200">{city.co2_intensity_kg_m2_yr.toFixed(1)}</div>
                                             <div className="text-[9px] text-slate-400">kg/m²·yr</div>
                                         </div>
                                         <div>
                                             <div className="text-[9px] font-black text-slate-400 uppercase">CDD</div>
-                                            <div className="text-sm font-bold text-slate-700">{(city.climate_summary?.cdd || 0).toFixed(0)}</div>
+                                            <div className="text-sm font-bold text-slate-200">{(city.climate_summary?.cdd || 0).toFixed(0)}</div>
                                             <div className="text-[9px] text-slate-400">base 18.3°C</div>
                                         </div>
                                         <div>
                                             <div className="text-[9px] font-black text-slate-400 uppercase">GHI</div>
-                                            <div className="text-sm font-bold text-slate-700">{(city.climate_summary?.annual_solrad || 0).toFixed(2)}</div>
+                                            <div className="text-sm font-bold text-slate-200">{(city.climate_summary?.annual_solrad || 0).toFixed(2)}</div>
                                             <div className="text-[9px] text-slate-400">kWh/m²·day</div>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 mt-4">
-                                        <span className={cn("text-[9px] font-black px-2 py-0.5 rounded-full border", ZONE_COLOR[zone] || 'bg-slate-100 text-slate-500 border-slate-200')}>{zone}</span>
-                                        <span className={cn("text-[9px] font-black px-2 py-0.5 rounded-full border", COMPLIANCE_COLOR[compliance] || 'bg-slate-100 text-slate-500 border-slate-200')}>{compliance}</span>
-                                        <span className="text-[9px] font-black px-2 py-0.5 rounded-full border bg-slate-100 text-slate-500 border-slate-200">PMV: {city.thermal_comfort?.label || '—'}</span>
+                                        <span className={cn("text-[9px] font-black px-2 py-0.5 rounded-full border", ZONE_COLOR[zone] || 'bg-slate-800/60 text-slate-400 border-white/10')}>{zone}</span>
+                                        <span className={cn("text-[9px] font-black px-2 py-0.5 rounded-full border", COMPLIANCE_COLOR[compliance] || 'bg-slate-800/60 text-slate-400 border-white/10')}>{compliance}</span>
+                                        <span className="text-[9px] font-black px-2 py-0.5 rounded-full border bg-slate-800/60 text-slate-400 border-white/10">PMV: {city.thermal_comfort?.label || '—'}</span>
                                     </div>
                                 </motion.div>
                             );
@@ -502,14 +502,14 @@ export default function CityComparison() {
                     {/* Charts Row */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Bar Chart */}
-                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                            <h4 className="text-sm font-bold text-slate-800 mb-1">EUI & CO₂ Side-by-Side</h4>
+                        <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-sm">
+                            <h4 className="text-sm font-bold text-slate-100 mb-1">EUI & CO₂ Side-by-Side</h4>
                             <p className="text-[10px] text-slate-400 mb-5">Grouped bar — same building, two climate conditions</p>
                             <ResponsiveContainer width="100%" height={220}>
                                 <BarChart data={barData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                    <XAxis dataKey="metric" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                    <XAxis dataKey="metric" tick={{ fill: '#cbd5e1', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                    <YAxis tick={{ fill: '#cbd5e1', fontSize: 10 }} axisLine={false} tickLine={false} />
                                     <RechartsTooltip
                                         contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px' }}
                                         formatter={(val: any, name: any) => [`${Number(val).toFixed(1)}`, name === 'a' ? cityA.split(',')[0] : cityB.split(',')[0]]}
@@ -522,13 +522,13 @@ export default function CityComparison() {
                         </div>
 
                         {/* Radar Chart */}
-                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                            <h4 className="text-sm font-bold text-slate-800 mb-1">Multi-Metric Radar</h4>
+                        <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-sm">
+                            <h4 className="text-sm font-bold text-slate-100 mb-1">Multi-Metric Radar</h4>
                             <p className="text-[10px] text-slate-400 mb-5">Higher = more energy/heat demand (normalised 0–100)</p>
                             <ResponsiveContainer width="100%" height={220}>
                                 <RadarChart data={radarData}>
                                     <PolarGrid stroke="#e2e8f0" />
-                                    <PolarAngleAxis dataKey="metric" tick={{ fill: '#64748b', fontSize: 10 }} />
+                                    <PolarAngleAxis dataKey="metric" tick={{ fill: '#cbd5e1', fontSize: 10 }} />
                                     <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 8, fill: '#94a3b8' }} />
                                     <Radar name={cityA.split(',')[0]} dataKey="A" stroke="#042642" fill="#042642" fillOpacity={0.15} strokeWidth={2} />
                                     <Radar name={cityB.split(',')[0]} dataKey="B" stroke="#7EB281" fill="#7EB281" fillOpacity={0.15} strokeWidth={2} />
@@ -539,15 +539,15 @@ export default function CityComparison() {
                     </div>
 
                     {/* Detailed Research Comparison Table */}
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                    <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-sm overflow-x-auto">
                         <div className="flex items-center gap-2 mb-5">
                             <Calculator className="w-4 h-4 text-primary" />
-                            <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Detailed Research Comparison Table</h4>
+                            <h4 className="text-sm font-bold text-slate-100 uppercase tracking-wide">Detailed Research Comparison Table</h4>
                             <span className="citation-badge ml-auto">ECBC 2017 · BEE (2020) · CEA (2022)</span>
                         </div>
                         <table className="w-full text-xs border-collapse min-w-[600px]">
                             <thead>
-                                <tr className="border-b-2 border-slate-200">
+                                <tr className="border-b-2 border-white/10">
                                     <th className="text-left py-3 px-3 text-[10px] font-black text-slate-400 uppercase">Metric</th>
                                     <th className="text-center py-3 px-3 text-[10px] font-black text-primary uppercase">{cityA.split(',')[0]}</th>
                                     <th className="text-center py-3 px-3 text-[10px] font-black text-secondary uppercase">{cityB.split(',')[0]}</th>
@@ -571,10 +571,10 @@ export default function CityComparison() {
                                     const aWins = lowerIsBetter === null ? false : lowerIsBetter ? a < b : a > b;
                                     const bWins = lowerIsBetter === null ? false : lowerIsBetter ? b < a : b > a;
                                     return (
-                                        <tr key={i} className="hover:bg-slate-50">
-                                            <td className="py-3 px-3 font-semibold text-slate-600">{metric}</td>
-                                            <td className={cn("py-3 px-3 text-center font-bold", aWins ? "text-emerald-600" : "text-slate-800")}>{fmt(a)}</td>
-                                            <td className={cn("py-3 px-3 text-center font-bold", bWins ? "text-emerald-600" : "text-slate-800")}>{fmt(b)}</td>
+                                        <tr key={i} className="hover:bg-slate-800/50">
+                                            <td className="py-3 px-3 font-semibold text-slate-300">{metric}</td>
+                                            <td className={cn("py-3 px-3 text-center font-bold", aWins ? "text-emerald-600" : "text-slate-100")}>{fmt(a)}</td>
+                                            <td className={cn("py-3 px-3 text-center font-bold", bWins ? "text-emerald-600" : "text-slate-100")}>{fmt(b)}</td>
                                             <td className={cn("py-3 px-3 text-center font-mono text-[11px]",
                                                 lowerIsBetter === null ? "text-slate-400" :
                                                 diff < 0 ? (lowerIsBetter ? "text-emerald-600 font-bold" : "text-rose-500") :
@@ -592,10 +592,10 @@ export default function CityComparison() {
                                     { metric: 'Thermal Comfort (PMV proxy*)', a: result.city_a.thermal_comfort?.label || '—', b: result.city_b.thermal_comfort?.label || '—' },
                                     { metric: 'Wall Material (default)', a: result.city_a.material_sources?.wall?.name || '—', b: result.city_b.material_sources?.wall?.name || '—' },
                                 ].map(({ metric, a, b }, i) => (
-                                    <tr key={`s${i}`} className="hover:bg-slate-50">
-                                        <td className="py-3 px-3 font-semibold text-slate-600">{metric}</td>
-                                        <td className="py-3 px-3 text-center text-slate-700">{a}</td>
-                                        <td className="py-3 px-3 text-center text-slate-700">{b}</td>
+                                    <tr key={`s${i}`} className="hover:bg-slate-800/50">
+                                        <td className="py-3 px-3 font-semibold text-slate-300">{metric}</td>
+                                        <td className="py-3 px-3 text-center text-slate-200">{a}</td>
+                                        <td className="py-3 px-3 text-center text-slate-200">{b}</td>
                                         <td className="py-3 px-3 text-center text-slate-400">—</td>
                                     </tr>
                                 ))}
@@ -615,41 +615,41 @@ export default function CityComparison() {
                             const comp = city.ecbc_compliance;
                             const sens = city.sensitivity_analysis;
                             return (
-                                <div key={key} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                                <div key={key} className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-sm space-y-4">
                                     <div className="flex items-center gap-2">
                                         <div className={cn("w-2 h-2 rounded-full", idx === 0 ? "bg-primary" : "bg-secondary")} />
-                                        <h5 className="font-bold text-slate-800">{city.name.split(',')[0]} — Analysis</h5>
+                                        <h5 className="font-bold text-slate-100">{city.name.split(',')[0]} — Analysis</h5>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3 text-xs">
-                                        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                        <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-100">
                                             <div className="text-[9px] font-black text-slate-400 uppercase mb-1">Climate Zone</div>
-                                            <div className={cn("font-bold text-xs px-2 py-0.5 rounded-full border inline-block mt-1", ZONE_COLOR[comp?.climate_zone] || 'bg-slate-100 text-slate-600 border-slate-200')}>
+                                            <div className={cn("font-bold text-xs px-2 py-0.5 rounded-full border inline-block mt-1", ZONE_COLOR[comp?.climate_zone] || 'bg-slate-800/60 text-slate-300 border-white/10')}>
                                                 {comp?.climate_zone || '—'}
                                             </div>
                                         </div>
-                                        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                        <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-100">
                                             <div className="text-[9px] font-black text-slate-400 uppercase mb-1">ECBC Tier</div>
-                                            <div className={cn("font-bold text-xs px-2 py-0.5 rounded-full border inline-block mt-1", COMPLIANCE_COLOR[comp?.status] || 'bg-slate-100 text-slate-600 border-slate-200')}>
+                                            <div className={cn("font-bold text-xs px-2 py-0.5 rounded-full border inline-block mt-1", COMPLIANCE_COLOR[comp?.status] || 'bg-slate-800/60 text-slate-300 border-white/10')}>
                                                 {comp?.status || '—'}
                                             </div>
                                         </div>
-                                        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                        <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-100">
                                             <div className="text-[9px] font-black text-slate-400 uppercase mb-1">Top Sensitivity</div>
-                                            <div className="font-bold text-slate-700 mt-1">
+                                            <div className="font-bold text-slate-200 mt-1">
                                                 {sens ? Object.entries(sens).sort((a: any, b: any) => b[1].relative_importance - a[1].relative_importance)[0]?.[0]?.replace('_', ' ') || '—' : '—'}
                                             </div>
                                         </div>
-                                        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                        <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-100">
                                             <div className="text-[9px] font-black text-slate-400 uppercase mb-1">Annual CO₂ (building)</div>
-                                            <div className="font-bold text-slate-700 mt-1">{city.co2_total_tonnes_yr?.toFixed(1)} t CO₂/yr</div>
+                                            <div className="font-bold text-slate-200 mt-1">{city.co2_total_tonnes_yr?.toFixed(1)} t CO₂/yr</div>
                                         </div>
                                     </div>
                                     {/* Best material recommendation */}
                                     {city.top_material_recommendations?.[0] && (
                                         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
                                             <div className="text-[9px] font-black text-primary uppercase mb-2">Optimal Material Strategy</div>
-                                            <div className="text-xs font-semibold text-slate-700">{city.top_material_recommendations[0].wall}</div>
-                                            <div className="text-xs text-slate-500">{city.top_material_recommendations[0].roof}</div>
+                                            <div className="text-xs font-semibold text-slate-200">{city.top_material_recommendations[0].wall}</div>
+                                            <div className="text-xs text-slate-400">{city.top_material_recommendations[0].roof}</div>
                                             <div className="flex items-center gap-3 mt-2">
                                                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
                                                     EUI: {city.top_material_recommendations[0].predicted_eui?.toFixed(1)} kWh/m²·yr
@@ -663,11 +663,11 @@ export default function CityComparison() {
                     </div>
 
                     {/* Research note */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex items-start gap-4">
+                    <div className="bg-slate-800/50 border border-white/10 rounded-2xl p-6 flex items-start gap-4">
                         <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                         <div className="space-y-2">
-                            <div className="text-sm font-bold text-slate-800">Research Methodology Note</div>
-                            <p className="text-xs text-slate-600 leading-relaxed max-w-4xl">
+                            <div className="text-sm font-bold text-slate-100">Research Methodology Note</div>
+                            <p className="text-xs text-slate-300 leading-relaxed max-w-4xl">
                                 Both simulations use identical building configurations (same archetype, floor area, envelope, HVAC, occupancy schedule).
                                 Climate data is fetched live from <strong>NASA POWER Climatology API</strong> for each city's coordinates.
                                 EUI is predicted by an <strong>{modelType}</strong> surrogate model trained on 25,015 physics-calibrated samples

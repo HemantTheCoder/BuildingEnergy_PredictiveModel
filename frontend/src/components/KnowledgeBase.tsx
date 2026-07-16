@@ -324,7 +324,7 @@ function ConceptCard({ concept, index }: { concept: Concept; index: number }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.04, 0.5) }}
-            className="premium-card border-slate-200 overflow-hidden"
+            className="premium-card border-white/10 overflow-hidden"
         >
             {/* Header row — always visible */}
             <button
@@ -337,12 +337,12 @@ function ConceptCard({ concept, index }: { concept: Concept; index: number }) {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <h3 className="text-sm font-bold text-slate-800 leading-snug">{concept.title}</h3>
+                            <h3 className="text-sm font-bold text-slate-100 leading-snug">{concept.title}</h3>
                             <p className="text-xs text-slate-400 mt-0.5 font-medium">{concept.subtitle}</p>
                         </div>
                         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300 mt-1 ${open ? 'rotate-180' : ''}`} />
                     </div>
-                    <p className="text-xs text-slate-600 mt-2.5 leading-relaxed line-clamp-2">{concept.simple}</p>
+                    <p className="text-xs text-slate-300 mt-2.5 leading-relaxed line-clamp-2">{concept.simple}</p>
                 </div>
             </button>
 
@@ -360,14 +360,14 @@ function ConceptCard({ concept, index }: { concept: Concept; index: number }) {
 
                             {/* Full plain-language explanation */}
                             <div className="pt-5">
-                                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Plain Language</p>
-                                <p className="text-sm text-slate-700 leading-relaxed">{concept.simple}</p>
+                                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">Plain Language</p>
+                                <p className="text-sm text-slate-200 leading-relaxed">{concept.simple}</p>
                             </div>
 
                             {/* Deep dive */}
                             <div>
-                                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Deep Dive</p>
-                                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{concept.deep}</p>
+                                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">Deep Dive</p>
+                                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-line">{concept.deep}</p>
                             </div>
 
                             {/* Formula block */}
@@ -390,7 +390,7 @@ function ConceptCard({ concept, index }: { concept: Concept; index: number }) {
                                 <TrendingDown className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                                 <div>
                                     <p className="text-[10px] font-bold uppercase text-secondary tracking-wider mb-1">Practical Impact</p>
-                                    <p className="text-xs text-slate-600 leading-relaxed">{concept.impact}</p>
+                                    <p className="text-xs text-slate-300 leading-relaxed">{concept.impact}</p>
                                 </div>
                             </div>
 
@@ -441,7 +441,7 @@ export default function KnowledgeBase() {
                 }} />
                 <div className="relative z-10 max-w-3xl">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center ring-1 ring-white/20">
+                        <div className="w-10 h-10 rounded-xl bg-slate-900/15 flex items-center justify-center ring-1 ring-white/20">
                             <BookOpen className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-xs font-bold uppercase tracking-widest text-white/60">Knowledge Base</span>
@@ -458,12 +458,12 @@ export default function KnowledgeBase() {
                             <p className="text-2xl font-bold text-white">{CONCEPTS.length}</p>
                             <p className="text-[10px] font-bold uppercase text-white/50 tracking-wider">Concepts</p>
                         </div>
-                        <div className="w-px h-8 bg-white/20" />
+                        <div className="w-px h-8 bg-slate-900/20" />
                         <div className="text-center">
                             <p className="text-2xl font-bold text-white">15+</p>
                             <p className="text-[10px] font-bold uppercase text-white/50 tracking-wider">Standards Cited</p>
                         </div>
-                        <div className="w-px h-8 bg-white/20" />
+                        <div className="w-px h-8 bg-slate-900/20" />
                         <div className="text-center">
                             <p className="text-2xl font-bold text-white">6</p>
                             <p className="text-[10px] font-bold uppercase text-white/50 tracking-wider">Disciplines</p>
@@ -484,7 +484,7 @@ export default function KnowledgeBase() {
                                 "px-4 py-2 rounded-full text-xs font-semibold transition-all border",
                                 activeCategory === cat.id
                                     ? "bg-primary text-white border-primary shadow-sm"
-                                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700"
+                                    : "bg-slate-900 text-slate-400 border-white/10 hover:border-white/20 hover:text-slate-200"
                             )}
                         >
                             {cat.label}
@@ -506,7 +506,7 @@ export default function KnowledgeBase() {
                     </div>
                     <button
                         onClick={() => setExpandAll(v => !v)}
-                        className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:border-slate-300 transition-all"
+                        className="px-4 py-2.5 rounded-xl border border-white/10 bg-slate-900 text-xs font-semibold text-slate-300 hover:border-white/20 transition-all"
                     >
                         {expandAll ? 'Collapse All' : 'Expand All'}
                     </button>
@@ -519,14 +519,14 @@ export default function KnowledgeBase() {
                     { icon: Zap, label: 'EUI & Star Rating', desc: 'The core energy metrics', color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/15' },
                     { icon: Layers, label: 'Building Envelope', desc: 'Walls, roofs & glazing', color: 'text-secondary', bg: 'bg-secondary/5', border: 'border-secondary/15' },
                     { icon: Cpu, label: 'AI Explainability', desc: 'SHAP values & the model', color: 'text-accent', bg: 'bg-accent/5', border: 'border-accent/15' },
-                    { icon: Leaf, label: 'Carbon & Climate', desc: 'Emissions & degree-days', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+                    { icon: Leaf, label: 'Carbon & Climate', desc: 'Emissions & degree-days', color: 'text-emerald-600', bg: 'bg-emerald-500/20', border: 'border-emerald-200' },
                 ].map(item => {
                     const Icon = item.icon;
                     return (
                         <div key={item.label} className={`rounded-2xl border p-4 ${item.bg} ${item.border}`}>
                             <Icon className={`w-5 h-5 ${item.color} mb-2`} />
                             <p className={`text-xs font-bold ${item.color}`}>{item.label}</p>
-                            <p className="text-[10px] text-slate-500 mt-0.5">{item.desc}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{item.desc}</p>
                         </div>
                     );
                 })}
@@ -553,11 +553,11 @@ export default function KnowledgeBase() {
             )}
 
             {/* ── Footer note ── */}
-            <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 flex gap-4">
+            <div className="rounded-2xl bg-slate-800/50 border border-white/10 p-6 flex gap-4">
                 <Calculator className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
                 <div>
-                    <p className="text-xs font-bold text-slate-700 mb-1">About the Standards</p>
-                    <p className="text-xs text-slate-500 leading-relaxed">
+                    <p className="text-xs font-bold text-slate-200 mb-1">About the Standards</p>
+                    <p className="text-xs text-slate-400 leading-relaxed">
                         All calculations in ClimaBuild AI are grounded in peer-reviewed standards: BEE ECBC 2017, ASHRAE 90.1-2019, ISO 7730:2005, ISO 15927-6:2007, IS 3792:1978, NASA POWER v8, CEA Grid Emission Factor 2022, and BMTPC Schedule of Rates 2024.
                         No outputs are fabricated or interpolated beyond the cited methodologies.
                         For any discrepancy, the cited standard takes precedence.
@@ -586,11 +586,11 @@ function ConceptCardControlled({ concept, index, forceOpen }: { concept: Concept
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.035, 0.4) }}
-            className="premium-card border-slate-200 overflow-hidden"
+            className="premium-card border-white/10 overflow-hidden"
         >
             <button
                 onClick={() => setOpen(v => !v)}
-                className="w-full text-left p-6 flex items-start gap-5 hover:bg-slate-50/60 transition-colors"
+                className="w-full text-left p-6 flex items-start gap-5 hover:bg-slate-800/50/60 transition-colors"
             >
                 <div className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center ring-1 ${c.bg} ${c.ring}`}>
                     <Icon className={`w-5 h-5 ${c.text}`} />
@@ -598,13 +598,13 @@ function ConceptCardControlled({ concept, index, forceOpen }: { concept: Concept
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3">
                         <div>
-                            <h3 className="text-sm font-bold text-slate-800 leading-snug">{concept.title}</h3>
+                            <h3 className="text-sm font-bold text-slate-100 leading-snug">{concept.title}</h3>
                             <p className="text-xs text-slate-400 mt-0.5 font-medium">{concept.subtitle}</p>
                         </div>
                         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                     </div>
                     {!isOpen && (
-                        <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">{concept.simple}</p>
+                        <p className="text-xs text-slate-400 mt-2 leading-relaxed line-clamp-2">{concept.simple}</p>
                     )}
                 </div>
             </button>
@@ -621,12 +621,12 @@ function ConceptCardControlled({ concept, index, forceOpen }: { concept: Concept
                         <div className="px-6 pb-6 space-y-5 border-t border-slate-100">
                             <div className="pt-5">
                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Plain Language</p>
-                                <p className="text-sm text-slate-700 leading-relaxed">{concept.simple}</p>
+                                <p className="text-sm text-slate-200 leading-relaxed">{concept.simple}</p>
                             </div>
 
                             <div>
                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Technical Detail</p>
-                                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{concept.deep}</p>
+                                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-line">{concept.deep}</p>
                             </div>
 
                             {concept.formula && (
@@ -647,7 +647,7 @@ function ConceptCardControlled({ concept, index, forceOpen }: { concept: Concept
                                 <TrendingDown className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                                 <div>
                                     <p className="text-[10px] font-bold uppercase text-secondary tracking-wider mb-1">Practical Impact</p>
-                                    <p className="text-xs text-slate-600 leading-relaxed">{concept.impact}</p>
+                                    <p className="text-xs text-slate-300 leading-relaxed">{concept.impact}</p>
                                 </div>
                             </div>
 

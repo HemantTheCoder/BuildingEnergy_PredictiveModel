@@ -13,25 +13,25 @@ function getECBCContext(material: any): { label: string; color: string } | null 
     const u = parseFloat(material.u_value);
     const type = material.component_type;
     if (type === "wall") {
-        if (u <= 0.44) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-50 border-emerald-200" };
+        if (u <= 0.44) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
         if (u <= 0.80) return { label: "ECBC 2017 ✓",  color: "text-sky-700 bg-sky-50 border-sky-200" };
     }
     if (type === "roof") {
-        if (u <= 0.20) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-50 border-emerald-200" };
+        if (u <= 0.20) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
         if (u <= 0.40) return { label: "ECBC 2017 ✓",  color: "text-sky-700 bg-sky-50 border-sky-200" };
     }
     if (type === "glazing") {
-        if (u <= 1.80) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-50 border-emerald-200" };
+        if (u <= 1.80) return { label: "SuperECBC ✓", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
         if (u <= 3.30) return { label: "ECBC 2017 ✓",  color: "text-sky-700 bg-sky-50 border-sky-200" };
     }
     return null;
 }
 
 function getCarbonLabel(carbon: number): { label: string; color: string } {
-    if (carbon < 0)    return { label: "Carbon-Negative", color: "text-emerald-700 bg-emerald-50 border-emerald-200" };
+    if (carbon < 0)    return { label: "Carbon-Negative", color: "text-emerald-700 bg-emerald-500/20 border-emerald-200" };
     if (carbon < 0.50) return { label: "Low Carbon",      color: "text-sky-700 bg-sky-50 border-sky-200" };
     if (carbon < 1.50) return { label: "Medium Carbon",   color: "text-yellow-700 bg-yellow-50 border-yellow-200" };
-    return               { label: "High Carbon",          color: "text-red-700 bg-red-50 border-red-200" };
+    return               { label: "High Carbon",          color: "text-red-700 bg-red-500/20 border-red-200" };
 }
 
 export default function MaterialLibrary({ materials }: { materials: any[] }) {
@@ -60,8 +60,8 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-4">
                     <div className="section-label">Central Repository · BMTPC / CPWD / ECBC 2017</div>
-                    <h2 className="text-5xl font-bold tracking-tighter text-slate-800 italic">Material <span className="text-primary not-italic">Intelligence</span></h2>
-                    <p className="text-slate-500 text-base max-w-xl font-medium leading-relaxed">
+                    <h2 className="text-5xl font-bold tracking-tighter text-slate-100 italic">Material <span className="text-primary not-italic">Intelligence</span></h2>
+                    <p className="text-slate-400 text-base max-w-xl font-medium leading-relaxed">
                         Thermal properties sourced from BMTPC Schedule 2020, CPWD Schedule of Rates 2024, 
                         BEE ECBC 2017, and international standards (EN 673, NFRC 100, IS 2553).
                         Embodied carbon values from BEE ENS 2018 and IEA EBC Annexes.
@@ -71,7 +71,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
 
             {/* Filters + Sort */}
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-                <div className="flex gap-2 bg-white border border-slate-200 p-1.5 rounded-2xl shadow-sm">
+                <div className="flex gap-2 bg-slate-900 border border-white/10 p-1.5 rounded-2xl shadow-sm">
                     {categories.map(cat => (
                         <button
                             key={cat.id}
@@ -80,7 +80,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                                 "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                                 filter === cat.id
                                     ? "bg-primary text-white shadow-sm"
-                                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                                    : "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
                             )}
                         >
                             {cat.label}
@@ -88,7 +88,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                     ))}
                 </div>
 
-                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wide">
                     <span>Sort:</span>
                     {[
                         { id: 'u_value', label: 'U-Value (low→high)' },
@@ -102,7 +102,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                                 "px-3 py-1.5 rounded-lg border transition-all",
                                 sortBy === s.id
                                     ? "bg-primary text-white border-primary"
-                                    : "bg-white border-slate-200 text-slate-500 hover:text-slate-700"
+                                    : "bg-slate-900 border-white/10 text-slate-400 hover:text-slate-200"
                             )}
                         >
                             {s.label}
@@ -113,9 +113,9 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
 
             {/* Legend */}
             <div className="flex flex-wrap gap-3 text-[10px] font-semibold">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-emerald-700">SuperECBC threshold</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500/200" /><span className="text-emerald-700">SuperECBC threshold</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-400" /><span className="text-sky-700">ECBC 2017 compliant</span></div>
-                <div className="flex items-center gap-1.5"><Leaf className="w-3 h-3 text-emerald-600" /><span className="text-slate-500">Carbon-negative</span></div>
+                <div className="flex items-center gap-1.5"><Leaf className="w-3 h-3 text-emerald-600" /><span className="text-slate-400">Carbon-negative</span></div>
             </div>
 
             {/* Cards */}
@@ -137,7 +137,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                             className="premium-card p-6 group relative overflow-hidden flex flex-col gap-4"
                         >
                             {/* Background watermark */}
-                            <div className="absolute top-0 right-0 p-6 opacity-[0.04] group-hover:scale-110 transition-transform duration-700 text-slate-500">
+                            <div className="absolute top-0 right-0 p-6 opacity-[0.04] group-hover:scale-110 transition-transform duration-700 text-slate-400">
                                 <Database className="w-20 h-20" />
                             </div>
 
@@ -159,7 +159,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                             </div>
 
                             {/* Name */}
-                            <h4 className="text-base font-bold text-slate-800 group-hover:text-primary transition-colors duration-300 leading-tight">{mat.name}</h4>
+                            <h4 className="text-base font-bold text-slate-100 group-hover:text-primary transition-colors duration-300 leading-tight">{mat.name}</h4>
 
                             {/* Key properties grid */}
                             <div className="grid grid-cols-2 gap-2">
@@ -173,13 +173,13 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
 
                             {/* Carbon + Cost row */}
                             <div className="grid grid-cols-2 gap-2">
-                                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                                <div className="p-3 rounded-xl bg-slate-800/50 border border-white/10 space-y-1">
                                     <div className="flex items-center gap-1">
                                         <Leaf className="w-3 h-3 text-emerald-600" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Embodied Carbon</span>
                                     </div>
                                     <div className="flex items-baseline gap-1">
-                                        <span className={cn("text-sm font-bold", carbon < 0 ? "text-emerald-700" : "text-slate-800")}>
+                                        <span className={cn("text-sm font-bold", carbon < 0 ? "text-emerald-700" : "text-slate-100")}>
                                             {carbon >= 0 ? "+" : ""}{carbon.toFixed(2)}
                                         </span>
                                         <span className="text-[8px] text-slate-400 uppercase">kgCO₂e/kg</span>
@@ -189,7 +189,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                                     </span>
                                 </div>
 
-                                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                                <div className="p-3 rounded-xl bg-slate-800/50 border border-white/10 space-y-1">
                                     <div className="flex items-center gap-1">
                                         <Flame className="w-3 h-3 text-amber-500" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Cost Index</span>
@@ -210,7 +210,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                             <div className="pt-3 border-t border-slate-100 space-y-1">
                                 <div className="flex items-start gap-1.5">
                                     <Shield className="w-3 h-3 text-slate-400 shrink-0 mt-0.5" />
-                                    <p className="text-[9px] text-slate-500 leading-relaxed font-medium">{mat.source_citation || "BMTPC / CPWD"}</p>
+                                    <p className="text-[9px] text-slate-400 leading-relaxed font-medium">{mat.source_citation || "BMTPC / CPWD"}</p>
                                 </div>
                                 {mat.official_ref && (
                                     <span className="citation-badge">{mat.official_ref}</span>
@@ -223,7 +223,7 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
                                     href={mat.source_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="absolute bottom-4 right-4 w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center hover:border-primary/40 hover:bg-primary/5 transition-all bg-white shadow-sm"
+                                    className="absolute bottom-4 right-4 w-7 h-7 rounded-full border border-white/10 flex items-center justify-center hover:border-primary/40 hover:bg-primary/5 transition-all bg-slate-900 shadow-sm"
                                 >
                                     <ArrowUpRight className="w-3 h-3 text-primary" />
                                 </a>
@@ -234,8 +234,8 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
             </div>
 
             {/* Footnote */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-[10px] text-slate-500 leading-relaxed space-y-1">
-                <p className="font-bold text-slate-700">Notes on data provenance:</p>
+            <div className="p-4 rounded-2xl bg-slate-800/50 border border-white/10 text-[10px] text-slate-400 leading-relaxed space-y-1">
+                <p className="font-bold text-slate-200">Notes on data provenance:</p>
                 <p>U-values for wall and roof assemblies include standard surface resistances (Rsi = 0.13 m²K/W, Rso = 0.04 m²K/W) per IS 3792 / ISO 6946. Glazing U-values are centre-of-glass per NFRC 100 / EN 673. Embodied carbon values (kgCO₂e/kg) are approximate; they represent cradle-to-gate scope and vary by regional manufacturing processes. Cost indices are relative (1=Low, 10=High) and should be validated against current CPWD Schedule of Rates for the project location.</p>
             </div>
         </div>
@@ -244,10 +244,10 @@ export default function MaterialLibrary({ materials }: { materials: any[] }) {
 
 function Property({ label, value, unit, highlight = false }: { label: string; value: any; unit: string; highlight?: boolean }) {
     return (
-        <div className={cn("p-3 rounded-xl border space-y-0.5", highlight ? "bg-emerald-50 border-emerald-200" : "bg-slate-50 border-slate-200")}>
+        <div className={cn("p-3 rounded-xl border space-y-0.5", highlight ? "bg-emerald-500/20 border-emerald-200" : "bg-slate-800/50 border-white/10")}>
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none block">{label}</span>
             <div className="flex items-baseline gap-1">
-                <span className={cn("text-sm font-bold", highlight ? "text-emerald-700" : "text-slate-800")}>
+                <span className={cn("text-sm font-bold", highlight ? "text-emerald-700" : "text-slate-100")}>
                     {typeof value === 'number' ? value : (isNaN(parseFloat(value)) ? value : value)}
                 </span>
                 <span className="text-[8px] font-bold text-slate-400 uppercase">{unit}</span>

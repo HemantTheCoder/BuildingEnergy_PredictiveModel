@@ -149,7 +149,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-white/10">
               <Globe className="w-3 h-3 text-slate-400" />
-              <span className="text-xs font-semibold text-slate-600">BEE Standards</span>
+              <span className="text-xs font-semibold text-slate-300">BEE Standards</span>
             </div>
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function App() {
       </main>
 
       {/* ── Mobile bottom navigation bar ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200"
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-t border-white/10"
            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="grid grid-cols-5 h-16">
           {tabs.map((tab) => {

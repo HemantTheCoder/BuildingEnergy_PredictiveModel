@@ -78,8 +78,8 @@ export default function ModelIntelligence({ results }: { results: any }) {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                 <div className="space-y-4">
                     <div className="section-label">ML Explainability · ECBC 2017</div>
-                    <h2 className="text-5xl font-bold tracking-tighter text-slate-800 italic">Model <span className="text-secondary not-italic">Intelligence</span></h2>
-                    <p className="text-slate-500 text-lg max-w-xl font-medium">
+                    <h2 className="text-5xl font-bold tracking-tighter text-slate-100 italic">Model <span className="text-secondary not-italic">Intelligence</span></h2>
+                    <p className="text-slate-400 text-lg max-w-xl font-medium">
                         Gradient-boosted surrogate model performance, SHAP feature attribution, 
                         and validation against BEE energy benchmarks.
                     </p>
@@ -98,8 +98,8 @@ export default function ModelIntelligence({ results }: { results: any }) {
                 <div className="lg:col-span-8 premium-card p-10 space-y-8">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h3 className="text-xl font-bold tracking-tight text-slate-800">SHAP Feature Attribution</h3>
-                            <p className="text-sm text-slate-500 mt-1 max-w-md">
+                            <h3 className="text-xl font-bold tracking-tight text-slate-100">SHAP Feature Attribution</h3>
+                            <p className="text-sm text-slate-400 mt-1 max-w-md">
                                 SHAP (SHapley Additive exPlanations) values show the marginal contribution of each 
                                 input to the predicted EUI. <span className="text-accent font-semibold">Orange</span> = increases EUI; 
                                 <span className="text-secondary font-semibold"> teal</span> = decreases EUI.
@@ -131,10 +131,10 @@ export default function ModelIntelligence({ results }: { results: any }) {
                                                 const d = payload[0].payload;
                                                 const meta = FEATURE_DESCRIPTIONS[d.rawName];
                                                 return (
-                                                    <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xl max-w-xs">
+                                                    <div className="bg-slate-900 border border-white/10 p-5 rounded-2xl shadow-xl max-w-xs">
                                                         <p className="text-[9px] uppercase font-black tracking-widest text-slate-400 mb-1">{d.name}</p>
-                                                        {meta && <p className="text-[10px] text-slate-500 mb-3 leading-relaxed">{meta.note}</p>}
-                                                        <p className="text-2xl font-bold text-slate-800">
+                                                        {meta && <p className="text-[10px] text-slate-400 mb-3 leading-relaxed">{meta.note}</p>}
+                                                        <p className="text-2xl font-bold text-slate-100">
                                                             {d.original > 0 ? '+' : ''}{d.original.toFixed(3)}
                                                             <span className="text-xs text-slate-400 font-medium ml-1">SHAP impact</span>
                                                         </p>
@@ -170,11 +170,11 @@ export default function ModelIntelligence({ results }: { results: any }) {
                             {shapData.slice(0, 4).map((d: any) => {
                                 const meta = FEATURE_DESCRIPTIONS[d.rawName];
                                 return meta ? (
-                                    <div key={d.rawName} className="flex items-start gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div key={d.rawName} className="flex items-start gap-2 p-3 rounded-xl bg-slate-800/50 border border-slate-100">
                                         <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0", d.original > 0 ? "bg-accent" : "bg-secondary")} />
                                         <div>
-                                            <span className="text-[10px] font-bold text-slate-700">{meta.label}</span>
-                                            <p className="text-[9px] text-slate-500 leading-relaxed">{meta.note}</p>
+                                            <span className="text-[10px] font-bold text-slate-200">{meta.label}</span>
+                                            <p className="text-[9px] text-slate-400 leading-relaxed">{meta.note}</p>
                                         </div>
                                     </div>
                                 ) : null;
@@ -185,13 +185,13 @@ export default function ModelIntelligence({ results }: { results: any }) {
                     {/* SHAP Interactions (Advanced) */}
                     {results?.evidence_panel?.shap_interactions && results.evidence_panel.shap_interactions.length > 0 && (
                         <div className="pt-6 border-t border-slate-100">
-                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] mb-4">Thermodynamic Interactions (Top Pairs)</h4>
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-4">Thermodynamic Interactions (Top Pairs)</h4>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {results.evidence_panel.shap_interactions.map((interaction: any, idx: number) => (
-                                    <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
-                                        <span className="text-xs font-bold text-slate-700 leading-tight mb-2">{interaction.pair}</span>
+                                    <div key={idx} className="p-3 rounded-xl bg-slate-800/50 border border-slate-100 flex flex-col justify-between">
+                                        <span className="text-xs font-bold text-slate-200 leading-tight mb-2">{interaction.pair}</span>
                                         <div className="flex items-end justify-between">
-                                            <span className="text-[9px] text-slate-500 font-medium">Interaction Impact</span>
+                                            <span className="text-[9px] text-slate-400 font-medium">Interaction Impact</span>
                                             <span className={cn("text-lg font-black tracking-tighter", interaction.impact > 0 ? "text-accent" : "text-secondary")}>
                                                 {interaction.impact > 0 ? '+' : ''}{interaction.impact.toFixed(2)}
                                             </span>
@@ -209,7 +209,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
                     <div className="premium-card p-8 space-y-6">
                         <div className="flex items-center gap-2">
                             <ShieldCheck className="w-4 h-4 text-secondary" />
-                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">Hyperparameters</h4>
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Hyperparameters</h4>
                         </div>
                         <div className="space-y-4">
                             <ConfigRow label="Algorithm" value={algorithm} sub={algorithm === "XGBoost" ? "Chen & Guestrin, 2016 [1]" : algorithm === "RandomForest" ? "Breiman, 2001" : "Hoerl & Kennard, 1970"} />
@@ -221,7 +221,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
 
                     {/* Validation */}
                     <div className="premium-card p-8 space-y-4">
-                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">Validation Methodology</h4>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Validation Methodology</h4>
                         <div className="space-y-3">
                             {[
                                 { title: "Train/Test Split", body: "80/20 random split. Stratified on climate zone to prevent distribution leakage." },
@@ -232,8 +232,8 @@ export default function ModelIntelligence({ results }: { results: any }) {
                                 <div key={item.title} className="flex items-start gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0" />
                                     <div>
-                                        <span className="text-[10px] font-bold text-slate-700 block">{item.title}</span>
-                                        <p className="text-[10px] text-slate-500 leading-relaxed">{item.body}</p>
+                                        <span className="text-[10px] font-bold text-slate-200 block">{item.title}</span>
+                                        <p className="text-[10px] text-slate-400 leading-relaxed">{item.body}</p>
                                     </div>
                                 </div>
                             ))}
@@ -241,17 +241,17 @@ export default function ModelIntelligence({ results }: { results: any }) {
                     </div>
 
                     {/* Training Data */}
-                    <div className="premium-card p-8 space-y-4 bg-slate-50">
+                    <div className="premium-card p-8 space-y-4 bg-slate-800/50">
                         <div className="flex items-center gap-2">
                             <Zap className="w-4 h-4 text-secondary" />
-                            <span className="text-xs font-bold text-slate-700">Training Dataset</span>
+                            <span className="text-xs font-bold text-slate-200">Training Dataset</span>
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-black italic text-slate-800">{trainingSamples.toLocaleString()}</span>
+                                <span className="text-4xl font-black italic text-slate-100">{trainingSamples.toLocaleString()}</span>
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Records</span>
                             </div>
-                            <p className="text-[10px] leading-relaxed text-slate-500">
+                            <p className="text-[10px] leading-relaxed text-slate-400">
                                 Parametric samples generated from ECBC 2017-compliant building archetypes. 
                                 Climate inputs from NASA POWER (22-year normals). Material properties from 
                                 BMTPC / CPWD Schedule of Rates 2024.
@@ -262,7 +262,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
             </div>
 
             {/* Uncertainty disclaimer */}
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+            <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-200 flex items-start gap-3">
                 <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <p className="text-[10px] text-amber-800 leading-relaxed">
                     <span className="font-bold">Uncertainty note:</span> The prediction interval shown in results 
@@ -273,14 +273,14 @@ export default function ModelIntelligence({ results }: { results: any }) {
             </div>
 
             {/* References */}
-            <div className="premium-card p-8 space-y-5 border-slate-200">
+            <div className="premium-card p-8 space-y-5 border-white/10">
                 <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-primary" />
-                    <h4 className="text-sm font-bold text-slate-800">References</h4>
+                    <h4 className="text-sm font-bold text-slate-100">References</h4>
                 </div>
                 <div className="space-y-3">
                     {REFERENCES.map((ref) => (
-                        <div key={ref.id} className="flex gap-3 text-[10px] leading-relaxed font-mono text-slate-600">
+                        <div key={ref.id} className="flex gap-3 text-[10px] leading-relaxed font-mono text-slate-300">
                             <span className="text-primary font-bold shrink-0">{ref.id}</span>
                             <span>{ref.text}</span>
                         </div>
@@ -295,20 +295,20 @@ function ConfigRow({ label, value, sub }: { label: string; value: string; sub?: 
     return (
         <div className="flex justify-between items-start group">
             <div>
-                <span className="text-xs font-bold text-slate-500 lowercase tracking-widest block">{label}</span>
+                <span className="text-xs font-bold text-slate-400 lowercase tracking-widest block">{label}</span>
                 {sub && <span className="text-[9px] text-slate-400 italic">{sub}</span>}
             </div>
-            <span className="text-sm font-black text-slate-800 group-hover:text-secondary transition-colors italic">{value}</span>
+            <span className="text-sm font-black text-slate-100 group-hover:text-secondary transition-colors italic">{value}</span>
         </div>
     );
 }
 
 function MetricPill({ label, value, unit, note, good }: { label: string; value: string; unit?: string; note: string; good: boolean }) {
     return (
-        <div className={cn("p-4 rounded-2xl border flex flex-col", good ? "bg-emerald-50 border-emerald-200" : "bg-slate-50 border-slate-200")}>
+        <div className={cn("p-4 rounded-2xl border flex flex-col", good ? "bg-emerald-500/20 border-emerald-200" : "bg-slate-800/50 border-white/10")}>
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
             <div className="flex items-baseline gap-1 mt-1">
-                <span className={cn("text-2xl font-black italic", good ? "text-emerald-700" : "text-slate-700")}>{value}</span>
+                <span className={cn("text-2xl font-black italic", good ? "text-emerald-700" : "text-slate-200")}>{value}</span>
                 {unit && <span className="text-[9px] font-bold text-slate-400 uppercase">{unit}</span>}
             </div>
             <span className="text-[9px] text-slate-400 mt-0.5">{note}</span>
@@ -319,7 +319,7 @@ function MetricPill({ label, value, unit, note, good }: { label: string; value: 
 function InfoBadge({ text }: { text: string }) {
     return (
         <div className="group relative inline-block cursor-help">
-            <Info className="w-3 h-3 text-slate-400 group-hover:text-slate-600" />
+            <Info className="w-3 h-3 text-slate-400 group-hover:text-slate-300" />
             <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-48 p-2 bg-slate-800 text-white text-[9px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible z-50 leading-relaxed">
                 {text}
             </div>
