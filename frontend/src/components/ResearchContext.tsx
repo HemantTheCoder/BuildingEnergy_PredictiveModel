@@ -36,7 +36,7 @@ const METHODOLOGY_STEPS = [
     {
         icon: <Cpu className="w-4 h-4 text-secondary" />,
         title: "Surrogate ML Engine",
-        desc: "XGBoost / Random Forest trained on 1,500+ parametric samples derived from ECBC-compliant building archetypes. SHAP values explain each prediction."
+        desc: "XGBoost / Random Forest trained on 25,000+ physics-calibrated parametric samples plus published real-building benchmarks, derived from ECBC-compliant building archetypes. SHAP values explain each prediction."
     },
     {
         icon: <FlaskConical className="w-4 h-4 text-accent" />,

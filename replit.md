@@ -22,7 +22,7 @@ It is grounded in four authoritative Indian and international standards:
 ### Simulation Engine
 | Feature | Detail |
 |---|---|
-| **EUI Prediction** | Gradient Boosted ensemble (XGBoost + Random Forest) trained on 15,000+ synthetic building records |
+| **EUI Prediction** | Gradient Boosted ensemble (XGBoost + Random Forest) trained on 25,000+ synthetic building records |
 | **Physics Hybrid** | Deterministic schedule scaling and plug-load overlay on top of the ML baseline |
 | **Sensitivity Analysis** | ±50% ceteris-paribus tornado chart — identifies highest-leverage design parameters |
 | **SHAP Explainability** | Per-input Shapley values showing how each parameter pushed EUI up or down |

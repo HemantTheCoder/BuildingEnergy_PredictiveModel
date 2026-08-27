@@ -1185,11 +1185,11 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
   const methodSections = [
     {
       title: '9.0 Training Data',
-      body: `Training dataset: N=${(model_metrics?.training_samples ?? 1504).toLocaleString()} synthetic building energy profiles generated via parametric EnergyPlus 23.2 simulation sweeps across all five ECBC 2017 climate zones. Input ranges calibrated to BEE benchmark EUI envelopes for office, retail, and healthcare archetypes. Synthetic simulation-based training is standard practice in building ML literature (cf. Fayaz & Kim 2018; Dino & Üçoluk 2017). Selected model: ${formData?.model_type || 'XGBoost'} with 5-fold cross-validation. 80/20 train/test split. 19 physics-informed features.`
+      body: `Training dataset: N=${(model_metrics?.training_samples ?? 25015).toLocaleString()} building energy profiles — a physics-calibrated parametric sweep (ISO 13790 heat balance, ECBC 2017, ASHRAE 90.1) across all five ECBC 2017 climate zones, anchored against 15 published real-building benchmarks (BEE 2014, IGBC 2022, TERI 2014/2019). Input ranges calibrated to BEE benchmark EUI envelopes for office, retail, and healthcare archetypes. Synthetic simulation-based training is standard practice in building ML literature (cf. Fayaz & Kim 2018; Dino & Üçoluk 2017). Selected model: ${formData?.model_type || 'XGBoost'} with 5-fold cross-validation. 80/20 train/test split. 19 physics-informed features.`
     },
     {
       title: '9.1 Hybrid Engine Architecture',
-      body: `The prediction engine combines Gradient-Boosted Decision Trees (${formData?.model_type || 'XGBoost'}) trained on synthetic EnergyPlus-calibrated building energy simulation datasets with deterministic thermodynamic physics equations. The ML component predicts the thermal envelope baseline EUI, while the physics layer accounts for internal loads (plug loads, occupancy metabolic heat) and schedule scaling.`
+      body: `The prediction engine combines Gradient-Boosted Decision Trees (${formData?.model_type || 'XGBoost'}) trained on synthetic, physics-calibrated (ISO 13790 / ECBC 2017 / ASHRAE 90.1) building energy simulation datasets with deterministic thermodynamic physics equations. The ML component predicts the thermal envelope baseline EUI, while the physics layer accounts for internal loads (plug loads, occupancy metabolic heat) and schedule scaling.`
     },
     {
       title: '9.2 Schedule & Occupancy Scaling',
@@ -1234,7 +1234,7 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
     ['CV MAE (5-Fold, μ ± σ)', model_metrics?.cv_mae_mean != null ? `${model_metrics.cv_mae_mean.toFixed(2)} ± ${(model_metrics.cv_mae_std ?? 0).toFixed(2)} kWh/m²·yr` : 'N/A', 'Cross-validation MAE — generalisation performance estimate'],
     ['Uncertainty (95% CI)', model_metrics?.uncertainty_ci ? `±${model_metrics.uncertainty_ci.toFixed(1)} kWh/m²·yr` : 'N/A', 'Bootstrap/ensemble confidence interval on this specific prediction'],
     ['Physics Anomaly Flag', evidence_panel?.physics_anomalies_detected ? 'DETECTED — low confidence' : 'None — inputs within normal bounds', 'Thermodynamic guardrail trigger: flags CDD>8000 or HDD>6000'],
-    ['Training Data', `N=${(model_metrics?.training_samples ?? 1504).toLocaleString()} synthetic profiles`, 'EnergyPlus parametric sweep calibrated to BEE benchmark EUI ranges'],
+    ['Training Data', `N=${(model_metrics?.training_samples ?? 25015).toLocaleString()} synthetic profiles`, 'ISO 13790 / ECBC 2017 / ASHRAE 90.1 physics-calibrated parametric sweep plus published BEE/IGBC/TERI benchmark anchors'],
   ];
   metricsData.forEach((row, ri) => {
     const rowY = y + ri * 7;

@@ -113,7 +113,7 @@ export default function ModelIntelligence({ results }: { results: any }) {
 
                     <div className="h-[380px] w-full">
                         {shapData.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
                                 <BarChart data={shapData} layout="vertical" margin={{ left: 10, right: 20 }}>
                                     <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v.toFixed(1)}`} />
                                     <YAxis

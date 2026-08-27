@@ -505,7 +505,7 @@ export default function CityComparison() {
                         <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-sm">
                             <h4 className="text-sm font-bold text-slate-100 mb-1">EUI & CO₂ Side-by-Side</h4>
                             <p className="text-[10px] text-slate-400 mb-5">Grouped bar — same building, two climate conditions</p>
-                            <ResponsiveContainer width="100%" height={220}>
+                            <ResponsiveContainer width="100%" height={220} debounce={50} minWidth={0}>
                                 <BarChart data={barData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                     <XAxis dataKey="metric" tick={{ fill: '#cbd5e1', fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -525,7 +525,7 @@ export default function CityComparison() {
                         <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-sm">
                             <h4 className="text-sm font-bold text-slate-100 mb-1">Multi-Metric Radar</h4>
                             <p className="text-[10px] text-slate-400 mb-5">Higher = more energy/heat demand (normalised 0–100)</p>
-                            <ResponsiveContainer width="100%" height={220}>
+                            <ResponsiveContainer width="100%" height={220} debounce={50} minWidth={0}>
                                 <RadarChart data={radarData}>
                                     <PolarGrid stroke="#e2e8f0" />
                                     <PolarAngleAxis dataKey="metric" tick={{ fill: '#cbd5e1', fontSize: 10 }} />

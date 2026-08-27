@@ -604,7 +604,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 <div className="premium-card bg-slate-800/50 p-6 h-72 border-white/10">
                                     <span className="text-xs font-bold text-slate-100 uppercase mb-2 block">Tornado Impact Analysis</span>
                                     <span className="text-[10px] text-slate-200 block mb-4">Shows variable influence on EUI (negative = energy reduction)</span>
-                                    <ResponsiveContainer width="100%" height="80%">
+                                    <ResponsiveContainer width="100%" height="80%" debounce={50} minWidth={0}>
                                         <BarChart layout="vertical" data={sensitivityData} margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
                                             <XAxis type="number" tick={{fill: '#cbd5e1', fontSize: 10}} axisLine={false} tickLine={false} unit=" kWh" />
@@ -728,7 +728,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                     Monthly Cooling &amp; Heating Degree-Days (base 18.3 °C) — derived from {climate_summary?.metadata?.source || 'climate data'}. Peak months drive the largest energy demand.
                                 </span>
                                 <div className="h-56">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
                                         <BarChart data={monthlyProfile} margin={{ top: 4, right: 10, left: -10, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                             <XAxis dataKey="month" tick={{fill: '#cbd5e1', fontSize: 11}} axisLine={false} tickLine={false} />
@@ -800,7 +800,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         <span className="text-[10px] text-slate-200 block">Lower EUI indicates better operational efficiency (kWh/m²·yr)</span>
                                     </div>
                                     <div className="flex-1 min-h-[160px]">
-                                        <ResponsiveContainer width="100%" height="100%">
+                                        <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
                                             <BarChart data={euiComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                                 <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 11}} axisLine={false} tickLine={false} />
@@ -823,7 +823,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                         <span className="text-[10px] text-slate-200 block">Lower is better for sustainability (kgCO2e)</span>
                                     </div>
                                     <div className="flex-1 min-h-[160px]">
-                                        <ResponsiveContainer width="100%" height="100%">
+                                        <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
                                             <BarChart data={carbonComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                                 <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 11}} axisLine={false} tickLine={false} />
@@ -854,7 +854,7 @@ export default function ResultsDashboard({ results, onPredict, formData }: any) 
                                 </span>
                                 <div className="flex flex-col lg:flex-row gap-6 items-center">
                                     <div className="w-full lg:w-[55%] h-72">
-                                        <ResponsiveContainer width="100%" height="100%">
+                                        <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
                                             <RadarChart data={radarScenarios.chartData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
                                                 <PolarGrid stroke="#e2e8f0" />
                                                 <PolarAngleAxis dataKey="metric" tick={{ fill: '#475569', fontSize: 10, fontWeight: 600 }} />

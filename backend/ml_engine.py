@@ -67,7 +67,7 @@ class MLEngine:
                 df = self.load_real_data()
                 self.training_samples = len(df)
             except Exception:
-                self.training_samples = 1504
+                self.training_samples = 25015
         return self.training_samples
 
     @staticmethod

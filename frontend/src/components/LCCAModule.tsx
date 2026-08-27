@@ -152,7 +152,7 @@ export default function LCCAModule({ formData, predicted_eui, baseline_eui }: an
                 </div>
 
                 <div className="md:col-span-2 h-64">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
                         <LineChart data={lccaData.data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                             <XAxis dataKey="year" tick={{fill: '#cbd5e1', fontSize: 10}} tickLine={false} axisLine={false} />

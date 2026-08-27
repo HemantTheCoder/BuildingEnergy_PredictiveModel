@@ -49,10 +49,10 @@ npm run dev
 
 ## Model Card
 
-- **Model Type**: XGBoost Regressor
-- **Training Data**: 1000 synthetic simulations based on thermal physics for Indian weather variations.
+- **Model Type**: XGBoost Regressor (ensemble with Random Forest / Ridge / Stacked Ensemble also available)
+- **Training Data**: 25,000+ physics-calibrated synthetic simulations (ISO 13790 / ECBC 2017 / ASHRAE 90.1) plus 15 published real-building benchmarks (BEE, IGBC, TERI), across all five ECBC 2017 climate zones.
 - **Target**: Annual Energy Use Intensity (EUI) in kWh/m²·yr.
-- **Performance**: MAE ~1.59, R² ~0.91 (on synthetic validation set).
+- **Performance**: MAE ~2.73, R² ~0.998 (on validation set).
 
 ## Data Sources & Citations
 

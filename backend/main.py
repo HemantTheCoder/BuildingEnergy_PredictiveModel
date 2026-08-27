@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, UploadFile, File
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Header, Depends
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Any
 import uvicorn
 import os
 import json
+import hmac
 import pandas as pd
 import traceback
 import math
@@ -109,15 +110,36 @@ async def ingest_bms_telemetry(payload: TelemetryPayload):
 class LoginRequest(BaseModel):
     password: str
 
+def _get_admin_password() -> str:
+    """Fails closed: the admin panel is unusable unless ADMIN_PASSWORD is explicitly set."""
+    pw = os.environ.get("ADMIN_PASSWORD")
+    if not pw:
+        raise HTTPException(
+            status_code=503,
+            detail="Admin panel is not configured (ADMIN_PASSWORD env var is unset).",
+        )
+    return pw
+
+def verify_admin_token(x_admin_token: Optional[str] = Header(default=None)) -> None:
+    """Server-side guard for mutating/sensitive admin routes.
+
+    The dashboard sends the password itself back as a bearer token (set once at
+    login and stored client-side), so every admin action is independently
+    authenticated rather than trusting a client-side 'logged in' flag.
+    """
+    admin_pass = _get_admin_password()
+    if not x_admin_token or not hmac.compare_digest(x_admin_token, admin_pass):
+        raise HTTPException(status_code=401, detail="Unauthorized - Missing or invalid admin token")
+
 @app.post("/admin/login")
 def admin_login(payload: LoginRequest):
-    _admin_pass = os.environ.get("ADMIN_PASSWORD", "secure_admin_123")
-    if payload.password == _admin_pass:
-        return {"status": "success", "token": "admin_session_active"}
+    admin_pass = _get_admin_password()
+    if hmac.compare_digest(payload.password, admin_pass):
+        return {"status": "success", "token": payload.password}
     raise HTTPException(status_code=401, detail="Unauthorized - Invalid Password")
 
 @app.get("/admin/logs")
-def get_admin_logs():
+def get_admin_logs(_: None = Depends(verify_admin_token)):
     backend_dir = os.path.dirname(os.path.abspath(__file__))
     log_path = os.path.join(backend_dir, "data", "models", "prediction_logs.jsonl")
     if not os.path.exists(log_path):
@@ -135,7 +157,7 @@ def get_admin_logs():
     return list(reversed(logs))[:50]
 
 @app.post("/admin/logs/clear")
-def clear_admin_logs():
+def clear_admin_logs(_: None = Depends(verify_admin_token)):
     backend_dir = os.path.dirname(os.path.abspath(__file__))
     log_path = os.path.join(backend_dir, "data", "models", "prediction_logs.jsonl")
     try:
@@ -147,7 +169,7 @@ def clear_admin_logs():
         raise HTTPException(status_code=500, detail=f"Failed to clear logs: {e}")
 
 @app.post("/admin/retrain")
-def force_retrain():
+def force_retrain(_: None = Depends(verify_admin_token)):
     try:
         engine.train_all()
         return {"status": "success", "metrics": engine.metrics}
@@ -644,7 +666,9 @@ DASHBOARD_JS = """
                 });
 
                 if (res.ok) {
+                    const data = await res.json();
                     localStorage.setItem("admin_session", "active");
+                    localStorage.setItem("admin_token", data.token);
                     setView("admin");
                     errorMsg.classList.add("hidden");
                     passInput.value = "";
@@ -664,16 +688,22 @@ DASHBOARD_JS = """
 
         function logOut() {
             localStorage.removeItem("admin_session");
+            localStorage.removeItem("admin_token");
             setView("status");
             window.history.pushState({}, "", "/");
+        }
+
+        function adminHeaders() {
+            return { "X-Admin-Token": localStorage.getItem("admin_token") || "" };
         }
 
         async function fetchLogs() {
             const tbody = document.getElementById("logs-table-body");
             try {
-                const res = await fetch(API_BASE + "/admin/logs");
+                const res = await fetch(API_BASE + "/admin/logs", { headers: adminHeaders() });
+                if (res.status === 401) { logOut(); return; }
                 const data = await res.json();
-                
+
                 tbody.innerHTML = "";
 
                 if (data.length === 0) {
@@ -721,9 +751,10 @@ DASHBOARD_JS = """
             text.innerText = "Running Retrain Pipeline...";
 
             try {
-                const res = await fetch(API_BASE + "/admin/retrain", { method: "POST" });
+                const res = await fetch(API_BASE + "/admin/retrain", { method: "POST", headers: adminHeaders() });
+                if (res.status === 401) { logOut(); return; }
                 const data = await res.json();
-                
+
                 if (res.ok) {
                     const now = new Date().toLocaleString("en-IN", { hour12: false });
                     const infoEl = document.getElementById("last-retrain-info");
@@ -749,7 +780,8 @@ DASHBOARD_JS = """
         async function clearTelemetryLogs() {
             if (!confirm("Are you sure you want to clear all operational prediction logs?")) return;
             try {
-                const res = await fetch(API_BASE + "/admin/logs/clear", { method: "POST" });
+                const res = await fetch(API_BASE + "/admin/logs/clear", { method: "POST", headers: adminHeaders() });
+                if (res.status === 401) { logOut(); return; }
                 if (res.ok) {
                     alert("Telemetry logs successfully cleared.");
                     fetchLogs();
@@ -763,7 +795,8 @@ DASHBOARD_JS = """
 
         async function downloadLogsCSV() {
             try {
-                const res = await fetch(API_BASE + "/admin/logs");
+                const res = await fetch(API_BASE + "/admin/logs", { headers: adminHeaders() });
+                if (res.status === 401) { logOut(); return; }
                 const data = await res.json();
                 if (!data || data.length === 0) { alert("No telemetry logs to export."); return; }
                 const keys = Object.keys(data[0]);

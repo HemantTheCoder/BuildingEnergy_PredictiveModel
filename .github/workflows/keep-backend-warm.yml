@@ -1,0 +1,22 @@
+name: Keep backend warm
+
+# Render's free tier spins the FastAPI backend down after ~15 minutes of
+# inactivity, and the next request then eats a 30-50s cold start. That's fine
+# day-to-day, but is a bad look mid-demo at a conference booth. This pings
+# /health every 10 minutes to keep the instance warm.
+#
+# Safe to delete this workflow (or disable it under Actions) once it's no
+# longer needed — it costs nothing on a public repo, but there's no reason to
+# keep pinging a demo indefinitely.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 60 https://buildingenergy-predictivemodel.onrender.com/health
